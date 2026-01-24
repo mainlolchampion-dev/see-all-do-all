@@ -66,15 +66,17 @@ serve(async (req) => {
       // Get metadata
       const userId = session.metadata?.user_id;
       const coins = parseInt(session.metadata?.coins || "0", 10);
+      const characterName = session.metadata?.character_name;
+      const accountName = session.metadata?.account_name;
       const customerEmail = session.customer_email || session.customer_details?.email;
 
-      logStep("Processing payment", { userId, coins, customerEmail, paymentStatus: session.payment_status });
+      logStep("Processing payment", { userId, coins, characterName, accountName, customerEmail, paymentStatus: session.payment_status });
 
       if (session.payment_status === "paid" && coins > 0) {
-        // Connect to L2 MySQL database and add coins
+        // Connect to L2 MySQL database and add coins to the specific character/account
         try {
-          await addCoinsToAccount(customerEmail, coins);
-          logStep("Coins added successfully", { email: customerEmail, coins });
+          await addCoinsToCharacter(characterName, accountName, coins);
+          logStep("Coins added successfully", { characterName, accountName, coins });
         } catch (dbError: unknown) {
           const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
           logStep("Database error", { error: errorMessage });
@@ -98,9 +100,13 @@ serve(async (req) => {
   }
 });
 
-async function addCoinsToAccount(email: string | null | undefined, coins: number) {
-  if (!email) {
-    throw new Error("No email provided");
+async function addCoinsToCharacter(
+  characterName: string | null | undefined, 
+  accountName: string | null | undefined, 
+  coins: number
+) {
+  if (!characterName && !accountName) {
+    throw new Error("No character or account name provided");
   }
 
   const host = Deno.env.get('L2_MYSQL_HOST');
@@ -126,56 +132,46 @@ async function addCoinsToAccount(email: string | null | undefined, coins: number
 
     logStep("Connected to MySQL");
 
-    // First, find the account by email
-    const accountResult = await client.query(
-      `SELECT login FROM accounts WHERE email = ? LIMIT 1`,
-      [email]
-    );
+    let targetAccountName = accountName;
 
-    if (accountResult.length === 0) {
-      logStep("Account not found by email, trying to create donation record anyway");
-      
-      // Try to insert into donations table directly with email
-      try {
-        await client.execute(
-          `INSERT INTO donations (email, coins, created_at, status) VALUES (?, ?, NOW(), 'completed')`,
-          [email, coins]
-        );
-        logStep("Donation record created with email");
-      } catch {
-        logStep("Donations table might not exist with this schema");
+    // If we don't have account name, get it from the character
+    if (!targetAccountName && characterName) {
+      const charResult = await client.query(
+        `SELECT account_name FROM characters WHERE char_name = ? LIMIT 1`,
+        [characterName]
+      );
+
+      if (charResult.length === 0) {
+        throw new Error(`Character ${characterName} not found`);
       }
-      
-      await client.close();
-      return;
+
+      targetAccountName = charResult[0].account_name;
+      logStep("Found account from character", { characterName, accountName: targetAccountName });
     }
 
-    const accountLogin = accountResult[0].login;
-    logStep("Found account", { login: accountLogin });
-
-    // Try to add coins - first attempt: donate_points column in accounts
+    // Try to add coins to the account - first attempt: donate_points column in accounts
     try {
       await client.execute(
         `UPDATE accounts SET donate_points = COALESCE(donate_points, 0) + ? WHERE login = ?`,
-        [coins, accountLogin]
+        [coins, targetAccountName]
       );
-      logStep("Updated donate_points in accounts table");
+      logStep("Updated donate_points in accounts table", { accountName: targetAccountName, coins });
     } catch {
       logStep("donate_points column doesn't exist, trying alternative methods");
       
       // Alternative: Insert into donations table
       try {
         await client.execute(
-          `INSERT INTO donations (account_name, coins, created_at, status) VALUES (?, ?, NOW(), 'completed')`,
-          [accountLogin, coins]
+          `INSERT INTO donations (account_name, char_name, coins, created_at, status) VALUES (?, ?, ?, NOW(), 'completed')`,
+          [targetAccountName, characterName || '', coins]
         );
         logStep("Inserted into donations table");
       } catch {
         // Alternative: Try custom_donates table (common in L2J)
         try {
           await client.execute(
-            `INSERT INTO custom_donates (account_name, coins, date) VALUES (?, ?, NOW())`,
-            [accountLogin, coins]
+            `INSERT INTO custom_donates (account_name, char_name, coins, date) VALUES (?, ?, ?, NOW())`,
+            [targetAccountName, characterName || '', coins]
           );
           logStep("Inserted into custom_donates table");
         } catch {

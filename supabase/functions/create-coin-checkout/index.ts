@@ -48,7 +48,7 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     // Get request body
-    const { coins, amount } = await req.json();
+    const { coins, amount, characterName, accountName } = await req.json();
     
     if (!coins || coins < 100) {
       throw new Error("Minimum 100 coins required");
@@ -58,7 +58,11 @@ serve(async (req) => {
       throw new Error("Minimum amount is 1 EUR (100 cents)");
     }
 
-    logStep("Request data", { coins, amount });
+    if (!characterName || !characterName.trim()) {
+      throw new Error("Character name is required");
+    }
+
+    logStep("Request data", { coins, amount, characterName, accountName });
 
     // Initialize Stripe
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -91,7 +95,7 @@ serve(async (req) => {
             currency: "eur",
             product_data: {
               name: `${coins.toLocaleString()} Donation Coins`,
-              description: `Purchase ${coins.toLocaleString()} coins for your account`,
+              description: `Coins για τον χαρακτήρα: ${characterName}`,
             },
             unit_amount: amount, // amount in cents
           },
@@ -99,11 +103,13 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${origin}/donate?success=true&coins=${coins}`,
+      success_url: `${origin}/donate?success=true&coins=${coins}&char=${encodeURIComponent(characterName)}`,
       cancel_url: `${origin}/donate?canceled=true`,
       metadata: {
         user_id: user.id,
         coins: coins.toString(),
+        character_name: characterName.trim(),
+        account_name: accountName || "",
       },
     });
 
