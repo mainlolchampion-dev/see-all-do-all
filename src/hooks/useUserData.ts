@@ -18,9 +18,9 @@ export interface UserData {
   donationCoins: number;
 }
 
-async function fetchUserData(email: string): Promise<UserData> {
+async function fetchUserData(login?: string, email?: string): Promise<UserData> {
   const { data, error } = await supabase.functions.invoke("user-data", {
-    body: { email },
+    body: { login, email },
   });
 
   if (error) {
@@ -36,11 +36,11 @@ async function fetchUserData(email: string): Promise<UserData> {
   return data as UserData;
 }
 
-export function useUserData(email: string | null | undefined) {
+export function useUserData(login?: string | null, email?: string | null) {
   return useQuery({
-    queryKey: ["user-data", email],
-    queryFn: () => fetchUserData(email!),
-    enabled: !!email,
+    queryKey: ["user-data", login, email],
+    queryFn: () => fetchUserData(login || undefined, email || undefined),
+    enabled: !!(login || email),
     staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 60 * 1000, // Refresh every minute
     retry: 1,
