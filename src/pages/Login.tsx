@@ -26,7 +26,7 @@ export default function Login() {
     
     toast({
       title: "Login Successful!",
-      description: "Welcome back to L2 Nemeziz.",
+      description: "Welcome back to L2 ALL STARS.",
     });
   };
 

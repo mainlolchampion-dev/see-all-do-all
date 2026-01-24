@@ -20,7 +20,7 @@ export function DiscordWidget() {
       <div className="bg-[#5865F2] p-4 flex items-center gap-3">
         <Discord className="w-6 h-6 text-white" />
         <div>
-          <h3 className="font-semibold text-white">L2 Nemeziz Discord</h3>
+          <h3 className="font-semibold text-white">L2 ALL STARS Discord</h3>
           <p className="text-xs text-white/70">Join our community</p>
         </div>
       </div>
@@ -56,7 +56,7 @@ export function DiscordWidget() {
           className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white"
           asChild
         >
-          <a href="https://discord.gg/l2nemeziz" target="_blank" rel="noopener noreferrer">
+          <a href="https://discord.gg/l2allstars" target="_blank" rel="noopener noreferrer">
             <MessageCircle className="w-4 h-4 mr-2" />
             Join Discord
           </a>
