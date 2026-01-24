@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CreditCard, Coins, Info } from "lucide-react";
+import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
 // Coin presets for quick selection (matching the reference image)
 const COIN_PRESETS = [0, 500, 900, 1500, 3000, 5000, 10000, 15000, 25000];
 const MIN_COINS = 100;
@@ -16,9 +18,50 @@ const COINS_PER_EURO = 100; // 100 coins = 1€
 export default function Donate() {
   const [coins, setCoins] = useState(500);
   const [isLoading, setIsLoading] = useState(false);
+  const [characterName, setCharacterName] = useState("");
+  const [isValidatingChar, setIsValidatingChar] = useState(false);
+  const [charValidation, setCharValidation] = useState<{
+    valid: boolean | null;
+    error?: string;
+    accountName?: string;
+  }>({ valid: null });
   const { toast } = useToast();
 
   const price = coins / COINS_PER_EURO; // Calculate price in euros
+
+  // Debounced character validation
+  useEffect(() => {
+    if (!characterName.trim()) {
+      setCharValidation({ valid: null });
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsValidatingChar(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('validate-character', {
+          body: { characterName: characterName.trim() }
+        });
+
+        if (error) throw error;
+
+        setCharValidation({
+          valid: data.valid,
+          error: data.error,
+          accountName: data.accountName
+        });
+      } catch (error: any) {
+        setCharValidation({
+          valid: false,
+          error: "Σφάλμα επικοινωνίας με τον server"
+        });
+      } finally {
+        setIsValidatingChar(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [characterName]);
 
   const handleSliderChange = (value: number[]) => {
     setCoins(Math.max(MIN_COINS, value[0]));
@@ -42,6 +85,25 @@ export default function Donate() {
   };
 
   const handlePurchase = async () => {
+    // Validate character first
+    if (!characterName.trim()) {
+      toast({
+        title: "Απαιτείται Character Name",
+        description: "Πρέπει να βάλεις το όνομα του χαρακτήρα που θα λάβει τα coins.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (charValidation.valid !== true) {
+      toast({
+        title: "Μη έγκυρος χαρακτήρας",
+        description: charValidation.error || "Ο χαρακτήρας δεν βρέθηκε στον server.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (coins < MIN_COINS) {
       toast({
         title: "Ελάχιστη ποσότητα",
@@ -70,9 +132,15 @@ export default function Donate() {
         setIsLoading(false);
         return;
       }
-      // Call the checkout edge function
+
+      // Call the checkout edge function with character name
       const { data, error } = await supabase.functions.invoke('create-coin-checkout', {
-        body: { coins, amount: Math.round(price * 100) } // amount in cents
+        body: { 
+          coins, 
+          amount: Math.round(price * 100), // amount in cents
+          characterName: characterName.trim(),
+          accountName: charValidation.accountName
+        }
       });
 
       if (error) throw error;
@@ -118,6 +186,51 @@ export default function Donate() {
             className="max-w-4xl mx-auto"
           >
             <div className="gaming-card rounded-2xl p-8 md:p-12">
+              {/* Character Name Input */}
+              <div className="mb-8">
+                <Label htmlFor="characterName" className="text-lg font-semibold text-foreground mb-2 block">
+                  <User className="w-5 h-5 inline mr-2" />
+                  Character Name
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="characterName"
+                    type="text"
+                    value={characterName}
+                    onChange={(e) => setCharacterName(e.target.value)}
+                    placeholder="Βάλε το όνομα του χαρακτήρα σου..."
+                    className={`h-14 text-lg pr-12 ${
+                      charValidation.valid === true 
+                        ? 'border-emerald-500 focus-visible:ring-emerald-500' 
+                        : charValidation.valid === false 
+                          ? 'border-destructive focus-visible:ring-destructive' 
+                          : ''
+                    }`}
+                    maxLength={16}
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    {isValidatingChar ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                    ) : charValidation.valid === true ? (
+                      <CheckCircle className="w-5 h-5 text-emerald-500" />
+                    ) : charValidation.valid === false ? (
+                      <XCircle className="w-5 h-5 text-destructive" />
+                    ) : null}
+                  </div>
+                </div>
+                {charValidation.valid === false && charValidation.error && (
+                  <p className="text-sm text-destructive mt-2">{charValidation.error}</p>
+                )}
+                {charValidation.valid === true && (
+                  <p className="text-sm text-emerald-500 mt-2">
+                    ✓ Ο χαρακτήρας βρέθηκε!
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground mt-2">
+                  Τα coins θα πιστωθούν στον χαρακτήρα που θα επιλέξεις.
+                </p>
+              </div>
+
               {/* Coin Display */}
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center gap-3 mb-2">
@@ -193,13 +306,13 @@ export default function Donate() {
               {/* Purchase Button */}
               <Button
                 onClick={handlePurchase}
-                disabled={isLoading || coins < MIN_COINS}
+                disabled={isLoading || coins < MIN_COINS || charValidation.valid !== true || isValidatingChar}
                 className="w-full h-14 text-lg font-semibold btn-glow"
                 size="lg"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
-                    <span className="animate-spin">⏳</span>
+                    <Loader2 className="w-5 h-5 animate-spin" />
                     Επεξεργασία...
                   </span>
                 ) : (
