@@ -33,7 +33,6 @@ const donations = [
 export default function UCP() {
   const [activeTab, setActiveTab] = useState("overview");
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [accountName, setAccountName] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -46,24 +45,25 @@ export default function UCP() {
         return;
       }
       setUserEmail(session.user.email || null);
-      // Use the email prefix as account name for L2 database lookup
-      // This assumes the L2 account name matches the email prefix
-      const emailPrefix = session.user.email?.split("@")[0] || null;
-      setAccountName(emailPrefix);
     };
     getUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
         navigate("/login");
+      } else {
+        setUserEmail(session.user.email || null);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Fetch user data from L2 MySQL database
-  const { data: userData, isLoading, error } = useUserData(accountName);
+  // Fetch user data from L2 MySQL database using email
+  const { data: userData, isLoading, error } = useUserData(userEmail);
+
+  // Check if error is "not linked" error
+  const notLinkedError = error && (error as any).notLinked;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -74,7 +74,7 @@ export default function UCP() {
     navigate("/login");
   };
 
-  if (!accountName) {
+  if (!userEmail) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Navbar />
@@ -105,7 +105,7 @@ export default function UCP() {
                     <User className="w-6 h-6 text-background" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">{accountName}</h3>
+                    <h3 className="font-semibold">{userData?.login || userEmail?.split("@")[0]}</h3>
                     <p className="text-xs text-muted-foreground">
                       {userData?.characterCount || 0} Characters
                     </p>
@@ -159,10 +159,28 @@ export default function UCP() {
               )}
 
               {/* Error State */}
-              {error && !isLoading && (
+              {error && !isLoading && !notLinkedError && (
                 <div className="gaming-card rounded-xl p-6 text-center">
                   <p className="text-destructive mb-2">Failed to load account data</p>
                   <p className="text-sm text-muted-foreground">{error.message}</p>
+                </div>
+              )}
+
+              {/* Not Linked Error State */}
+              {notLinkedError && !isLoading && (
+                <div className="space-y-6">
+                  <div className="gaming-card rounded-xl p-8 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Mail className="w-8 h-8 text-primary" />
+                    </div>
+                    <h2 className="font-display text-xl font-bold mb-2">Account Not Linked</h2>
+                    <p className="text-muted-foreground mb-4">
+                      Your email <span className="text-primary font-medium">{userEmail}</span> is not linked to any L2 game account.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Please make sure your L2 game account has the same email address, or contact support to link your accounts.
+                    </p>
+                  </div>
                 </div>
               )}
 

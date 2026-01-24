@@ -77,11 +77,11 @@ serve(async (req) => {
   }
 
   try {
-    const { login } = await req.json();
+    const { login, email } = await req.json();
 
-    if (!login) {
+    if (!login && !email) {
       return new Response(
-        JSON.stringify({ error: 'Login/account name is required' }),
+        JSON.stringify({ error: 'Login or email is required' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
@@ -112,6 +112,39 @@ serve(async (req) => {
       "MySQL connect"
     );
 
+    // If email is provided, find the login from accounts table
+    let accountLogin = login;
+    
+    if (!login && email) {
+      try {
+        const accountResult = await withTimeout(
+          client.query(
+            `SELECT login FROM accounts WHERE email = ? LIMIT 1`,
+            [email]
+          ),
+          QUERY_TIMEOUT_MS,
+          "MySQL query account by email"
+        );
+        
+        if (accountResult.length === 0) {
+          await client.close();
+          return new Response(
+            JSON.stringify({ error: 'No L2 account found linked to this email', notLinked: true }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+          );
+        }
+        
+        accountLogin = accountResult[0].login;
+      } catch (emailQueryError) {
+        console.error("Email lookup error:", emailQueryError);
+        await client.close();
+        return new Response(
+          JSON.stringify({ error: 'Failed to lookup account by email' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        );
+      }
+    }
+
     // Query characters for this account
     const characters: Character[] = [];
     
@@ -122,7 +155,7 @@ serve(async (req) => {
            FROM characters 
            WHERE account_name = ? 
            ORDER BY level DESC`,
-          [login]
+          [accountLogin]
         ),
         QUERY_TIMEOUT_MS,
         "MySQL query characters"
@@ -149,7 +182,7 @@ serve(async (req) => {
       const donationResult = await withTimeout(
         client.query(
           `SELECT SUM(amount) as total FROM donations WHERE account_name = ?`,
-          [login]
+          [accountLogin]
         ),
         QUERY_TIMEOUT_MS,
         "MySQL query donations"
@@ -161,7 +194,7 @@ serve(async (req) => {
         const coinsResult = await withTimeout(
           client.query(
             `SELECT donate_points FROM accounts WHERE login = ?`,
-            [login]
+            [accountLogin]
           ),
           QUERY_TIMEOUT_MS,
           "MySQL query account coins"
@@ -191,7 +224,7 @@ serve(async (req) => {
     }));
 
     const accountData: AccountData = {
-      login: login,
+      login: accountLogin,
       characters: transformedCharacters as any,
       characterCount: characters.length,
       donationCoins: donationCoins,
