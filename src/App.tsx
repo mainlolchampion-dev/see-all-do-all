@@ -11,6 +11,7 @@ import Donate from "./pages/Donate";
 import Rankings from "./pages/Rankings";
 import Features from "./pages/Features";
 import Media from "./pages/Media";
+import News from "./pages/News";
 import UCP from "./pages/UCP";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/rankings" element={<Rankings />} />
           <Route path="/features" element={<Features />} />
           <Route path="/media" element={<Media />} />
+          <Route path="/news" element={<News />} />
           <Route path="/ucp" element={<UCP />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
