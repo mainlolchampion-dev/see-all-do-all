@@ -56,7 +56,7 @@ export function DiscordWidget() {
           className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white"
           asChild
         >
-          <a href="https://discord.gg/l2allstars" target="_blank" rel="noopener noreferrer">
+          <a href="https://discord.gg/PGCWBavr" target="_blank" rel="noopener noreferrer">
             <MessageCircle className="w-4 h-4 mr-2" />
             Join Discord
           </a>
