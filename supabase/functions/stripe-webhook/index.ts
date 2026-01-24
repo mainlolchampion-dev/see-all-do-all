@@ -41,7 +41,8 @@ serve(async (req) => {
     // If webhook secret is configured, verify signature
     if (webhookSecret && signature) {
       try {
-        event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+        // Deno uses WebCrypto which is async; Stripe requires constructEventAsync in this environment.
+        event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
         logStep("Signature verified");
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : String(err);
