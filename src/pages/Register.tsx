@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, User } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,14 +15,36 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
 
+  const validateUsername = (username: string): string | null => {
+    if (username.length < 4 || username.length > 14) {
+      return "Το username πρέπει να είναι 4-14 χαρακτήρες";
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+      return "Το username πρέπει να περιέχει μόνο γράμματα και αριθμούς";
+    }
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate username
+    const usernameError = validateUsername(formData.username);
+    if (usernameError) {
+      toast({
+        title: "Σφάλμα",
+        description: usernameError,
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Σφάλμα",
@@ -32,10 +54,10 @@ export default function Register() {
       return;
     }
 
-    if (formData.password.length < 6) {
+    if (formData.password.length < 6 || formData.password.length > 16) {
       toast({
         title: "Σφάλμα",
-        description: "Ο κωδικός πρέπει να είναι τουλάχιστον 6 χαρακτήρες.",
+        description: "Ο κωδικός πρέπει να είναι 6-16 χαρακτήρες.",
         variant: "destructive",
       });
       return;
@@ -44,26 +66,55 @@ export default function Register() {
     setIsLoading(true);
     
     try {
+      // Step 1: Create L2 game account first
+      const l2Response = await supabase.functions.invoke('create-l2-account', {
+        body: {
+          login: formData.username,
+          password: formData.password,
+          email: formData.email,
+        }
+      });
+
+      if (l2Response.error || !l2Response.data?.success) {
+        const errorMsg = l2Response.data?.error || l2Response.error?.message || "Σφάλμα δημιουργίας game account";
+        throw new Error(errorMsg);
+      }
+
+      // Step 2: Create Supabase web account
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           emailRedirectTo: window.location.origin,
+          data: {
+            l2_login: formData.username.toLowerCase(),
+          }
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Note: L2 account was already created - inform user
+        console.error("Supabase signup error:", error);
+        toast({
+          title: "Προσοχή",
+          description: "Ο game account δημιουργήθηκε, αλλά υπήρξε σφάλμα με το web account. Μπορείς να συνδεθείς στο game με username: " + formData.username.toLowerCase(),
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
+      }
 
       toast({
-        title: "Ο λογαριασμός δημιουργήθηκε!",
-        description: "Μπορείς τώρα να συνδεθείς.",
+        title: "Ο λογαριασμός δημιουργήθηκε! 🎮",
+        description: `Username για το game: ${formData.username.toLowerCase()}`,
       });
       
       navigate("/login");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Κάτι πήγε στραβά.";
       toast({
         title: "Σφάλμα εγγραφής",
-        description: error.message || "Κάτι πήγε στραβά.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -91,6 +142,30 @@ export default function Register() {
 
             <div className="gaming-card rounded-xl p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Username - for L2 game login */}
+                <div className="space-y-2">
+                  <Label htmlFor="username">Game Username</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="Username για το game (4-14 χαρακτήρες)"
+                      className="pl-10 bg-muted/50 border-border"
+                      value={formData.username}
+                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                      required
+                      minLength={4}
+                      maxLength={14}
+                      pattern="[a-zA-Z0-9]+"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Αυτό θα είναι το login σου στο game client
+                  </p>
+                </div>
+
+                {/* Email */}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
@@ -107,6 +182,7 @@ export default function Register() {
                   </div>
                 </div>
 
+                {/* Password */}
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
@@ -114,12 +190,13 @@ export default function Register() {
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter password (min 6 chars)"
+                      placeholder="Enter password (6-16 χαρακτήρες)"
                       className="pl-10 pr-10 bg-muted/50 border-border"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       required
                       minLength={6}
+                      maxLength={16}
                     />
                     <button
                       type="button"
@@ -131,6 +208,7 @@ export default function Register() {
                   </div>
                 </div>
 
+                {/* Confirm Password */}
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <div className="relative">
