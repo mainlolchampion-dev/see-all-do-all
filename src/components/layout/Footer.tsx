@@ -66,7 +66,7 @@ export function Footer() {
                 <Discord className="w-5 h-5" />
               </a>
               <a
-                href="https://www.youtube.com/@PredatoR_Lineage2"
+                href="https://www.youtube.com/@Lineage2AllStars"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
