@@ -9,11 +9,9 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-gold flex items-center justify-center">
-                <span className="font-display font-bold text-background text-lg">L2</span>
-              </div>
-              <span className="font-display text-xl font-semibold text-gradient-gold">
-                NEMEZIZ
+              <span className="font-display text-xl font-bold tracking-wide">
+                <span className="text-gradient-gold">L2</span>
+                <span className="text-foreground ml-1">ALL STARS</span>
               </span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -90,7 +88,7 @@ export function Footer() {
         <div className="ornament-divider my-8" />
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© 2024 L2 Nemeziz. All rights reserved.</p>
+          <p>© 2024 L2 ALL STARS. All rights reserved.</p>
           <div className="flex gap-4">
             <Link to="/privacy" className="hover:text-primary transition-colors">
               Privacy Policy

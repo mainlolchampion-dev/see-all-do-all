@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Cinzel", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Orbitron", "sans-serif"],
+        sans: ["Rajdhani", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -37,7 +37,8 @@ export function HeroSection() {
 
           {/* Main Title */}
           <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold mb-6">
-            <span className="text-gradient-gold">NEMEZIZ</span>
+            <span className="text-gradient-gold">L2</span>
+            <span className="text-foreground ml-3">ALL STARS</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-foreground/80 mb-4 font-display tracking-wider">
