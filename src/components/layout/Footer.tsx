@@ -66,7 +66,7 @@ export function Footer() {
                 <Discord className="w-5 h-5" />
               </a>
               <a
-                href="https://youtube.com/"
+                href="https://www.youtube.com/@PredatoR_Lineage2"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
@@ -74,7 +74,7 @@ export function Footer() {
                 <Youtube className="w-5 h-5" />
               </a>
               <a
-                href="https://facebook.com/"
+                href="https://www.facebook.com/people/L2-All-Stars/61584288393357/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
