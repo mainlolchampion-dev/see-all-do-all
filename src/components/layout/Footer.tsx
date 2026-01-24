@@ -9,7 +9,7 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <span className="font-display text-xl font-bold tracking-wide">
+              <span className="text-xl font-bold tracking-wide" style={{ fontFamily: "'Cinzel Decorative', cursive" }}>
                 <span className="text-gradient-gold">L2</span>
                 <span className="text-foreground ml-1">ALL STARS</span>
               </span>

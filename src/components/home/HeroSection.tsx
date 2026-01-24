@@ -36,7 +36,7 @@ export function HeroSection() {
           </motion.div>
 
           {/* Main Title */}
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold mb-6">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6" style={{ fontFamily: "'Cinzel Decorative', cursive" }}>
             <span className="text-gradient-gold">L2</span>
             <span className="text-foreground ml-3">ALL STARS</span>
           </h1>
