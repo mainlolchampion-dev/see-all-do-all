@@ -100,13 +100,16 @@ serve(async (req) => {
   }
 });
 
+// Donate Coin Item ID in L2
+const DONATE_COIN_ITEM_ID = 100108;
+
 async function addCoinsToCharacter(
   characterName: string | null | undefined, 
   accountName: string | null | undefined, 
   coins: number
 ) {
-  if (!characterName && !accountName) {
-    throw new Error("No character or account name provided");
+  if (!characterName) {
+    throw new Error("No character name provided");
   }
 
   const host = Deno.env.get('L2_MYSQL_HOST');
@@ -132,57 +135,52 @@ async function addCoinsToCharacter(
 
     logStep("Connected to MySQL");
 
-    let targetAccountName = accountName;
+    // Get character's charId (object_id)
+    const charResult = await client.query(
+      `SELECT charId, account_name FROM characters WHERE char_name = ? LIMIT 1`,
+      [characterName]
+    );
 
-    // If we don't have account name, get it from the character
-    if (!targetAccountName && characterName) {
-      const charResult = await client.query(
-        `SELECT account_name FROM characters WHERE char_name = ? LIMIT 1`,
-        [characterName]
-      );
-
-      if (charResult.length === 0) {
-        throw new Error(`Character ${characterName} not found`);
-      }
-
-      targetAccountName = charResult[0].account_name;
-      logStep("Found account from character", { characterName, accountName: targetAccountName });
+    if (charResult.length === 0) {
+      throw new Error(`Character ${characterName} not found`);
     }
 
-    // Try to add coins to the account - first attempt: donate_points column in accounts
-    try {
+    const charId = charResult[0].charId;
+    const charAccountName = charResult[0].account_name;
+    logStep("Found character", { characterName, charId, accountName: charAccountName });
+
+    // Check if character already has donate coins in inventory
+    const existingItem = await client.query(
+      `SELECT object_id, count FROM items WHERE owner_id = ? AND item_id = ? AND loc = 'INVENTORY' LIMIT 1`,
+      [charId, DONATE_COIN_ITEM_ID]
+    );
+
+    if (existingItem.length > 0) {
+      // Update existing item count
+      const newCount = existingItem[0].count + coins;
       await client.execute(
-        `UPDATE accounts SET donate_points = COALESCE(donate_points, 0) + ? WHERE login = ?`,
-        [coins, targetAccountName]
+        `UPDATE items SET count = ? WHERE object_id = ?`,
+        [newCount, existingItem[0].object_id]
       );
-      logStep("Updated donate_points in accounts table", { accountName: targetAccountName, coins });
-    } catch {
-      logStep("donate_points column doesn't exist, trying alternative methods");
-      
-      // Alternative: Insert into donations table
-      try {
-        await client.execute(
-          `INSERT INTO donations (account_name, char_name, coins, created_at, status) VALUES (?, ?, ?, NOW(), 'completed')`,
-          [targetAccountName, characterName || '', coins]
-        );
-        logStep("Inserted into donations table");
-      } catch {
-        // Alternative: Try custom_donates table (common in L2J)
-        try {
-          await client.execute(
-            `INSERT INTO custom_donates (account_name, char_name, coins, date) VALUES (?, ?, ?, NOW())`,
-            [targetAccountName, characterName || '', coins]
-          );
-          logStep("Inserted into custom_donates table");
-        } catch {
-          logStep("Could not find suitable table for coins. Manual intervention required.");
-          throw new Error("No suitable coins table found");
-        }
-      }
+      logStep("Updated existing donate coins", { charId, objectId: existingItem[0].object_id, oldCount: existingItem[0].count, newCount });
+    } else {
+      // Generate a new unique object_id for the item
+      const maxIdResult = await client.query(
+        `SELECT COALESCE(MAX(object_id), 268435456) + 1 AS next_id FROM items`
+      );
+      const newObjectId = maxIdResult[0].next_id;
+
+      // Insert new item into character's inventory
+      await client.execute(
+        `INSERT INTO items (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, custom_type1, custom_type2, mana_left, time) 
+         VALUES (?, ?, ?, ?, 0, 'INVENTORY', 0, 0, 0, -1, -1)`,
+        [charId, newObjectId, DONATE_COIN_ITEM_ID, coins]
+      );
+      logStep("Created new donate coins item", { charId, objectId: newObjectId, itemId: DONATE_COIN_ITEM_ID, count: coins });
     }
 
     await client.close();
-    logStep("Database connection closed");
+    logStep("Database connection closed - Coins added to character inventory!");
     
   } catch (error) {
     try {
