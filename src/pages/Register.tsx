@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Register() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -24,22 +25,50 @@ export default function Register() {
     
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "Error",
-        description: "Passwords do not match",
+        title: "Σφάλμα",
+        description: "Οι κωδικοί δεν ταιριάζουν.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast({
+        title: "Σφάλμα",
+        description: "Ο κωδικός πρέπει να είναι τουλάχιστον 6 χαρακτήρες.",
         variant: "destructive",
       });
       return;
     }
 
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsLoading(false);
     
-    toast({
-      title: "Account Created!",
-      description: "You can now login and start playing.",
-    });
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: window.location.origin,
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Ο λογαριασμός δημιουργήθηκε!",
+        description: "Μπορείς τώρα να συνδεθείς.",
+      });
+      
+      navigate("/login");
+    } catch (error: any) {
+      toast({
+        title: "Σφάλμα εγγραφής",
+        description: error.message || "Κάτι πήγε στραβά.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -63,21 +92,6 @@ export default function Register() {
             <div className="gaming-card rounded-xl p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      id="username"
-                      placeholder="Enter username"
-                      className="pl-10 bg-muted/50 border-border"
-                      value={formData.username}
-                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -100,11 +114,12 @@ export default function Register() {
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter password"
+                      placeholder="Enter password (min 6 chars)"
                       className="pl-10 pr-10 bg-muted/50 border-border"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       required
+                      minLength={6}
                     />
                     <button
                       type="button"
@@ -133,7 +148,7 @@ export default function Register() {
                 </div>
 
                 <Button type="submit" className="w-full btn-glow" size="lg" disabled={isLoading}>
-                  {isLoading ? "Creating Account..." : "Create Account"}
+                  {isLoading ? "Δημιουργία..." : "Create Account"}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </form>
