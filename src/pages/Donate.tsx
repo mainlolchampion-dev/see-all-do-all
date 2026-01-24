@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { CreditCard, Coins, Info } from "lucide-react";
-import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -61,13 +60,13 @@ export default function Donate() {
       if (!session) {
         toast({
           title: "Απαιτείται σύνδεση",
-          description: (
-            <span>
-              Πρέπει να <Link to="/login" className="underline text-primary">συνδεθείς</Link> ή να <Link to="/register" className="underline text-primary">δημιουργήσεις λογαριασμό</Link> για να αγοράσεις coins.
-            </span>
-          ),
+          description: "Πρέπει να συνδεθείς ή να δημιουργήσεις λογαριασμό για να αγοράσεις coins.",
           variant: "destructive",
         });
+        // Redirect to login after a short delay
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1500);
         setIsLoading(false);
         return;
       }
