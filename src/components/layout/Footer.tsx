@@ -58,7 +58,7 @@ export function Footer() {
             <h4 className="font-display text-sm font-semibold text-foreground mb-4">Community</h4>
             <div className="flex gap-3">
               <a
-                href="https://discord.gg/"
+                href="https://discord.gg/PGCWBavr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
