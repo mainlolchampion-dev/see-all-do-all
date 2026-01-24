@@ -1,51 +1,95 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { CreditCard, Gift, Coins, Crown, Star, CheckCircle } from "lucide-react";
+import { CreditCard, Coins, Info } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-const packages = [
-  {
-    name: "Starter",
-    price: 5,
-    coins: 500,
-    bonus: 0,
-    popular: false,
-    features: ["500 Donation Coins", "Basic cosmetic items", "Forum badge"],
-  },
-  {
-    name: "Hunter",
-    price: 15,
-    coins: 1600,
-    bonus: 100,
-    popular: false,
-    features: ["1,600 Donation Coins", "+100 Bonus Coins", "Exclusive title", "Premium cosmetics"],
-  },
-  {
-    name: "Champion",
-    price: 30,
-    coins: 3500,
-    bonus: 500,
-    popular: true,
-    features: ["3,500 Donation Coins", "+500 Bonus Coins", "Exclusive mount", "VIP status", "Priority support"],
-  },
-  {
-    name: "Legend",
-    price: 50,
-    coins: 6000,
-    bonus: 1000,
-    popular: false,
-    features: ["6,000 Donation Coins", "+1,000 Bonus Coins", "Legendary cosmetics", "Lifetime VIP", "Custom title"],
-  },
-];
-
-const paymentMethods = [
-  { name: "PayPal", icon: "💳" },
-  { name: "Credit Card", icon: "💳" },
-  { name: "Crypto", icon: "₿" },
-  { name: "Paysafecard", icon: "🎫" },
-];
+// Coin presets for quick selection (matching the reference image)
+const COIN_PRESETS = [0, 500, 900, 1500, 3000, 5000, 10000, 15000, 25000];
+const MIN_COINS = 100;
+const MAX_COINS = 25000;
+const COINS_PER_EURO = 100; // 100 coins = 1€
 
 export default function Donate() {
+  const [coins, setCoins] = useState(500);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const price = coins / COINS_PER_EURO; // Calculate price in euros
+
+  const handleSliderChange = (value: number[]) => {
+    setCoins(Math.max(MIN_COINS, value[0]));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || 0;
+    if (value >= MIN_COINS && value <= MAX_COINS) {
+      setCoins(value);
+    } else if (value < MIN_COINS) {
+      setCoins(MIN_COINS);
+    } else {
+      setCoins(MAX_COINS);
+    }
+  };
+
+  const handlePresetClick = (preset: number) => {
+    if (preset >= MIN_COINS) {
+      setCoins(preset);
+    }
+  };
+
+  const handlePurchase = async () => {
+    if (coins < MIN_COINS) {
+      toast({
+        title: "Ελάχιστη ποσότητα",
+        description: `Το ελάχιστο είναι ${MIN_COINS} coins.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Check if user is logged in
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Απαιτείται σύνδεση",
+          description: "Πρέπει να συνδεθείς για να αγοράσεις coins.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Call the checkout edge function
+      const { data, error } = await supabase.functions.invoke('create-coin-checkout', {
+        body: { coins, amount: Math.round(price * 100) } // amount in cents
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      toast({
+        title: "Σφάλμα",
+        description: error.message || "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="py-20">
@@ -54,96 +98,130 @@ export default function Donate() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-16"
+            className="text-center mb-12"
           >
             <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
-              <span className="text-gradient-gold">Support the Server</span>
+              <span className="text-gradient-gold">Donate Coins</span>
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Help us maintain and improve the server. Get exclusive rewards and cosmetic items.
+              Επίλεξε πόσα coins θέλεις να αγοράσεις. 100 Coins = 1€
             </p>
           </motion.div>
 
-          {/* Packages */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-16">
-            {packages.map((pkg, index) => (
-              <motion.div
-                key={pkg.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`gaming-card rounded-xl p-6 relative ${
-                  pkg.popular ? "border-primary ring-2 ring-primary/20" : ""
-                }`}
-              >
-                {pkg.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
-                    Most Popular
-                  </div>
-                )}
-                
-                <div className="text-center mb-6">
-                  <div className="w-14 h-14 mx-auto rounded-xl bg-primary/20 flex items-center justify-center mb-4">
-                    {pkg.popular ? (
-                      <Crown className="w-7 h-7 text-primary" />
-                    ) : (
-                      <Coins className="w-7 h-7 text-primary" />
-                    )}
-                  </div>
-                  <h3 className="font-display text-xl font-semibold mb-1">{pkg.name}</h3>
-                  <div className="text-3xl font-bold text-gradient-gold">${pkg.price}</div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    {pkg.coins.toLocaleString()} Coins
-                    {pkg.bonus > 0 && (
-                      <span className="text-primary"> +{pkg.bonus} Bonus</span>
-                    )}
-                  </div>
-                </div>
-
-                <ul className="space-y-2 mb-6">
-                  {pkg.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                      <span className="text-muted-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Button 
-                  className={`w-full ${pkg.popular ? "btn-glow" : ""}`}
-                  variant={pkg.popular ? "default" : "outline"}
-                >
-                  <CreditCard className="w-4 h-4 mr-2" />
-                  Purchase
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Payment Methods */}
+          {/* Main Coin Selector */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="max-w-3xl mx-auto"
+            transition={{ delay: 0.1 }}
+            className="max-w-4xl mx-auto"
           >
-            <div className="gaming-card rounded-xl p-8 text-center">
-              <h2 className="font-display text-2xl font-bold mb-6">
-                <span className="text-gradient-gold">Payment Methods</span>
-              </h2>
-              <div className="flex flex-wrap justify-center gap-4">
-                {paymentMethods.map((method) => (
-                  <div
-                    key={method.name}
-                    className="flex items-center gap-2 px-6 py-3 rounded-lg bg-muted/50"
+            <div className="gaming-card rounded-2xl p-8 md:p-12">
+              {/* Coin Display */}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center gap-3 mb-2">
+                  <Coins className="w-10 h-10 text-primary" />
+                  <Input
+                    type="number"
+                    value={coins}
+                    onChange={handleInputChange}
+                    min={MIN_COINS}
+                    max={MAX_COINS}
+                    className="w-40 text-center text-4xl font-bold bg-transparent border-none text-primary focus-visible:ring-0 focus-visible:ring-offset-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+                <p className="text-lg text-muted-foreground">Donation Coins</p>
+              </div>
+
+              {/* Preset Buttons */}
+              <div className="flex flex-wrap justify-center gap-2 mb-8">
+                {COIN_PRESETS.filter(p => p >= MIN_COINS).map((preset) => (
+                  <button
+                    key={preset}
+                    onClick={() => handlePresetClick(preset)}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
+                      coins === preset
+                        ? "bg-primary text-primary-foreground shadow-lg"
+                        : "bg-muted hover:bg-muted/80 text-foreground"
+                    }`}
                   >
-                    <span className="text-2xl">{method.icon}</span>
-                    <span className="font-medium">{method.name}</span>
-                  </div>
+                    {preset.toLocaleString()}
+                  </button>
                 ))}
               </div>
-              <p className="text-sm text-muted-foreground mt-6">
-                All donations are non-refundable. Coins are delivered instantly after payment confirmation.
+
+              {/* Slider */}
+              <div className="mb-8 px-4">
+                <div className="relative">
+                  {/* Slider Labels */}
+                  <div className="flex justify-between text-xs text-muted-foreground mb-3">
+                    {COIN_PRESETS.map((preset) => (
+                      <span 
+                        key={preset} 
+                        className={`${coins >= preset ? 'text-primary' : ''} transition-colors`}
+                      >
+                        {preset >= 1000 ? `${preset/1000}k` : preset}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <Slider
+                    value={[coins]}
+                    onValueChange={handleSliderChange}
+                    min={0}
+                    max={MAX_COINS}
+                    step={100}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
+              {/* Price Display */}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-baseline gap-1">
+                  <span className="text-5xl font-bold text-gradient-gold">
+                    €{price.toFixed(2)}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2 flex items-center justify-center gap-1">
+                  <Info className="w-4 h-4" />
+                  100 coins = €1.00
+                </p>
+              </div>
+
+              {/* Purchase Button */}
+              <Button
+                onClick={handlePurchase}
+                disabled={isLoading || coins < MIN_COINS}
+                className="w-full h-14 text-lg font-semibold btn-glow"
+                size="lg"
+              >
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin">⏳</span>
+                    Επεξεργασία...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <CreditCard className="w-5 h-5" />
+                    Αγορά {coins.toLocaleString()} Coins για €{price.toFixed(2)}
+                  </span>
+                )}
+              </Button>
+            </div>
+          </motion.div>
+
+          {/* Info Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="max-w-3xl mx-auto mt-8"
+          >
+            <div className="gaming-card rounded-xl p-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                Τα coins πιστώνονται αμέσως μετά την επιβεβαίωση πληρωμής. 
+                Όλες οι συναλλαγές είναι ασφαλείς μέσω Stripe. 
+                Τα donations δεν επιστρέφονται.
               </p>
             </div>
           </motion.div>
