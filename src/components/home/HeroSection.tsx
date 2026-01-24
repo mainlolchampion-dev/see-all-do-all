@@ -41,8 +41,8 @@ export function HeroSection() {
             <span className="text-foreground ml-3">ALL STARS</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-foreground/80 mb-4 font-display tracking-wider">
-            LINEAGE II HIGH FIVE
+          <p className="text-xl md:text-2xl text-foreground/80 mb-4 font-display tracking-wide">
+            LINEAGE <span className="tracking-tight">II</span> HIGH FIVE
           </p>
           
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
