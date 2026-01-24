@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Castle, Clock, Swords } from "lucide-react";
+import { Castle, Clock, Swords, Loader2 } from "lucide-react";
+import { useCastleData } from "@/hooks/useCastleData";
 
 interface TimeLeft {
   days: number;
@@ -44,6 +45,7 @@ function calculateTimeLeft(targetDate: Date): TimeLeft {
 export function SiegeTimer() {
   const [targetDate] = useState(getNextSiegeDate);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft(targetDate));
+  const { data: castles, isLoading } = useCastleData();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -52,6 +54,10 @@ export function SiegeTimer() {
 
     return () => clearInterval(timer);
   }, [targetDate]);
+
+  // Find Aden castle (id 5) or first castle with owner
+  const adenCastle = castles?.find(c => c.id === 5);
+  const featuredCastle = adenCastle || castles?.find(c => c.owner) || castles?.[0];
 
   const timeBlocks = [
     { label: "Days", value: timeLeft.days },
@@ -97,13 +103,29 @@ export function SiegeTimer() {
 
       {/* Castle Info */}
       <div className="mt-6 pt-4 border-t border-border">
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2">
-            <Swords className="w-4 h-4 text-primary" />
-            <span>Aden Castle</span>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-2">
+            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
           </div>
-          <span className="text-muted-foreground">Owner: Nemesis</span>
-        </div>
+        ) : featuredCastle ? (
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <Swords className="w-4 h-4 text-primary" />
+              <span>{featuredCastle.name} Castle</span>
+            </div>
+            <span className="text-muted-foreground">
+              Owner: {featuredCastle.owner || "None"}
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <Swords className="w-4 h-4 text-primary" />
+              <span>Aden Castle</span>
+            </div>
+            <span className="text-muted-foreground">Owner: None</span>
+          </div>
+        )}
       </div>
     </motion.div>
   );

@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserData } from "@/hooks/useUserData";
+import { useDonationHistory } from "@/hooks/useDonationHistory";
 import { useToast } from "@/hooks/use-toast";
 
 const sidebarLinks = [
@@ -21,13 +22,6 @@ const sidebarLinks = [
   { icon: History, label: "Donation History", tab: "donations" },
   { icon: Settings, label: "Settings", tab: "settings" },
   { icon: Shield, label: "Security", tab: "security" },
-];
-
-// Mock donations - TODO: Fetch from database when donation system is implemented
-const donations = [
-  { id: "#12345", date: "2024-01-20", amount: 30, coins: 3500, status: "Completed" },
-  { id: "#12298", date: "2024-01-10", amount: 15, coins: 1600, status: "Completed" },
-  { id: "#12150", date: "2023-12-25", amount: 50, coins: 6000, status: "Completed" },
 ];
 
 export default function UCP() {
@@ -76,6 +70,9 @@ export default function UCP() {
     linkedLogin || undefined, 
     linkedLogin ? undefined : userEmail
   );
+
+  // Fetch donation history
+  const { data: donations, isLoading: donationsLoading } = useDonationHistory(linkedLogin || undefined);
 
   // Check if error is "not linked" error
   const notLinkedError = error && (error as any).notLinked;
@@ -378,32 +375,45 @@ export default function UCP() {
                   <h1 className="font-display text-2xl font-bold text-gradient-gold">Donation History</h1>
                   
                   <div className="gaming-card rounded-xl overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-muted/50 border-b border-border">
-                        <tr>
-                          <th className="px-6 py-4 text-left text-sm font-semibold">Order ID</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold">Date</th>
-                          <th className="px-6 py-4 text-center text-sm font-semibold">Amount</th>
-                          <th className="px-6 py-4 text-center text-sm font-semibold">Coins</th>
-                          <th className="px-6 py-4 text-right text-sm font-semibold">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border">
-                        {donations.map((donation) => (
-                          <tr key={donation.id} className="hover:bg-muted/30 transition-colors">
-                            <td className="px-6 py-4 font-medium">{donation.id}</td>
-                            <td className="px-6 py-4 text-muted-foreground">{donation.date}</td>
-                            <td className="px-6 py-4 text-center">${donation.amount}</td>
-                            <td className="px-6 py-4 text-center text-gradient-gold font-semibold">{donation.coins.toLocaleString()}</td>
-                            <td className="px-6 py-4 text-right">
-                              <span className="px-2 py-1 rounded text-xs font-medium bg-primary/20 text-primary">
-                                {donation.status}
-                              </span>
-                            </td>
+                    {donationsLoading ? (
+                      <div className="flex items-center justify-center py-12">
+                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                        <span className="ml-2 text-muted-foreground">Loading donations...</span>
+                      </div>
+                    ) : donations && donations.length > 0 ? (
+                      <table className="w-full">
+                        <thead className="bg-muted/50 border-b border-border">
+                          <tr>
+                            <th className="px-6 py-4 text-left text-sm font-semibold">Order ID</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold">Date</th>
+                            <th className="px-6 py-4 text-center text-sm font-semibold">Amount</th>
+                            <th className="px-6 py-4 text-center text-sm font-semibold">Coins</th>
+                            <th className="px-6 py-4 text-right text-sm font-semibold">Status</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {donations.map((donation) => (
+                            <tr key={donation.id} className="hover:bg-muted/30 transition-colors">
+                              <td className="px-6 py-4 font-medium">{donation.id}</td>
+                              <td className="px-6 py-4 text-muted-foreground">{donation.date}</td>
+                              <td className="px-6 py-4 text-center">€{donation.amount}</td>
+                              <td className="px-6 py-4 text-center text-gradient-gold font-semibold">{donation.coins.toLocaleString()}</td>
+                              <td className="px-6 py-4 text-right">
+                                <span className="px-2 py-1 rounded text-xs font-medium bg-primary/20 text-primary">
+                                  {donation.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <History className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                        <p>No donation history found</p>
+                        <p className="text-sm mt-2">Your donations will appear here after you make a purchase.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
