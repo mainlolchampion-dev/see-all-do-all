@@ -33,10 +33,12 @@ const donations = [
 export default function UCP() {
   const [activeTab, setActiveTab] = useState("overview");
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [manualLogin, setManualLogin] = useState<string>("");
+  const [linkedLogin, setLinkedLogin] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Get the current user session
+  // Get the current user session and check for saved linked account
   useEffect(() => {
     const getUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -45,6 +47,12 @@ export default function UCP() {
         return;
       }
       setUserEmail(session.user.email || null);
+      
+      // Check if user has a saved linked L2 account in localStorage
+      const savedLogin = localStorage.getItem(`l2_linked_account_${session.user.id}`);
+      if (savedLogin) {
+        setLinkedLogin(savedLogin);
+      }
     };
     getUser();
 
@@ -53,17 +61,74 @@ export default function UCP() {
         navigate("/login");
       } else {
         setUserEmail(session.user.email || null);
+        const savedLogin = localStorage.getItem(`l2_linked_account_${session.user.id}`);
+        if (savedLogin) {
+          setLinkedLogin(savedLogin);
+        }
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Fetch user data from L2 MySQL database using email
-  const { data: userData, isLoading, error } = useUserData(userEmail);
+  // Fetch user data - try email first, then use linked login
+  const { data: userData, isLoading, error, refetch } = useUserData(
+    linkedLogin || undefined, 
+    linkedLogin ? undefined : userEmail
+  );
 
   // Check if error is "not linked" error
   const notLinkedError = error && (error as any).notLinked;
+
+  const handleLinkAccount = async () => {
+    if (!manualLogin.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your L2 account name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Try to fetch data with this login
+    const { data, error } = await supabase.functions.invoke("user-data", {
+      body: { login: manualLogin.trim() },
+    });
+
+    if (error || data?.error) {
+      toast({
+        title: "Account not found",
+        description: "No L2 account found with this name. Please check and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Save the linked account
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      localStorage.setItem(`l2_linked_account_${session.user.id}`, manualLogin.trim());
+      setLinkedLogin(manualLogin.trim());
+      toast({
+        title: "Account Linked!",
+        description: `Successfully linked to L2 account: ${manualLogin.trim()}`,
+      });
+      refetch();
+    }
+  };
+
+  const handleUnlinkAccount = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      localStorage.removeItem(`l2_linked_account_${session.user.id}`);
+      setLinkedLogin(null);
+      setManualLogin("");
+      toast({
+        title: "Account Unlinked",
+        description: "Your L2 account has been unlinked.",
+      });
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -166,28 +231,50 @@ export default function UCP() {
                 </div>
               )}
 
-              {/* Not Linked Error State */}
-              {notLinkedError && !isLoading && (
+              {/* Not Linked Error State - Show Link Form */}
+              {notLinkedError && !isLoading && !linkedLogin && (
                 <div className="space-y-6">
-                  <div className="gaming-card rounded-xl p-8 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Mail className="w-8 h-8 text-primary" />
+                  <div className="gaming-card rounded-xl p-8">
+                    <div className="text-center mb-6">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+                        <Key className="w-8 h-8 text-primary" />
+                      </div>
+                      <h2 className="font-display text-xl font-bold mb-2">Link Your L2 Account</h2>
+                      <p className="text-muted-foreground">
+                        Enter your L2 game account name to link it with your web account.
+                      </p>
                     </div>
-                    <h2 className="font-display text-xl font-bold mb-2">Account Not Linked</h2>
-                    <p className="text-muted-foreground mb-4">
-                      Your email <span className="text-primary font-medium">{userEmail}</span> is not linked to any L2 game account.
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Please make sure your L2 game account has the same email address, or contact support to link your accounts.
-                    </p>
+                    
+                    <div className="max-w-sm mx-auto space-y-4">
+                      <div>
+                        <Label htmlFor="l2-login">L2 Account Name</Label>
+                        <Input
+                          id="l2-login"
+                          placeholder="Enter your L2 login name"
+                          value={manualLogin}
+                          onChange={(e) => setManualLogin(e.target.value)}
+                          className="bg-muted/50 mt-1"
+                        />
+                      </div>
+                      <Button onClick={handleLinkAccount} className="w-full btn-glow">
+                        Link Account
+                      </Button>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Overview Tab */}
-              {activeTab === "overview" && !isLoading && (
+              {activeTab === "overview" && !isLoading && !notLinkedError && (
                 <div className="space-y-6">
-                  <h1 className="font-display text-2xl font-bold text-gradient-gold">Account Overview</h1>
+                  <div className="flex items-center justify-between">
+                    <h1 className="font-display text-2xl font-bold text-gradient-gold">Account Overview</h1>
+                    {linkedLogin && (
+                      <Button variant="outline" size="sm" onClick={handleUnlinkAccount}>
+                        Unlink Account
+                      </Button>
+                    )}
+                  </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="gaming-card rounded-xl p-6">
@@ -236,7 +323,7 @@ export default function UCP() {
               )}
 
               {/* Characters Tab */}
-              {activeTab === "characters" && !isLoading && (
+              {activeTab === "characters" && !isLoading && !notLinkedError && (
                 <div className="space-y-6">
                   <h1 className="font-display text-2xl font-bold text-gradient-gold">My Characters</h1>
                   
@@ -286,7 +373,7 @@ export default function UCP() {
               )}
 
               {/* Donations Tab */}
-              {activeTab === "donations" && !isLoading && (
+              {activeTab === "donations" && !isLoading && !notLinkedError && (
                 <div className="space-y-6">
                   <h1 className="font-display text-2xl font-bold text-gradient-gold">Donation History</h1>
                   
@@ -322,7 +409,7 @@ export default function UCP() {
               )}
 
               {/* Settings Tab */}
-              {activeTab === "settings" && !isLoading && (
+              {activeTab === "settings" && !isLoading && !notLinkedError && (
                 <div className="space-y-6">
                   <h1 className="font-display text-2xl font-bold text-gradient-gold">Account Settings</h1>
                   
@@ -365,7 +452,7 @@ export default function UCP() {
               )}
 
               {/* Security Tab */}
-              {activeTab === "security" && !isLoading && (
+              {activeTab === "security" && !isLoading && !notLinkedError && (
                 <div className="space-y-6">
                   <h1 className="font-display text-2xl font-bold text-gradient-gold">Security</h1>
                   
