@@ -19,6 +19,17 @@ interface ServerStatus {
   uptime: string;
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timeoutId: number | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+  });
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId);
+  }) as Promise<T>;
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -36,14 +47,22 @@ serve(async (req) => {
       throw new Error('Missing MySQL configuration');
     }
 
-    // Connect to MySQL
-    const client = await new Client().connect({
-      hostname: host,
-      port: port,
-      db: database,
-      username: username,
-      password: password,
-    });
+    const CONNECT_TIMEOUT_MS = 2500;
+    const QUERY_TIMEOUT_MS = 2500;
+
+    // Connect to MySQL (with a hard timeout so the function always returns quickly)
+    const client = new Client();
+    await withTimeout(
+      client.connect({
+        hostname: host,
+        port: port,
+        db: database,
+        username: username,
+        password: password,
+      }),
+      CONNECT_TIMEOUT_MS,
+      "MySQL connect",
+    );
 
     // Query for online players count
     // This query is typical for L2J/L2OFF servers - adjust table/column names as needed
@@ -54,8 +73,12 @@ serve(async (req) => {
     try {
       // Try common L2 database table names
       // L2J High Five typically uses 'characters' table with 'online' column
-      const result = await client.query(
-        `SELECT COUNT(*) as count FROM characters WHERE online = 1`
+      const result = await withTimeout(
+        client.query(
+          `SELECT COUNT(*) as count FROM characters WHERE online = 1`,
+        ),
+        QUERY_TIMEOUT_MS,
+        "MySQL query",
       );
       onlinePlayers = result[0]?.count || 0;
       gameStatus = "online";
@@ -64,8 +87,12 @@ serve(async (req) => {
       
       try {
         // Alternative: some servers use 'accounts' or different structure
-        const result = await client.query(
-          `SELECT COUNT(*) as count FROM accounts WHERE lastactive > DATE_SUB(NOW(), INTERVAL 5 MINUTE)`
+        const result = await withTimeout(
+          client.query(
+            `SELECT COUNT(*) as count FROM accounts WHERE lastactive > DATE_SUB(NOW(), INTERVAL 5 MINUTE)`,
+          ),
+          QUERY_TIMEOUT_MS,
+          "MySQL query (alt)",
         );
         onlinePlayers = result[0]?.count || 0;
         gameStatus = "online";
@@ -75,7 +102,11 @@ serve(async (req) => {
       }
     }
 
-    await client.close();
+    try {
+      await client.close();
+    } catch {
+      // ignore
+    }
 
     const serverStatus: ServerStatus = {
       loginServer: {
