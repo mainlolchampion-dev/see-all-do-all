@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   User, Settings, Sword, History, CreditCard, Shield, LogOut, ChevronRight,
-  Key, Mail, Bell, Lock, UserCircle
+  Key, Mail, Bell, Lock, UserCircle, Loader2
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { useUserData } from "@/hooks/useUserData";
+import { useToast } from "@/hooks/use-toast";
 
 const sidebarLinks = [
   { icon: UserCircle, label: "Account Overview", tab: "overview" },
@@ -21,12 +23,7 @@ const sidebarLinks = [
   { icon: Shield, label: "Security", tab: "security" },
 ];
 
-const characters = [
-  { name: "DarkElf", class: "Ghost Hunter", level: 85, online: true },
-  { name: "Mage01", class: "Archmage", level: 78, online: false },
-  { name: "Tank123", class: "Phoenix Knight", level: 72, online: false },
-];
-
+// Mock donations - TODO: Fetch from database when donation system is implemented
 const donations = [
   { id: "#12345", date: "2024-01-20", amount: 30, coins: 3500, status: "Completed" },
   { id: "#12298", date: "2024-01-10", amount: 15, coins: 1600, status: "Completed" },
@@ -35,6 +32,59 @@ const donations = [
 
 export default function UCP() {
   const [activeTab, setActiveTab] = useState("overview");
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [accountName, setAccountName] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // Get the current user session
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/login");
+        return;
+      }
+      setUserEmail(session.user.email || null);
+      // Use the email prefix as account name for L2 database lookup
+      // This assumes the L2 account name matches the email prefix
+      const emailPrefix = session.user.email?.split("@")[0] || null;
+      setAccountName(emailPrefix);
+    };
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        navigate("/login");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  // Fetch user data from L2 MySQL database
+  const { data: userData, isLoading, error } = useUserData(accountName);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+    navigate("/login");
+  };
+
+  if (!accountName) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -55,8 +105,10 @@ export default function UCP() {
                     <User className="w-6 h-6 text-background" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">DarkElf</h3>
-                    <p className="text-xs text-muted-foreground">VIP Member</p>
+                    <h3 className="font-semibold">{accountName}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {userData?.characterCount || 0} Characters
+                    </p>
                   </div>
                 </div>
 
@@ -80,11 +132,13 @@ export default function UCP() {
                 </nav>
 
                 <div className="mt-4 pt-4 border-t border-border">
-                  <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive" asChild>
-                    <Link to="/login">
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </Link>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start text-muted-foreground hover:text-destructive"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
                   </Button>
                 </div>
               </div>
@@ -96,82 +150,125 @@ export default function UCP() {
               animate={{ opacity: 1, y: 0 }}
               className="flex-1"
             >
+              {/* Loading State */}
+              {isLoading && (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <span className="ml-2 text-muted-foreground">Loading account data...</span>
+                </div>
+              )}
+
+              {/* Error State */}
+              {error && !isLoading && (
+                <div className="gaming-card rounded-xl p-6 text-center">
+                  <p className="text-destructive mb-2">Failed to load account data</p>
+                  <p className="text-sm text-muted-foreground">{error.message}</p>
+                </div>
+              )}
+
               {/* Overview Tab */}
-              {activeTab === "overview" && (
+              {activeTab === "overview" && !isLoading && (
                 <div className="space-y-6">
                   <h1 className="font-display text-2xl font-bold text-gradient-gold">Account Overview</h1>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="gaming-card rounded-xl p-6">
                       <div className="text-sm text-muted-foreground mb-1">Donation Coins</div>
-                      <div className="text-3xl font-bold text-gradient-gold">4,250</div>
+                      <div className="text-3xl font-bold text-gradient-gold">
+                        {userData?.donationCoins?.toLocaleString() || "0"}
+                      </div>
                     </div>
                     <div className="gaming-card rounded-xl p-6">
                       <div className="text-sm text-muted-foreground mb-1">Characters</div>
-                      <div className="text-3xl font-bold">3</div>
+                      <div className="text-3xl font-bold">{userData?.characterCount || 0}</div>
                     </div>
                     <div className="gaming-card rounded-xl p-6">
                       <div className="text-sm text-muted-foreground mb-1">Account Status</div>
-                      <div className="text-lg font-semibold text-primary">VIP Active</div>
+                      <div className="text-lg font-semibold text-primary">
+                        {userData?.characters?.some(c => c.online) ? "Online" : "Offline"}
+                      </div>
                     </div>
                   </div>
 
                   <div className="gaming-card rounded-xl p-6">
-                    <h2 className="font-display text-lg font-semibold mb-4">Recent Activity</h2>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between py-2 border-b border-border">
-                        <span className="text-sm">Logged in from new device</span>
-                        <span className="text-xs text-muted-foreground">2 hours ago</span>
+                    <h2 className="font-display text-lg font-semibold mb-4">Your Characters</h2>
+                    {userData?.characters && userData.characters.length > 0 ? (
+                      <div className="space-y-3">
+                        {userData.characters.slice(0, 5).map((char) => (
+                          <div key={char.name} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                            <div className="flex items-center gap-3">
+                              <Sword className="w-5 h-5 text-primary" />
+                              <div>
+                                <span className="font-medium flex items-center gap-2">
+                                  {char.name}
+                                  {char.online && <span className="w-2 h-2 rounded-full bg-green-500" />}
+                                </span>
+                                <span className="text-xs text-muted-foreground block">{char.class}</span>
+                              </div>
+                            </div>
+                            <span className="text-sm font-semibold text-primary">Lv. {char.level}</span>
+                          </div>
+                        ))}
                       </div>
-                      <div className="flex items-center justify-between py-2 border-b border-border">
-                        <span className="text-sm">Password changed</span>
-                        <span className="text-xs text-muted-foreground">3 days ago</span>
-                      </div>
-                      <div className="flex items-center justify-between py-2">
-                        <span className="text-sm">Donation: $30 (Champion)</span>
-                        <span className="text-xs text-muted-foreground">5 days ago</span>
-                      </div>
-                    </div>
+                    ) : (
+                      <p className="text-muted-foreground text-sm">No characters found for this account.</p>
+                    )}
                   </div>
                 </div>
               )}
 
               {/* Characters Tab */}
-              {activeTab === "characters" && (
+              {activeTab === "characters" && !isLoading && (
                 <div className="space-y-6">
                   <h1 className="font-display text-2xl font-bold text-gradient-gold">My Characters</h1>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {characters.map((char) => (
-                      <div key={char.name} className="gaming-card rounded-xl p-6">
-                        <div className="flex items-center gap-4 mb-4">
-                          <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center">
-                            <Sword className="w-7 h-7 text-primary" />
+                  {userData?.characters && userData.characters.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {userData.characters.map((char) => (
+                        <div key={char.name} className="gaming-card rounded-xl p-6">
+                          <div className="flex items-center gap-4 mb-4">
+                            <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center">
+                              <Sword className="w-7 h-7 text-primary" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold flex items-center gap-2">
+                                {char.name}
+                                {char.online && <span className="w-2 h-2 rounded-full bg-green-500" />}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">{char.class}</p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-semibold flex items-center gap-2">
-                              {char.name}
-                              {char.online && <span className="w-2 h-2 rounded-full status-online" />}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">{char.class}</p>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">Level</span>
+                              <span className="font-bold text-primary">{char.level}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">PvP Kills</span>
+                              <span className="font-semibold">{char.pvpkills}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">PK Kills</span>
+                              <span className="font-semibold text-destructive">{char.pkkills}</span>
+                            </div>
+                          </div>
+                          <div className="mt-4 flex gap-2">
+                            <Button size="sm" variant="outline" className="flex-1">Teleport</Button>
+                            <Button size="sm" variant="outline" className="flex-1">Unstuck</Button>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Level</span>
-                          <span className="font-bold text-primary">{char.level}</span>
-                        </div>
-                        <div className="mt-4 flex gap-2">
-                          <Button size="sm" variant="outline" className="flex-1">Teleport</Button>
-                          <Button size="sm" variant="outline" className="flex-1">Unstuck</Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="gaming-card rounded-xl p-6 text-center">
+                      <p className="text-muted-foreground">No characters found for this account.</p>
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Donations Tab */}
-              {activeTab === "donations" && (
+              {activeTab === "donations" && !isLoading && (
                 <div className="space-y-6">
                   <h1 className="font-display text-2xl font-bold text-gradient-gold">Donation History</h1>
                   
@@ -207,7 +304,7 @@ export default function UCP() {
               )}
 
               {/* Settings Tab */}
-              {activeTab === "settings" && (
+              {activeTab === "settings" && !isLoading && (
                 <div className="space-y-6">
                   <h1 className="font-display text-2xl font-bold text-gradient-gold">Account Settings</h1>
                   
@@ -218,7 +315,7 @@ export default function UCP() {
                         Email Address
                       </h2>
                       <div className="flex gap-4">
-                        <Input defaultValue="user@example.com" className="bg-muted/50" />
+                        <Input defaultValue={userEmail || ""} className="bg-muted/50" disabled />
                         <Button variant="outline">Update</Button>
                       </div>
                     </div>
@@ -250,7 +347,7 @@ export default function UCP() {
               )}
 
               {/* Security Tab */}
-              {activeTab === "security" && (
+              {activeTab === "security" && !isLoading && (
                 <div className="space-y-6">
                   <h1 className="font-display text-2xl font-bold text-gradient-gold">Security</h1>
                   
