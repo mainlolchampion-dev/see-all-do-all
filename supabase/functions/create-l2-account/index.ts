@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
 import { encodeBase64 } from "https://deno.land/std@0.224.0/encoding/base64.ts";
+import { crypto } from "https://deno.land/std@0.224.0/crypto/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -24,11 +25,17 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   }) as Promise<T>;
 }
 
-// L2J uses Base64 encoded passwords
-function encodeL2Password(password: string): string {
+// L2J uses Base64(SHA1(password)) format
+async function encodeL2Password(password: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
-  return encodeBase64(data);
+  
+  // SHA1 hash
+  const hashBuffer = await crypto.subtle.digest("SHA-1", data);
+  const hashArray = new Uint8Array(hashBuffer);
+  
+  // Base64 encode the SHA1 hash
+  return encodeBase64(hashArray);
 }
 
 // Validate login name (alphanumeric, 4-14 characters)
@@ -144,8 +151,8 @@ serve(async (req) => {
         );
       }
 
-      // Encode password for L2J (Base64)
-      const encodedPassword = encodeL2Password(password);
+      // Encode password for L2J (SHA1 + Base64)
+      const encodedPassword = await encodeL2Password(password);
 
       // Insert new account
       // Standard L2J accounts table structure
