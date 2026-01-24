@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { CreditCard, Coins, Info } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
 // Coin presets for quick selection (matching the reference image)
 const COIN_PRESETS = [0, 500, 900, 1500, 3000, 5000, 10000, 15000, 25000];
 const MIN_COINS = 100;
@@ -61,13 +61,16 @@ export default function Donate() {
       if (!session) {
         toast({
           title: "Απαιτείται σύνδεση",
-          description: "Πρέπει να συνδεθείς για να αγοράσεις coins.",
+          description: (
+            <span>
+              Πρέπει να <Link to="/login" className="underline text-primary">συνδεθείς</Link> ή να <Link to="/register" className="underline text-primary">δημιουργήσεις λογαριασμό</Link> για να αγοράσεις coins.
+            </span>
+          ),
           variant: "destructive",
         });
         setIsLoading(false);
         return;
       }
-
       // Call the checkout edge function
       const { data, error } = await supabase.functions.invoke('create-coin-checkout', {
         body: { coins, amount: Math.round(price * 100) } // amount in cents
