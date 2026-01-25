@@ -33,11 +33,12 @@ serve(async (req) => {
 
     const trimmedName = characterName.trim();
     
-    // Validate character name format (alphanumeric, 1-16 characters)
-    if (!/^[a-zA-Z0-9]{1,16}$/.test(trimmedName)) {
+    // Validate character name format (allow letters, numbers, spaces, and common L2 special chars like {}, [], etc.)
+    // Max 35 characters to accommodate longer names with titles
+    if (trimmedName.length > 35 || trimmedName.length < 1) {
       return new Response(JSON.stringify({ 
         valid: false, 
-        error: "Invalid character name format" 
+        error: "Character name must be 1-35 characters" 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
