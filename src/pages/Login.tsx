@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 export default function Login() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/ucp";
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -36,7 +38,7 @@ export default function Login() {
         description: "Καλώς ήρθες στο L2 ALL STARS.",
       });
       
-      navigate("/ucp");
+      navigate(redirectTo);
     } catch (error: any) {
       toast({
         title: "Σφάλμα σύνδεσης",
@@ -121,8 +123,8 @@ export default function Login() {
               <div className="mt-6 text-center">
                 <p className="text-sm text-muted-foreground">
                   Don't have an account?{" "}
-                  <Link to="/register" className="text-primary hover:underline">
-                    Register now
+                  <Link to="/create-account" className="text-primary hover:underline">
+                    Create Account
                   </Link>
                 </p>
               </div>

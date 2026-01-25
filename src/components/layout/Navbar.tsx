@@ -57,9 +57,9 @@ export function Navbar() {
               </Link>
             </Button>
             <Button size="sm" className="btn-glow" asChild>
-              <Link to="/register" className="flex items-center gap-2">
+              <Link to="/create-account" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Register
+                Create Account
               </Link>
             </Button>
           </div>
@@ -106,9 +106,9 @@ export function Navbar() {
                   </Link>
                 </Button>
                 <Button className="w-full btn-glow" asChild>
-                  <Link to="/register" onClick={() => setIsOpen(false)}>
+                  <Link to="/create-account" onClick={() => setIsOpen(false)}>
                     <User className="w-4 h-4 mr-2" />
-                    Register
+                    Create Account
                   </Link>
                 </Button>
               </div>

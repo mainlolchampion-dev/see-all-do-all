@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   User, Settings, Sword, History, CreditCard, Shield, LogOut, ChevronRight,
@@ -15,17 +15,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserData } from "@/hooks/useUserData";
 import { useDonationHistory } from "@/hooks/useDonationHistory";
 import { useToast } from "@/hooks/use-toast";
+import { DonateTab } from "@/components/ucp/DonateTab";
 
 const sidebarLinks = [
   { icon: UserCircle, label: "Account Overview", tab: "overview" },
   { icon: Sword, label: "Characters", tab: "characters" },
+  { icon: CreditCard, label: "Buy Coins", tab: "donate" },
   { icon: History, label: "Donation History", tab: "donations" },
   { icon: Settings, label: "Settings", tab: "settings" },
   { icon: Shield, label: "Security", tab: "security" },
 ];
 
 export default function UCP() {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "overview";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [manualLogin, setManualLogin] = useState<string>("");
   const [linkedLogin, setLinkedLogin] = useState<string | null>(null);
@@ -367,6 +371,14 @@ export default function UCP() {
                     </div>
                   )}
                 </div>
+              )}
+
+              {/* Donate Tab */}
+              {activeTab === "donate" && !isLoading && !notLinkedError && (
+                <DonateTab 
+                  linkedLogin={linkedLogin} 
+                  characters={userData?.characters}
+                />
               )}
 
               {/* Donations Tab */}
