@@ -15,6 +15,13 @@ import News from "./pages/News";
 import UCP from "./pages/UCP";
 import NotFound from "./pages/NotFound";
 
+// Admin Pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminNews from "./pages/admin/AdminNews";
+import AdminDownloads from "./pages/admin/AdminDownloads";
+import AdminMedia from "./pages/admin/AdminMedia";
+import AdminSettings from "./pages/admin/AdminSettings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -35,6 +42,14 @@ const App = () => (
           <Route path="/media" element={<Media />} />
           <Route path="/news" element={<News />} />
           <Route path="/ucp" element={<UCP />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/news" element={<AdminNews />} />
+          <Route path="/admin/downloads" element={<AdminDownloads />} />
+          <Route path="/admin/media" element={<AdminMedia />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
