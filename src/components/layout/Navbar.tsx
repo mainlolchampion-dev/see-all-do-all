@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, User, LogIn } from "lucide-react";
+import { Menu, X, User, LogIn, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -15,7 +16,22 @@ const navLinks = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -50,18 +66,29 @@ export function Navbar() {
 
           {/* Auth Buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/login" className="flex items-center gap-2">
-                <LogIn className="w-4 h-4" />
-                Login
-              </Link>
-            </Button>
-            <Button size="sm" className="btn-glow" asChild>
-              <Link to="/create-account" className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Create Account
-              </Link>
-            </Button>
+            {isLoggedIn ? (
+              <Button size="sm" className="btn-glow" asChild>
+                <Link to="/ucp" className="flex items-center gap-2">
+                  <UserCircle className="w-4 h-4" />
+                  My Account
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/login" className="flex items-center gap-2">
+                    <LogIn className="w-4 h-4" />
+                    Login
+                  </Link>
+                </Button>
+                <Button size="sm" className="btn-glow" asChild>
+                  <Link to="/create-account" className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Create Account
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -99,18 +126,29 @@ export function Navbar() {
                 </Link>
               ))}
               <div className="pt-4 border-t border-border space-y-2">
-                <Button variant="outline" className="w-full" asChild>
-                  <Link to="/login" onClick={() => setIsOpen(false)}>
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Login
-                  </Link>
-                </Button>
-                <Button className="w-full btn-glow" asChild>
-                  <Link to="/create-account" onClick={() => setIsOpen(false)}>
-                    <User className="w-4 h-4 mr-2" />
-                    Create Account
-                  </Link>
-                </Button>
+                {isLoggedIn ? (
+                  <Button className="w-full btn-glow" asChild>
+                    <Link to="/ucp" onClick={() => setIsOpen(false)}>
+                      <UserCircle className="w-4 h-4 mr-2" />
+                      My Account
+                    </Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/login" onClick={() => setIsOpen(false)}>
+                        <LogIn className="w-4 h-4 mr-2" />
+                        Login
+                      </Link>
+                    </Button>
+                    <Button className="w-full btn-glow" asChild>
+                      <Link to="/create-account" onClick={() => setIsOpen(false)}>
+                        <User className="w-4 h-4 mr-2" />
+                        Create Account
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
