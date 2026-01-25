@@ -30,7 +30,7 @@ export function CTASection() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" className="btn-glow text-lg px-10 py-6" asChild>
-              <Link to="/register">
+              <Link to="/create-account">
                 <Gamepad2 className="w-5 h-5 mr-2" />
                 Create Free Account
               </Link>
