@@ -17,7 +17,7 @@ export function Footer() {
               <img 
                 src={logo} 
                 alt="L2 All Stars" 
-                className="h-20 w-auto brightness-125 drop-shadow-[0_0_20px_rgba(234,179,8,0.7)]" 
+                className="h-28 w-auto brightness-150 contrast-110 drop-shadow-[0_0_30px_rgba(234,179,8,0.9)] saturate-125" 
               />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
