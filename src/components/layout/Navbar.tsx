@@ -45,7 +45,7 @@ export function Navbar() {
             <img 
               src={logo} 
               alt="L2 All Stars" 
-              className="h-14 w-auto brightness-125 drop-shadow-[0_0_15px_rgba(234,179,8,0.6)]" 
+              className="h-20 w-auto brightness-150 contrast-110 drop-shadow-[0_0_25px_rgba(234,179,8,0.8)] saturate-125" 
             />
           </Link>
 
