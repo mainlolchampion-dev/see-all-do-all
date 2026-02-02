@@ -42,7 +42,11 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="L2 All Stars" className="h-10 w-auto" />
+            <img 
+              src={logo} 
+              alt="L2 All Stars" 
+              className="h-14 w-auto brightness-125 drop-shadow-[0_0_15px_rgba(234,179,8,0.6)]" 
+            />
           </Link>
 
           {/* Desktop Navigation */}

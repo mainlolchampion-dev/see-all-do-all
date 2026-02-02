@@ -14,7 +14,11 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center mb-4">
-              <img src={logo} alt="L2 All Stars" className="h-12 w-auto" />
+              <img 
+                src={logo} 
+                alt="L2 All Stars" 
+                className="h-20 w-auto brightness-125 drop-shadow-[0_0_20px_rgba(234,179,8,0.7)]" 
+              />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               The ultimate Lineage 2 High Five experience. Join thousands of players in epic battles.
