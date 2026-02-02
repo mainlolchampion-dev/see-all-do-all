@@ -39,13 +39,17 @@ export function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20 md:h-24">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img 
-              src={logo} 
-              alt="L2 All Stars" 
-              className="h-20 w-auto brightness-150 contrast-110 drop-shadow-[0_0_25px_rgba(234,179,8,0.8)] saturate-125" 
+          <Link to="/" className="relative flex items-center">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-4 rounded-full bg-[radial-gradient(closest-side,rgba(250,204,21,0.45),transparent)] blur-xl opacity-80"
+            />
+            <img
+              src={logo}
+              alt="L2 All Stars"
+              className="relative h-14 sm:h-16 md:h-20 w-auto brightness-125 contrast-125 saturate-120 drop-shadow-[0_0_18px_rgba(250,204,21,0.6)] drop-shadow-[0_0_40px_rgba(234,179,8,0.35)]"
             />
           </Link>
 

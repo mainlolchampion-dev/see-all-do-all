@@ -13,11 +13,15 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link to="/" className="flex items-center mb-4">
-              <img 
-                src={logo} 
-                alt="L2 All Stars" 
-                className="h-28 w-auto brightness-150 contrast-110 drop-shadow-[0_0_30px_rgba(234,179,8,0.9)] saturate-125" 
+            <Link to="/" className="relative flex items-center mb-4">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute -inset-6 rounded-full bg-[radial-gradient(closest-side,rgba(250,204,21,0.5),transparent)] blur-2xl opacity-80"
+              />
+              <img
+                src={logo}
+                alt="L2 All Stars"
+                className="relative h-24 sm:h-28 md:h-32 w-auto brightness-125 contrast-125 saturate-120 drop-shadow-[0_0_22px_rgba(250,204,21,0.65)] drop-shadow-[0_0_50px_rgba(234,179,8,0.4)]"
               />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
