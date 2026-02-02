@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -30,10 +31,39 @@ serve(async (req) => {
   try {
     const { login } = await req.json();
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Missing Supabase configuration");
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Unauthorized", donations: [] }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+
+    if (userError || !userData.user) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Unauthorized", donations: [] }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
+
+    const user = userData.user;
+    const userEmail = (user.email || "").toLowerCase();
+    const linkedLogin = (user.user_metadata?.l2_login || "").toString().toLowerCase();
+
     if (!login) {
       return new Response(
         JSON.stringify({ success: false, error: "Login required", donations: [] }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
 
@@ -60,6 +90,34 @@ serve(async (req) => {
     );
 
     try {
+      let allowedLogin = linkedLogin;
+
+      if (!allowedLogin && userEmail) {
+        try {
+          const accountResult = await withTimeout(
+            client.query(
+              `SELECT login FROM accounts WHERE email = ? LIMIT 1`,
+              [userEmail]
+            ),
+            3000,
+            "Account lookup"
+          );
+          allowedLogin = accountResult[0]?.login?.toLowerCase() || "";
+        } catch (lookupError) {
+          console.error("Account lookup error:", lookupError);
+        }
+      }
+
+      const normalizedLogin = login.toLowerCase();
+
+      if (!allowedLogin || allowedLogin !== normalizedLogin) {
+        await client.close();
+        return new Response(
+          JSON.stringify({ success: false, error: "Account is not linked to this user", donations: [] }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+        );
+      }
+
       let donations: DonationRecord[] = [];
 
       // Try different table structures for donation history
@@ -102,7 +160,7 @@ serve(async (req) => {
       for (const tableQuery of tableQueries) {
         try {
           const result = await withTimeout(
-            client.query(tableQuery.query, [login]),
+            client.query(tableQuery.query, [normalizedLogin]),
             3000,
             "Donation query"
           );

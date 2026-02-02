@@ -41,10 +41,10 @@ async function encodeL2Password(password: string): Promise<string> {
 // Validate login name (alphanumeric, 4-14 characters)
 function validateLogin(login: string): { valid: boolean; error?: string } {
   if (login.length < 4 || login.length > 14) {
-    return { valid: false, error: "Το username πρέπει να είναι 4-14 χαρακτήρες" };
+    return { valid: false, error: "Username must be 4-14 characters" };
   }
   if (!/^[a-zA-Z0-9]+$/.test(login)) {
-    return { valid: false, error: "Το username πρέπει να περιέχει μόνο γράμματα και αριθμούς" };
+    return { valid: false, error: "Username can contain only letters and numbers" };
   }
   return { valid: true };
 }
@@ -61,7 +61,7 @@ serve(async (req) => {
     // Validate required fields
     if (!login || !password || !email) {
       return new Response(
-        JSON.stringify({ success: false, error: "Λείπουν απαραίτητα πεδία" }),
+        JSON.stringify({ success: false, error: "Missing required fields" }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
@@ -78,7 +78,7 @@ serve(async (req) => {
     // Validate password length
     if (password.length < 6 || password.length > 16) {
       return new Response(
-        JSON.stringify({ success: false, error: "Ο κωδικός πρέπει να είναι 6-16 χαρακτήρες" }),
+        JSON.stringify({ success: false, error: "Password must be 6-16 characters" }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
@@ -87,7 +87,7 @@ serve(async (req) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return new Response(
-        JSON.stringify({ success: false, error: "Μη έγκυρο email" }),
+        JSON.stringify({ success: false, error: "Invalid email" }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
@@ -131,7 +131,7 @@ serve(async (req) => {
       if (existingLogin.length > 0) {
         await client.close();
         return new Response(
-          JSON.stringify({ success: false, error: "Αυτό το username υπάρχει ήδη" }),
+          JSON.stringify({ success: false, error: "This username already exists" }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 409 }
         );
       }
@@ -146,7 +146,7 @@ serve(async (req) => {
       if (existingEmail.length > 0) {
         await client.close();
         return new Response(
-          JSON.stringify({ success: false, error: "Αυτό το email χρησιμοποιείται ήδη" }),
+          JSON.stringify({ success: false, error: "This email is already in use" }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 409 }
         );
       }
@@ -172,7 +172,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: "Ο λογαριασμός δημιουργήθηκε επιτυχώς!",
+          message: "Account created successfully!",
           login: login.toLowerCase()
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 201 }
@@ -187,7 +187,7 @@ serve(async (req) => {
   } catch (error: unknown) {
     console.error('Create L2 account error:', error);
     
-    const errorMessage = error instanceof Error ? error.message : "Σφάλμα κατά τη δημιουργία λογαριασμού";
+    const errorMessage = error instanceof Error ? error.message : "Error creating account";
     
     return new Response(
       JSON.stringify({ 

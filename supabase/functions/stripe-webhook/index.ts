@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,6 +32,12 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, {
       apiVersion: "2025-08-27.basil",
     });
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const supabaseAdmin = supabaseUrl && serviceRoleKey
+      ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
+      : null;
 
     // Get the raw body for signature verification
     const body = await req.text();
@@ -82,6 +89,17 @@ serve(async (req) => {
           const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
           logStep("Database error", { error: errorMessage });
           // Don't return error - we still want to acknowledge the webhook
+        }
+
+        if (supabaseAdmin) {
+          const { error } = await supabaseAdmin.rpc("increment_donation_coins", { _amount: coins });
+          if (error) {
+            logStep("Failed to increment donation metrics", { error: error.message });
+          } else {
+            logStep("Donation metrics updated", { coins });
+          }
+        } else {
+          logStep("SUPABASE_SERVICE_ROLE_KEY not configured - metrics not updated");
         }
       }
     }

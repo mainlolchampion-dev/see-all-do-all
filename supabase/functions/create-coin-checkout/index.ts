@@ -64,6 +64,11 @@ serve(async (req) => {
 
     logStep("Request data", { coins, amount, characterName, accountName });
 
+    const linkedLogin = (user.user_metadata?.l2_login || "").toString().toLowerCase();
+    if (linkedLogin && accountName && accountName.toLowerCase() !== linkedLogin) {
+      throw new Error("Character does not belong to your account");
+    }
+
     // Initialize Stripe
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
@@ -95,7 +100,7 @@ serve(async (req) => {
             currency: "eur",
             product_data: {
               name: `${coins.toLocaleString()} Donation Coins`,
-              description: `Coins για τον χαρακτήρα: ${characterName}`,
+              description: `Coins for character: ${characterName}`,
             },
             unit_amount: amount, // amount in cents
           },
