@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Castle, Clock, Swords, Loader2 } from "lucide-react";
 import { useCastleData } from "@/hooks/useCastleData";
+import { useServerSettings } from "@/hooks/useServerSettings";
 
 interface TimeLeft {
   days: number;
@@ -10,21 +11,57 @@ interface TimeLeft {
   seconds: number;
 }
 
-// Calculate next Saturday 20:00 GMT
-function getNextSiegeDate(): Date {
-  const now = new Date();
-  const dayOfWeek = now.getUTCDay();
-  const daysUntilSaturday = (6 - dayOfWeek + 7) % 7 || 7;
-  
-  const nextSaturday = new Date(now);
-  nextSaturday.setUTCDate(now.getUTCDate() + daysUntilSaturday);
-  nextSaturday.setUTCHours(20, 0, 0, 0);
-  
-  if (now >= nextSaturday) {
-    nextSaturday.setUTCDate(nextSaturday.getUTCDate() + 7);
+const dayMap: Record<string, number> = {
+  sunday: 0,
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+};
+
+function parseSchedule(schedule: string) {
+  const regex = /every\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+(\d{1,2}):(\d{2})(?:\s*gmt([+-]\d{1,2}))?/i;
+  const match = schedule.match(regex);
+  if (!match) return null;
+
+  const day = dayMap[match[1].toLowerCase()];
+  const hour = parseInt(match[2], 10);
+  const minute = parseInt(match[3], 10);
+  const offset = match[4] ? parseInt(match[4], 10) : 0;
+
+  if (Number.isNaN(day) || Number.isNaN(hour) || Number.isNaN(minute) || Number.isNaN(offset)) {
+    return null;
   }
-  
-  return nextSaturday;
+
+  return { day, hour, minute, offset };
+}
+
+// Calculate next siege date based on schedule string
+function getNextSiegeDate(schedule: string): Date {
+  const parsed = parseSchedule(schedule);
+  if (!parsed) {
+    // Fallback: Saturday 20:00 GMT
+    return getNextSiegeDate("Every Saturday 20:00 GMT");
+  }
+
+  const now = new Date();
+  const nowUtc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+  const target = new Date(nowUtc);
+  const dayOfWeek = nowUtc.getUTCDay();
+  const daysUntil = (parsed.day - dayOfWeek + 7) % 7 || 7;
+
+  target.setUTCDate(nowUtc.getUTCDate() + daysUntil);
+  // Convert local schedule (GMT+offset) to UTC time
+  const utcHour = parsed.hour - parsed.offset;
+  target.setUTCHours(utcHour, parsed.minute, 0, 0);
+
+  if (nowUtc >= target) {
+    target.setUTCDate(target.getUTCDate() + 7);
+  }
+
+  return target;
 }
 
 function calculateTimeLeft(targetDate: Date): TimeLeft {
@@ -43,9 +80,12 @@ function calculateTimeLeft(targetDate: Date): TimeLeft {
 }
 
 export function SiegeTimer() {
-  const [targetDate] = useState(getNextSiegeDate);
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft(targetDate));
   const { data: castles, isLoading } = useCastleData();
+  const { data: settings } = useServerSettings();
+  const schedule = settings?.siege?.schedule || "Every Saturday 20:00 GMT";
+
+  const targetDate = useMemo(() => getNextSiegeDate(schedule), [schedule]);
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft(targetDate));
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -82,7 +122,7 @@ export function SiegeTimer() {
           <h3 className="font-display text-lg font-semibold">Next Castle Siege</h3>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            Saturday 20:00 GMT
+            {schedule}
           </p>
         </div>
       </div>

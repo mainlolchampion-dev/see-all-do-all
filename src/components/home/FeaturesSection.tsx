@@ -1,40 +1,45 @@
 import { motion } from "framer-motion";
-import { Swords, Castle, Users, Trophy, Shield, Sparkles } from "lucide-react";
+import { Zap, Shield, Swords, Sparkles, Target, Crown } from "lucide-react";
+import { useServerSettings } from "@/hooks/useServerSettings";
 
-const features = [
-  {
-    icon: Swords,
-    title: "Epic PvP Battles",
-    description: "Engage in intense player-vs-player combat with balanced classes and fair gameplay.",
-  },
-  {
-    icon: Castle,
-    title: "Castle Sieges",
-    description: "Conquer castles with your clan in massive weekend siege battles for glory and rewards.",
-  },
-  {
-    icon: Users,
-    title: "Active Community",
-    description: "Join thousands of active players in a thriving, friendly community with active GMs.",
-  },
-  {
-    icon: Trophy,
-    title: "Olympiad Games",
-    description: "Compete in the Olympiad arena to become a Hero and earn exclusive rewards.",
-  },
-  {
-    icon: Shield,
-    title: "Anti-Cheat System",
-    description: "Play fair with our advanced anti-cheat protection ensuring a clean environment.",
-  },
-  {
-    icon: Sparkles,
-    title: "Custom Events",
-    description: "Participate in unique daily and weekly events with exclusive prizes and rewards.",
-  },
-];
+const boolLabel = (value: boolean) => (value ? "Enabled" : "Disabled");
 
 export function FeaturesSection() {
+  const { data: settings, isLoading } = useServerSettings();
+
+  const features = [
+    {
+      icon: Crown,
+      title: "Max Enchant",
+      description: settings ? settings.features.max_enchant : "-",
+    },
+    {
+      icon: Shield,
+      title: "Safe Enchant",
+      description: settings ? settings.features.safe_enchant : "-",
+    },
+    {
+      icon: Target,
+      title: "Max Level",
+      description: settings ? `${settings.features.max_level}` : "-",
+    },
+    {
+      icon: Zap,
+      title: "Auto Learn Skills",
+      description: settings ? boolLabel(settings.features.auto_learn_skills) : "-",
+    },
+    {
+      icon: Sparkles,
+      title: "Global Gatekeeper",
+      description: settings ? boolLabel(settings.features.global_gk) : "-",
+    },
+    {
+      icon: Swords,
+      title: "Subclass Without Quest",
+      description: settings ? boolLabel(settings.features.subclass_without_quest) : "-",
+    },
+  ];
+
   return (
     <section className="py-20 bg-surface-overlay">
       <div className="container mx-auto px-4">
@@ -48,7 +53,9 @@ export function FeaturesSection() {
             <span className="text-gradient-gold">Why Choose Us</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Experience Lineage 2 the way it was meant to be played with our premium features
+            {isLoading
+              ? "Loading server features..."
+              : "Live server configuration pulled from admin settings"}
           </p>
         </motion.div>
 

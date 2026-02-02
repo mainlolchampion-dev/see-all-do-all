@@ -3,11 +3,28 @@ import { Users, MessageCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Discord } from "@/components/icons/SocialIcons";
 import { useDiscordStats } from "@/hooks/useDiscordStats";
+import { useServerSettings } from "@/hooks/useServerSettings";
 
-const DISCORD_INVITE_CODE = "PGCWBavr";
+const FALLBACK_INVITE = "PGCWBavr";
+
+function extractInviteCode(inviteUrl: string | undefined) {
+  if (!inviteUrl) return FALLBACK_INVITE;
+  try {
+    const url = new URL(inviteUrl);
+    const parts = url.pathname.split("/").filter(Boolean);
+    return parts[parts.length - 1] || FALLBACK_INVITE;
+  } catch {
+    const cleaned = inviteUrl.replace("https://", "").replace("http://", "");
+    const parts = cleaned.split("/");
+    return parts[parts.length - 1] || FALLBACK_INVITE;
+  }
+}
 
 export function DiscordWidget() {
-  const { onlineCount, memberCount, guildName, isLoading, error } = useDiscordStats(DISCORD_INVITE_CODE);
+  const { data: settings } = useServerSettings();
+  const inviteCode = extractInviteCode(settings?.discord?.invite_url);
+  const inviteUrl = settings?.discord?.invite_url || `https://discord.gg/${inviteCode}`;
+  const { onlineCount, memberCount, guildName, isLoading, error } = useDiscordStats(inviteCode);
 
   return (
     <motion.div
@@ -51,7 +68,7 @@ export function DiscordWidget() {
       <div className="px-4 py-3 bg-muted/30">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="w-2 h-2 rounded-full bg-emerald animate-pulse" />
-          <span>Live stats • Updates every 5 min</span>
+          <span>Live stats - Updates every 5 min</span>
         </div>
       </div>
 
@@ -61,7 +78,7 @@ export function DiscordWidget() {
           className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white"
           asChild
         >
-          <a href={`https://discord.gg/${DISCORD_INVITE_CODE}`} target="_blank" rel="noopener noreferrer">
+          <a href={inviteUrl} target="_blank" rel="noopener noreferrer">
             <MessageCircle className="w-4 h-4 mr-2" />
             Join Discord
           </a>

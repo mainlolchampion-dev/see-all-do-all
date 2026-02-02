@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 const COIN_PRESETS = [500, 900, 1500, 3000, 5000, 10000, 15000, 25000];
 const MIN_COINS = 100;
 const MAX_COINS = 25000;
-const COINS_PER_EURO = 100; // 100 coins = 1€
+const COINS_PER_EURO = 100; // 100 coins = 1 EUR
 
 interface DonateTabProps {
   linkedLogin: string | null;
@@ -63,7 +63,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
       } catch (error: any) {
         setCharValidation({
           valid: false,
-          error: "Σφάλμα επικοινωνίας με τον server"
+          error: "Failed to communicate with the server"
         });
       } finally {
         setIsValidatingChar(false);
@@ -97,8 +97,8 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
   const handlePurchase = async () => {
     if (!characterName.trim()) {
       toast({
-        title: "Απαιτείται Character Name",
-        description: "Πρέπει να βάλεις το όνομα του χαρακτήρα που θα λάβει τα coins.",
+        title: "Character name required",
+        description: "Enter the character name that will receive the coins.",
         variant: "destructive",
       });
       return;
@@ -106,8 +106,8 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
 
     if (charValidation.valid !== true) {
       toast({
-        title: "Μη έγκυρος χαρακτήρας",
-        description: charValidation.error || "Ο χαρακτήρας δεν βρέθηκε στον server.",
+        title: "Invalid character",
+        description: charValidation.error || "Character not found on the server.",
         variant: "destructive",
       });
       return;
@@ -115,8 +115,8 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
 
     if (coins < MIN_COINS) {
       toast({
-        title: "Ελάχιστη ποσότητα",
-        description: `Το ελάχιστο είναι ${MIN_COINS} coins.`,
+        title: "Minimum amount",
+        description: `The minimum is ${MIN_COINS} coins.`,
         variant: "destructive",
       });
       return;
@@ -142,8 +142,8 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
     } catch (error: any) {
       console.error('Checkout error:', error);
       toast({
-        title: "Σφάλμα",
-        description: error.message || "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
+        title: "Error",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -160,7 +160,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
         <div className="mb-6">
           <Label htmlFor="characterName" className="text-base font-semibold text-foreground mb-2 block">
             <User className="w-4 h-4 inline mr-2" />
-            Επίλεξε Χαρακτήρα
+            Select Character
           </Label>
           
           {/* Character Quick Select */}
@@ -188,7 +188,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               type="text"
               value={characterName}
               onChange={(e) => setCharacterName(e.target.value)}
-              placeholder="Ή πληκτρολόγησε το όνομα..."
+              placeholder="Or type the name..."
               className={`h-12 pr-12 ${
                 charValidation.valid === true 
                   ? 'border-emerald-500 focus-visible:ring-emerald-500' 
@@ -196,7 +196,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                     ? 'border-destructive focus-visible:ring-destructive' 
                     : ''
               }`}
-              maxLength={16}
+              maxLength={35}
             />
             <div className="absolute right-4 top-1/2 -translate-y-1/2">
               {isValidatingChar ? (
@@ -212,7 +212,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
             <p className="text-sm text-destructive mt-2">{charValidation.error}</p>
           )}
           {charValidation.valid === true && (
-            <p className="text-sm text-emerald-500 mt-2">✓ Ο χαρακτήρας βρέθηκε!</p>
+            <p className="text-sm text-emerald-500 mt-2">Character found!</p>
           )}
         </div>
 
@@ -268,11 +268,11 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
         {/* Price Display */}
         <div className="text-center mb-6">
           <div className="inline-flex items-baseline gap-1">
-            <span className="text-4xl font-bold text-gradient-gold">€{price.toFixed(2)}</span>
+            <span className="text-4xl font-bold text-gradient-gold">EUR {price.toFixed(2)}</span>
           </div>
           <p className="text-sm text-muted-foreground mt-2 flex items-center justify-center gap-1">
             <Info className="w-4 h-4" />
-            100 coins = €1.00
+            100 coins = EUR 1.00
           </p>
         </div>
 
@@ -286,19 +286,19 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
           {isLoading ? (
             <span className="flex items-center gap-2">
               <Loader2 className="w-5 h-5 animate-spin" />
-              Επεξεργασία...
+              Processing...
             </span>
           ) : (
             <span className="flex items-center gap-2">
               <CreditCard className="w-5 h-5" />
-              Αγορά {coins.toLocaleString()} Coins
+              Buy {coins.toLocaleString()} Coins
             </span>
           )}
         </Button>
 
         {/* Info */}
         <p className="text-xs text-muted-foreground text-center mt-4">
-          Τα coins πιστώνονται αμέσως. Ασφαλής πληρωμή μέσω Stripe.
+          Coins are credited instantly. Secure payment via Stripe.
         </p>
       </div>
     </div>

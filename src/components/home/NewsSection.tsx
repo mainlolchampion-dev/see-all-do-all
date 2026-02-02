@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Calendar, ArrowRight, Loader2 } from "lucide-react";
+import { Calendar, ArrowRight, Loader2, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNews } from "@/hooks/useNews";
 import { format } from "date-fns";
@@ -47,7 +47,7 @@ export function NewsSection() {
                 className="gaming-card rounded-xl overflow-hidden group cursor-pointer"
               >
                 <div className="h-40 bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">
-                  <span className="text-4xl opacity-50">📰</span>
+                  <Newspaper className="w-10 h-10 text-muted-foreground/60" />
                 </div>
                 <div className="p-6">
                   <div className="flex items-center gap-3 mb-3">

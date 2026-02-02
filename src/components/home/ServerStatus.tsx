@@ -1,9 +1,16 @@
 import { motion } from "framer-motion";
 import { Server, Users, Wifi, Clock, Loader2, RefreshCw } from "lucide-react";
 import { useServerStatus } from "@/hooks/useServerStatus";
+import { useServerSettings } from "@/hooks/useServerSettings";
 
 export function ServerStatus() {
-  const { loginServer, gameServer, isLoading, error, lastUpdated } = useServerStatus();
+  const { data, isLoading, error, dataUpdatedAt } = useServerStatus();
+  const { data: settings } = useServerSettings();
+  const siegeSchedule = settings?.siege?.schedule || "Every Saturday 20:00 GMT";
+  const loginServer = data?.loginServer ?? { status: "offline" as const, players: 0 };
+  const gameServer = data?.gameServer ?? { status: "offline" as const, players: 0 };
+  const lastUpdated = dataUpdatedAt ? new Date(dataUpdatedAt) : null;
+  const errorText = error ? "Could not connect to server" : null;
 
   return (
     <section className="py-20 bg-surface-overlay">
@@ -26,9 +33,9 @@ export function ServerStatus() {
             <p>
               {isLoading 
                 ? "Connecting to server..." 
-                : error 
-                  ? error 
-                  : `Live • Updates every 30s`
+                : errorText 
+                  ? errorText 
+                  : "Live - Updates every 30s"
               }
             </p>
           </div>
@@ -130,7 +137,7 @@ export function ServerStatus() {
               </div>
               <div>
                 <h3 className="font-semibold">Next Siege</h3>
-                <p className="text-sm text-primary">Saturday 20:00 GMT</p>
+                <p className="text-sm text-primary">{siegeSchedule}</p>
               </div>
             </div>
           </motion.div>

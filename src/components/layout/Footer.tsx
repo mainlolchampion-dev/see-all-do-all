@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
 import { Discord, Youtube, Facebook } from "@/components/icons/SocialIcons";
+import { useServerSettings } from "@/hooks/useServerSettings";
 
 export function Footer() {
+  const { data: settings } = useServerSettings();
+  const discordUrl = settings?.discord?.invite_url || "https://discord.gg/PGCWBavr";
+
   return (
     <footer className="bg-surface-overlay border-t border-border">
       <div className="container mx-auto px-4 py-12">
@@ -58,7 +62,7 @@ export function Footer() {
             <h4 className="font-display text-sm font-semibold text-foreground mb-4">Community</h4>
             <div className="flex gap-3">
               <a
-                href="https://discord.gg/PGCWBavr"
+                href={discordUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
@@ -88,7 +92,7 @@ export function Footer() {
         <div className="ornament-divider my-8" />
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© 2024 L2 ALL STARS. All rights reserved.</p>
+          <p>Copyright 2026 L2 ALL STARS. All rights reserved.</p>
           <div className="flex gap-4">
             <Link to="/privacy" className="hover:text-primary transition-colors">
               Privacy Policy

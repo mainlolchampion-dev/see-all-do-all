@@ -1,16 +1,24 @@
 import { motion } from "framer-motion";
 import { Zap, Gem, Coins, Star, Shield, Sword } from "lucide-react";
+import { useServerSettings } from "@/hooks/useServerSettings";
 
-const rates = [
-  { label: "EXP", value: "x50", icon: Zap, color: "text-yellow-500" },
-  { label: "SP", value: "x50", icon: Star, color: "text-blue-500" },
-  { label: "Adena", value: "x50", icon: Coins, color: "text-amber-500" },
-  { label: "Drop", value: "x10", icon: Gem, color: "text-purple-500" },
-  { label: "Spoil", value: "x10", icon: Shield, color: "text-green-500" },
-  { label: "Quest", value: "x5", icon: Sword, color: "text-red-500" },
+const rateIcons = [
+  { key: "xp", label: "EXP", icon: Zap, color: "text-yellow-500" },
+  { key: "sp", label: "SP", icon: Star, color: "text-blue-500" },
+  { key: "adena", label: "Adena", icon: Coins, color: "text-amber-500" },
+  { key: "drop", label: "Drop", icon: Gem, color: "text-purple-500" },
+  { key: "spoil", label: "Spoil", icon: Shield, color: "text-green-500" },
+  { key: "quest_drop", label: "Quest", icon: Sword, color: "text-red-500" },
 ];
 
 export function ServerRates() {
+  const { data: settings, isLoading } = useServerSettings();
+
+  const rates = rateIcons.map((rate) => ({
+    ...rate,
+    value: settings ? `x${(settings.rates as any)[rate.key]}` : "x-",
+  }));
+
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">
@@ -23,7 +31,9 @@ export function ServerRates() {
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
             <span className="text-gradient-gold">Server Rates</span>
           </h2>
-          <p className="text-muted-foreground">Balanced rates for the perfect gaming experience</p>
+          <p className="text-muted-foreground">
+            {isLoading ? "Loading rates..." : "Balanced rates for the perfect gaming experience"}
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto">
