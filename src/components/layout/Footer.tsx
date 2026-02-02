@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Discord, Youtube, Facebook } from "@/components/icons/SocialIcons";
 import { useServerSettings } from "@/hooks/useServerSettings";
+import logo from "@/assets/logo.png";
 
 export function Footer() {
   const { data: settings } = useServerSettings();
@@ -12,11 +13,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <span className="text-xl font-bold tracking-wide" style={{ fontFamily: "'Cinzel Decorative', cursive" }}>
-                <span className="text-gradient-gold">L2</span>
-                <span className="text-foreground ml-1">ALL STARS</span>
-              </span>
+            <Link to="/" className="flex items-center mb-4">
+              <img src={logo} alt="L2 All Stars" className="h-12 w-auto" />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               The ultimate Lineage 2 High Five experience. Join thousands of players in epic battles.

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, LogIn, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/logo.png";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -40,11 +41,8 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold tracking-wide" style={{ fontFamily: "'Cinzel Decorative', cursive" }}>
-              <span className="text-gradient-gold">L2</span>
-              <span className="text-foreground ml-1">ALL STARS</span>
-            </span>
+          <Link to="/" className="flex items-center">
+            <img src={logo} alt="L2 All Stars" className="h-10 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}
