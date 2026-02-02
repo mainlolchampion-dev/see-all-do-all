@@ -1,112 +1,82 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Download, Users, Swords } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroBg from "@/assets/lin2web-bg.jpg";
+import character from "@/assets/l2-character.png";
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[70vh] flex items-center overflow-hidden">
       {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-top bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroBg})` }}
       />
       
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
+      {/* Gradient Overlays */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-background/60" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
       
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto"
-        >
-          {/* Badge */}
+      <div className="relative z-10 container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          {/* Left - Character (hidden on mobile, visible on larger screens) */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-primary mb-6"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="hidden lg:flex justify-center"
           >
-            <span className="w-2 h-2 rounded-full bg-emerald animate-pulse" />
-            <span className="text-sm font-medium">Server Online • 1,247 Players</span>
+            <img 
+              src={character} 
+              alt="L2 Character" 
+              className="max-h-[500px] object-contain drop-shadow-2xl"
+            />
           </motion.div>
 
-          {/* Main Title */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6" style={{ fontFamily: "'Cinzel Decorative', cursive" }}>
-            <span className="text-gradient-gold">L2</span>
-            <span className="text-foreground ml-3">ALL STARS</span>
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-foreground/80 mb-4 font-display tracking-wide">
-            LINEAGE <span className="tracking-tight">II</span> HIGH FIVE
-          </p>
-          
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            Experience the ultimate Lineage 2 adventure. Epic PvP battles, legendary raids, 
-            and a thriving community await you.
-          </p>
-
-          {/* CTA Buttons */}
+          {/* Right - Hero Content */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-center lg:text-left"
           >
-            <Button size="lg" className="btn-glow text-lg px-8 py-6" asChild>
-              <Link to="/register">
-                <Users className="w-5 h-5 mr-2" />
-                Start Playing
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-primary/50 hover:bg-primary/10" asChild>
-              <Link to="/download">
-                <Download className="w-5 h-5 mr-2" />
-                Download Client
-              </Link>
-            </Button>
-          </motion.div>
+            {/* Logo */}
+            <div className="mb-6">
+              <h1 
+                className="text-5xl md:text-6xl lg:text-7xl font-bold"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                <span className="text-gradient-gold">L2</span>
+                <span className="text-foreground ml-2">All Stars</span>
+              </h1>
+            </div>
+            
+            {/* Tagline */}
+            <h2 className="text-2xl md:text-3xl text-primary font-display uppercase tracking-wide mb-3">
+              High Five x7 Server
+            </h2>
+            
+            <p className="text-lg text-muted-foreground mb-8 max-w-lg">
+              Experience the ultimate Lineage 2 adventure with balanced gameplay and an active community.
+            </p>
 
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mt-16 grid grid-cols-3 gap-8 max-w-xl mx-auto"
-          >
-            {[
-              { label: "Players", value: "5,000+" },
-              { label: "Clans", value: "200+" },
-              { label: "Uptime", value: "99.9%" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-gradient-gold">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
+            {/* CTA Button */}
+            <Button 
+              size="lg" 
+              className="btn-glow text-lg px-10 py-6 font-display uppercase tracking-wide"
+              asChild
+            >
+              <Link to="/register">Start to Play</Link>
+            </Button>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-6 h-10 rounded-full border-2 border-primary/50 flex items-start justify-center p-2"
-        >
-          <div className="w-1.5 h-3 rounded-full bg-primary" />
-        </motion.div>
-      </motion.div>
+      {/* Bottom Ornament */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <div className="ornament-divider" />
+      </div>
     </section>
   );
 }
