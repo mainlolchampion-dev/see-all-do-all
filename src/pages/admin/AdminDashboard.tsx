@@ -24,7 +24,7 @@ export default function AdminDashboard() {
           supabase.from("news").select("id", { count: "exact", head: true }),
           supabase.from("downloads").select("id", { count: "exact", head: true }),
           supabase.from("media").select("id", { count: "exact", head: true }),
-          supabase.from("donation_metrics" as any).select("total_coins, reset_at").eq("key", "global").single(),
+          supabase.from("donation_metrics").select("total_coins, reset_at").eq("key", "global").single(),
         ]);
 
         setStats({
@@ -53,12 +53,12 @@ export default function AdminDashboard() {
 
     try {
       const { error } = await supabase
-        .from("donation_metrics" as any)
+        .from("donation_metrics")
         .update({
           total_coins: 0,
           reset_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        })
+        } as any)
         .eq("key", "global");
 
       if (error) throw error;
