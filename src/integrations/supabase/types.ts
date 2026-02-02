@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      donation_metrics: {
+        Row: {
+          id: string
+          key: string
+          reset_at: string | null
+          total_coins: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          reset_at?: string | null
+          total_coins?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          reset_at?: string | null
+          total_coins?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       download_mirrors: {
         Row: {
           created_at: string
