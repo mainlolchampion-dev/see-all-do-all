@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-interface ServerStatus {
+export interface ServerStatus {
   loginServer: {
     status: "online" | "offline";
     players: number;
@@ -12,55 +12,27 @@ interface ServerStatus {
   };
   maxPlayers: number;
   uptime: string;
-  isLoading: boolean;
-  error: string | null;
-  lastUpdated: Date | null;
 }
 
-export function useServerStatus(): ServerStatus {
-  const [status, setStatus] = useState<ServerStatus>({
-    loginServer: { status: "offline", players: 0 },
-    gameServer: { status: "offline", players: 0 },
-    maxPlayers: 5000,
-    uptime: "N/A",
-    isLoading: true,
-    error: null,
-    lastUpdated: null,
-  });
+const fallbackStatus: ServerStatus = {
+  loginServer: { status: "offline", players: 0 },
+  gameServer: { status: "offline", players: 0 },
+  maxPlayers: 5000,
+  uptime: "N/A",
+};
 
-  useEffect(() => {
-    async function fetchServerStatus() {
-      try {
-        const { data, error } = await supabase.functions.invoke('server-status');
-        
-        if (error) {
-          throw error;
-        }
-
-        setStatus({
-          ...data,
-          isLoading: false,
-          error: null,
-          lastUpdated: new Date(),
-        });
-      } catch (error) {
-        console.error("Failed to fetch server status:", error);
-        setStatus(prev => ({
-          ...prev,
-          isLoading: false,
-          error: "Could not connect to server",
-          lastUpdated: new Date(),
-        }));
+export function useServerStatus() {
+  return useQuery<ServerStatus>({
+    queryKey: ["server-status"],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("server-status");
+      if (error) {
+        throw error;
       }
-    }
-
-    fetchServerStatus();
-    
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchServerStatus, 30 * 1000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  return status;
+      return data || fallbackStatus;
+    },
+    staleTime: 30 * 1000,
+    refetchInterval: 30 * 1000,
+    retry: 1,
+  });
 }

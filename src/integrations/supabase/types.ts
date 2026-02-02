@@ -163,6 +163,27 @@ export type Database = {
         }
         Relationships: []
       }
+      donation_metrics: {
+        Row: {
+          key: string
+          total_coins: number
+          updated_at: string
+          reset_at: string | null
+        }
+        Insert: {
+          key: string
+          total_coins?: number
+          updated_at?: string
+          reset_at?: string | null
+        }
+        Update: {
+          key?: string
+          total_coins?: number
+          updated_at?: string
+          reset_at?: string | null
+        }
+        Relationships: []
+      }
       server_settings: {
         Row: {
           description: string | null

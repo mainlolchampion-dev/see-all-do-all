@@ -22,9 +22,9 @@ export default function CreateAccount() {
   const navigate = useNavigate();
 
   const validateUsername = (username: string): string | null => {
-    if (username.length < 4) return "Το username πρέπει να έχει τουλάχιστον 4 χαρακτήρες";
-    if (username.length > 14) return "Το username δεν μπορεί να υπερβαίνει τους 14 χαρακτήρες";
-    if (!/^[a-zA-Z0-9]+$/.test(username)) return "Το username μπορεί να περιέχει μόνο γράμματα και αριθμούς (χωρίς ελληνικά)";
+    if (username.length < 4) return "Username must be at least 4 characters";
+    if (username.length > 14) return "Username cannot exceed 14 characters";
+    if (!/^[a-zA-Z0-9]+$/.test(username)) return "Username can contain only letters and numbers";
     return null;
   };
 
@@ -35,7 +35,7 @@ export default function CreateAccount() {
     const usernameError = validateUsername(formData.username);
     if (usernameError) {
       toast({
-        title: "Μη έγκυρο username",
+        title: "Invalid username",
         description: usernameError,
         variant: "destructive",
       });
@@ -45,8 +45,8 @@ export default function CreateAccount() {
     // Validate password length
     if (formData.password.length < 6) {
       toast({
-        title: "Μη έγκυρο password",
-        description: "Το password πρέπει να έχει τουλάχιστον 6 χαρακτήρες",
+        title: "Invalid password",
+        description: "Password must be at least 6 characters",
         variant: "destructive",
       });
       return;
@@ -55,8 +55,8 @@ export default function CreateAccount() {
     // Validate password match
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "Τα passwords δεν ταιριάζουν",
-        description: "Βεβαιώσου ότι έχεις πληκτρολογήσει το ίδιο password και στα δύο πεδία",
+        title: "Passwords do not match",
+        description: "Make sure you typed the same password in both fields",
         variant: "destructive",
       });
       return;
@@ -78,7 +78,7 @@ export default function CreateAccount() {
       
       if (l2Data?.error) {
         toast({
-          title: "Σφάλμα δημιουργίας λογαριασμού",
+          title: "Account creation error",
           description: l2Data.error,
           variant: "destructive",
         });
@@ -103,24 +103,24 @@ export default function CreateAccount() {
         // This is okay - they can still play, just won't have UCP access until they create web account
         console.warn("Web signup failed:", signUpError.message);
         toast({
-          title: "Ο λογαριασμός παιχνιδιού δημιουργήθηκε!",
-          description: "Μπορείς να παίξεις τώρα. Για πρόσβαση στο UCP, κάνε login με το email σου.",
+          title: "Game account created!",
+          description: "You can play now. To access the UCP, log in with your email.",
         });
         navigate("/login");
         return;
       }
 
       toast({
-        title: "Επιτυχής δημιουργία!",
-        description: "Ο λογαριασμός σου δημιουργήθηκε. Μπορείς τώρα να συνδεθείς.",
+        title: "Account created!",
+        description: "Your account is ready. You can now log in.",
       });
       
       navigate("/login");
     } catch (error: any) {
       console.error("Registration error:", error);
       toast({
-        title: "Σφάλμα",
-        description: error.message || "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
+        title: "Error",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -143,7 +143,7 @@ export default function CreateAccount() {
                 <span className="text-gradient-gold">Create Account</span>
               </h1>
               <p className="text-muted-foreground">
-                Δημιούργησε τον λογαριασμό σου για να ξεκινήσεις
+                Create your account to get started
               </p>
             </div>
 
@@ -157,7 +157,7 @@ export default function CreateAccount() {
                   <Input
                     id="username"
                     type="text"
-                    placeholder="Το username για το παιχνίδι"
+                    placeholder="Game username"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     className="pl-10 h-12"
@@ -165,7 +165,7 @@ export default function CreateAccount() {
                     maxLength={14}
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">4-14 χαρακτήρες, μόνο λατινικοί</p>
+                <p className="text-xs text-muted-foreground">4-14 characters, letters and numbers only</p>
               </div>
 
               {/* Email */}
@@ -176,7 +176,7 @@ export default function CreateAccount() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Το email σου"
+                    placeholder="Your email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="pl-10 h-12"
@@ -193,7 +193,7 @@ export default function CreateAccount() {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Τουλάχιστον 6 χαρακτήρες"
+                    placeholder="At least 6 characters"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="pl-10 pr-10 h-12"
@@ -217,7 +217,7 @@ export default function CreateAccount() {
                   <Input
                     id="confirmPassword"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Επανάλαβε το password"
+                    placeholder="Repeat your password"
                     value={formData.confirmPassword}
                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                     className="pl-10 h-12"
@@ -235,7 +235,7 @@ export default function CreateAccount() {
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Δημιουργία...
+                    Creating...
                   </span>
                 ) : (
                   "Create Account"
@@ -246,9 +246,9 @@ export default function CreateAccount() {
             {/* Login Link */}
             <div className="mt-6 text-center">
               <p className="text-muted-foreground">
-                Έχεις ήδη λογαριασμό;{" "}
+                Already have an account?{" "}
                 <Link to="/login" className="text-primary hover:underline font-medium">
-                  Σύνδεση
+                  Log in
                 </Link>
               </p>
             </div>

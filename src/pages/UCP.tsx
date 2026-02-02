@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   User, Settings, Sword, History, CreditCard, Shield, LogOut, ChevronRight,
@@ -45,6 +45,10 @@ export default function UCP() {
         return;
       }
       setUserEmail(session.user.email || null);
+      const metadataLogin = (session.user.user_metadata as any)?.l2_login;
+      if (metadataLogin) {
+        setLinkedLogin(metadataLogin);
+      }
       
       // Check if user has a saved linked L2 account in localStorage
       const savedLogin = localStorage.getItem(`l2_linked_account_${session.user.id}`);
@@ -59,6 +63,10 @@ export default function UCP() {
         navigate("/login");
       } else {
         setUserEmail(session.user.email || null);
+        const metadataLogin = (session.user.user_metadata as any)?.l2_login;
+        if (metadataLogin) {
+          setLinkedLogin(metadataLogin);
+        }
         const savedLogin = localStorage.getItem(`l2_linked_account_${session.user.id}`);
         if (savedLogin) {
           setLinkedLogin(savedLogin);
@@ -97,9 +105,12 @@ export default function UCP() {
     });
 
     if (error || data?.error) {
+      const isForbidden = (error as any)?.status === 403;
       toast({
-        title: "Account not found",
-        description: "No L2 account found with this name. Please check and try again.",
+        title: "Linking failed",
+        description: isForbidden
+          ? "This account is not linked to your email. Please use the email associated with the L2 account."
+          : "No L2 account found with this name. Please check and try again.",
         variant: "destructive",
       });
       return;
@@ -108,11 +119,25 @@ export default function UCP() {
     // Save the linked account
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-      localStorage.setItem(`l2_linked_account_${session.user.id}`, manualLogin.trim());
-      setLinkedLogin(manualLogin.trim());
+      const trimmedLogin = manualLogin.trim();
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { l2_login: trimmedLogin },
+      });
+
+      if (updateError) {
+        toast({
+          title: "Error",
+          description: updateError.message || "Failed to link account.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      localStorage.setItem(`l2_linked_account_${session.user.id}`, trimmedLogin);
+      setLinkedLogin(trimmedLogin);
       toast({
         title: "Account Linked!",
-        description: `Successfully linked to L2 account: ${manualLogin.trim()}`,
+        description: `Successfully linked to L2 account: ${trimmedLogin}`,
       });
       refetch();
     }
@@ -121,6 +146,7 @@ export default function UCP() {
   const handleUnlinkAccount = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
+      await supabase.auth.updateUser({ data: { l2_login: null } });
       localStorage.removeItem(`l2_linked_account_${session.user.id}`);
       setLinkedLogin(null);
       setManualLogin("");
@@ -408,7 +434,7 @@ export default function UCP() {
                             <tr key={donation.id} className="hover:bg-muted/30 transition-colors">
                               <td className="px-6 py-4 font-medium">{donation.id}</td>
                               <td className="px-6 py-4 text-muted-foreground">{donation.date}</td>
-                              <td className="px-6 py-4 text-center">€{donation.amount}</td>
+                              <td className="px-6 py-4 text-center">EUR {donation.amount}</td>
                               <td className="px-6 py-4 text-center text-gradient-gold font-semibold">{donation.coins.toLocaleString()}</td>
                               <td className="px-6 py-4 text-right">
                                 <span className="px-2 py-1 rounded text-xs font-medium bg-primary/20 text-primary">

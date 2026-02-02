@@ -21,7 +21,7 @@ export function useDonationHistory(login: string | undefined) {
       
       if (error) {
         console.error("Donation history fetch error:", error);
-        throw error;
+        return [];
       }
       
       return data?.donations || [];

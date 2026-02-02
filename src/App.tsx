@@ -14,6 +14,12 @@ import Media from "./pages/Media";
 import News from "./pages/News";
 import UCP from "./pages/UCP";
 import NotFound from "./pages/NotFound";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import FAQ from "./pages/FAQ";
+import Contact from "./pages/Contact";
+import Rules from "./pages/Rules";
+import ForgotPassword from "./pages/ForgotPassword";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -42,6 +48,12 @@ const App = () => (
           <Route path="/media" element={<Media />} />
           <Route path="/news" element={<News />} />
           <Route path="/ucp" element={<UCP />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/rules" element={<Rules />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminDashboard />} />

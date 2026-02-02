@@ -24,7 +24,12 @@ async function fetchUserData(login?: string, email?: string): Promise<UserData> 
   });
 
   if (error) {
-    throw new Error(error.message || "Failed to fetch user data");
+    const err = new Error(error.message || "Failed to fetch user data") as Error & { notLinked?: boolean };
+    const status = (error as any).status;
+    if (status === 401 || status === 403 || status === 404) {
+      err.notLinked = true;
+    }
+    throw err;
   }
 
   if (data.error) {

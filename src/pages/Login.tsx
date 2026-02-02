@@ -34,15 +34,15 @@ export default function Login() {
       if (error) throw error;
 
       toast({
-        title: "Επιτυχής σύνδεση!",
-        description: "Καλώς ήρθες στο L2 ALL STARS.",
+        title: "Login successful!",
+        description: "Welcome to L2 ALL STARS.",
       });
       
       navigate(redirectTo);
     } catch (error: any) {
       toast({
-        title: "Σφάλμα σύνδεσης",
-        description: error.message || "Λάθος email ή κωδικός.",
+        title: "Login error",
+        description: error.message || "Incorrect email or password.",
         variant: "destructive",
       });
     } finally {
@@ -115,7 +115,7 @@ export default function Login() {
                 </div>
 
                 <Button type="submit" className="w-full btn-glow" size="lg" disabled={isLoading}>
-                  {isLoading ? "Σύνδεση..." : "Login"}
+                  {isLoading ? "Signing in..." : "Login"}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </form>

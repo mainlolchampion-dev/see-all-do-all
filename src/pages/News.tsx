@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Calendar, Loader2 } from "lucide-react";
+import { Calendar, Loader2, Newspaper } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { useNews } from "@/hooks/useNews";
 import { format } from "date-fns";
@@ -45,7 +45,7 @@ export default function News() {
                   className="gaming-card rounded-xl overflow-hidden group cursor-pointer"
                 >
                   <div className="h-40 bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">
-                    <span className="text-4xl opacity-50">📰</span>
+                    <Newspaper className="w-10 h-10 text-muted-foreground/60" />
                   </div>
                   <div className="p-6">
                     <div className="flex items-center gap-3 mb-3">
@@ -70,7 +70,7 @@ export default function News() {
           {/* Empty State */}
           {!isLoading && (!newsItems || newsItems.length === 0) && (
             <div className="text-center py-20">
-              <div className="text-6xl mb-4 opacity-50">📰</div>
+            <Newspaper className="w-14 h-14 mx-auto mb-4 opacity-50" />
               <h3 className="text-xl font-semibold mb-2">No news yet</h3>
               <p className="text-muted-foreground">Check back later for updates!</p>
             </div>

@@ -30,7 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, Plus, Pencil, Trash2, Star } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Star, Link as LinkIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface DownloadItem {
@@ -45,14 +45,32 @@ interface DownloadItem {
   sort_order: number;
 }
 
+interface DownloadMirror {
+  id: string;
+  download_id: string | null;
+  name: string;
+  url: string;
+  sort_order: number | null;
+  created_at?: string;
+}
+
 const downloadTypes = ["client", "patch", "updater", "addon", "other"];
 
 export default function AdminDownloads() {
   const { isAdmin, isLoading: authLoading } = useAdminAuth();
   const [downloads, setDownloads] = useState<DownloadItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mirrorsByDownload, setMirrorsByDownload] = useState<Record<string, DownloadMirror[]>>({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<DownloadItem | null>(null);
+  const [mirrorDialogOpen, setMirrorDialogOpen] = useState(false);
+  const [activeDownload, setActiveDownload] = useState<DownloadItem | null>(null);
+  const [editingMirror, setEditingMirror] = useState<DownloadMirror | null>(null);
+  const [mirrorFormData, setMirrorFormData] = useState({
+    name: "",
+    url: "",
+    sort_order: 0,
+  });
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -63,6 +81,7 @@ export default function AdminDownloads() {
     sort_order: 0,
   });
   const [saving, setSaving] = useState(false);
+  const [savingMirror, setSavingMirror] = useState(false);
   const { toast } = useToast();
 
   const fetchDownloads = async () => {
@@ -74,6 +93,21 @@ export default function AdminDownloads() {
 
       if (error) throw error;
       setDownloads(data || []);
+
+      const { data: mirrors, error: mirrorsError } = await supabase
+        .from("download_mirrors")
+        .select("*")
+        .order("sort_order", { ascending: true });
+
+      if (mirrorsError) throw mirrorsError;
+
+      const grouped: Record<string, DownloadMirror[]> = {};
+      (mirrors || []).forEach((mirror) => {
+        if (!mirror.download_id) return;
+        grouped[mirror.download_id] = grouped[mirror.download_id] || [];
+        grouped[mirror.download_id].push(mirror as DownloadMirror);
+      });
+      setMirrorsByDownload(grouped);
     } catch (error) {
       console.error("Error fetching downloads:", error);
       toast({ title: "Error", description: "Failed to fetch downloads", variant: "destructive" });
@@ -149,6 +183,15 @@ export default function AdminDownloads() {
     });
   };
 
+  const resetMirrorForm = () => {
+    setMirrorFormData({
+      name: "",
+      url: "",
+      sort_order: 0,
+    });
+    setEditingMirror(null);
+  };
+
   const handleEdit = (item: DownloadItem) => {
     setEditingItem(item);
     setFormData({
@@ -181,6 +224,75 @@ export default function AdminDownloads() {
     setEditingItem(null);
     resetForm();
     setDialogOpen(true);
+  };
+
+  const openMirrorDialog = async (download: DownloadItem) => {
+    setActiveDownload(download);
+    resetMirrorForm();
+    setMirrorDialogOpen(true);
+  };
+
+  const handleSaveMirror = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeDownload) return;
+
+    setSavingMirror(true);
+    try {
+      if (editingMirror) {
+        const { error } = await supabase
+          .from("download_mirrors")
+          .update({
+            name: mirrorFormData.name,
+            url: mirrorFormData.url,
+            sort_order: mirrorFormData.sort_order,
+          })
+          .eq("id", editingMirror.id);
+
+        if (error) throw error;
+        toast({ title: "Success", description: "Mirror updated successfully" });
+      } else {
+        const { error } = await supabase.from("download_mirrors").insert({
+          download_id: activeDownload.id,
+          name: mirrorFormData.name,
+          url: mirrorFormData.url,
+          sort_order: mirrorFormData.sort_order,
+        });
+
+        if (error) throw error;
+        toast({ title: "Success", description: "Mirror added successfully" });
+      }
+
+      resetMirrorForm();
+      fetchDownloads();
+    } catch (error) {
+      console.error("Error saving mirror:", error);
+      toast({ title: "Error", description: "Failed to save mirror", variant: "destructive" });
+    } finally {
+      setSavingMirror(false);
+    }
+  };
+
+  const handleEditMirror = (mirror: DownloadMirror) => {
+    setEditingMirror(mirror);
+    setMirrorFormData({
+      name: mirror.name,
+      url: mirror.url,
+      sort_order: mirror.sort_order || 0,
+    });
+  };
+
+  const handleDeleteMirror = async (mirrorId: string) => {
+    if (!confirm("Are you sure you want to delete this mirror?")) return;
+
+    try {
+      const { error } = await supabase.from("download_mirrors").delete().eq("id", mirrorId);
+      if (error) throw error;
+      toast({ title: "Success", description: "Mirror deleted successfully" });
+      fetchDownloads();
+    } catch (error) {
+      console.error("Error deleting mirror:", error);
+      toast({ title: "Error", description: "Failed to delete mirror", variant: "destructive" });
+    }
   };
 
   if (authLoading) {
@@ -307,7 +419,7 @@ export default function AdminDownloads() {
         </div>
 
         {/* Downloads Table */}
-        <Card className="gaming-card">
+          <Card className="gaming-card">
           <CardContent className="p-0">
             {loading ? (
               <div className="flex items-center justify-center py-12">
@@ -324,6 +436,7 @@ export default function AdminDownloads() {
                     <TableHead>Title</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Size</TableHead>
+                    <TableHead>Mirrors</TableHead>
                     <TableHead>Primary</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -338,6 +451,17 @@ export default function AdminDownloads() {
                         </span>
                       </TableCell>
                       <TableCell>{item.file_size || "-"}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">
+                            {(mirrorsByDownload[item.id] || []).length} mirrors
+                          </span>
+                          <Button variant="outline" size="sm" onClick={() => openMirrorDialog(item)}>
+                            <LinkIcon className="w-3 h-3 mr-1" />
+                            Manage
+                          </Button>
+                        </div>
+                      </TableCell>
                       <TableCell>
                         {item.is_primary && <Star className="w-4 h-4 text-primary fill-primary" />}
                       </TableCell>
@@ -361,6 +485,109 @@ export default function AdminDownloads() {
             )}
           </CardContent>
         </Card>
+
+        <Dialog open={mirrorDialogOpen} onOpenChange={setMirrorDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                Manage Mirrors {activeDownload ? `- ${activeDownload.title}` : ""}
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              <div className="space-y-3">
+                {activeDownload && (mirrorsByDownload[activeDownload.id] || []).length === 0 && (
+                  <div className="text-sm text-muted-foreground">No mirrors yet.</div>
+                )}
+
+                {activeDownload && (mirrorsByDownload[activeDownload.id] || []).length > 0 && (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>URL</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(mirrorsByDownload[activeDownload.id] || []).map((mirror) => (
+                        <TableRow key={mirror.id}>
+                          <TableCell className="font-medium">{mirror.name}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground truncate max-w-[260px]">
+                            {mirror.url}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="sm" onClick={() => handleEditMirror(mirror)}>
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteMirror(mirror.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </div>
+
+              <form onSubmit={handleSaveMirror} className="space-y-4 border-t border-border pt-4">
+                <div className="text-sm font-medium text-muted-foreground">
+                  {editingMirror ? "Edit Mirror" : "Add Mirror"}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="mirror_name">Name</Label>
+                    <Input
+                      id="mirror_name"
+                      value={mirrorFormData.name}
+                      onChange={(e) => setMirrorFormData({ ...mirrorFormData, name: e.target.value })}
+                      placeholder="Google Drive"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mirror_sort">Sort Order</Label>
+                    <Input
+                      id="mirror_sort"
+                      type="number"
+                      value={mirrorFormData.sort_order}
+                      onChange={(e) =>
+                        setMirrorFormData({ ...mirrorFormData, sort_order: parseInt(e.target.value) || 0 })
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="mirror_url">URL</Label>
+                  <Input
+                    id="mirror_url"
+                    value={mirrorFormData.url}
+                    onChange={(e) => setMirrorFormData({ ...mirrorFormData, url: e.target.value })}
+                    placeholder="https://..."
+                    required
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  {editingMirror && (
+                    <Button type="button" variant="outline" onClick={resetMirrorForm}>
+                      Cancel Edit
+                    </Button>
+                  )}
+                  <Button type="submit" disabled={savingMirror || !activeDownload}>
+                    {savingMirror && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    {editingMirror ? "Update Mirror" : "Add Mirror"}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   );
