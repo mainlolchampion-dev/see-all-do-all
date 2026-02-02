@@ -181,7 +181,7 @@ export default function UCP() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      <div className="flex-1 pt-16">
+      <div className="flex-1 pt-20 md:pt-24">
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar */}
