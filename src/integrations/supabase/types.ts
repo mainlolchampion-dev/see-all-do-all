@@ -244,6 +244,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_donation_coins: {
+        Args: { _amount: number }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
