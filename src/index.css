@@ -2,78 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Lineage 2 Private Server - Modern Dark Fantasy Design System */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+/* Lin2Web Style - Dark Fantasy Gaming Theme */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Philosopher:wght@400;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    /* Dark Fantasy Color Palette */
-    --background: 220 20% 6%;
-    --foreground: 45 10% 90%;
+    /* Lin2Web Dark Brown/Gold Color Palette */
+    --background: 20 15% 6%;
+    --foreground: 40 20% 90%;
 
-    --card: 220 18% 10%;
-    --card-foreground: 45 10% 90%;
+    --card: 20 15% 10%;
+    --card-foreground: 40 20% 90%;
 
-    --popover: 220 18% 10%;
-    --popover-foreground: 45 10% 90%;
+    --popover: 20 15% 10%;
+    --popover-foreground: 40 20% 90%;
 
-    /* Golden/Amber Primary */
-    --primary: 38 90% 50%;
-    --primary-foreground: 220 20% 6%;
+    /* Golden/Orange Primary - Lin2Web Style */
+    --primary: 35 85% 50%;
+    --primary-foreground: 20 15% 6%;
 
-    /* Dark Surface Secondary */
-    --secondary: 220 15% 15%;
-    --secondary-foreground: 45 10% 90%;
+    /* Dark Brown Secondary */
+    --secondary: 20 15% 12%;
+    --secondary-foreground: 40 20% 90%;
 
     /* Muted Dark Tones */
-    --muted: 220 15% 12%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 20 12% 15%;
+    --muted-foreground: 30 10% 50%;
 
     /* Golden Accent */
-    --accent: 38 80% 45%;
-    --accent-foreground: 220 20% 6%;
+    --accent: 35 80% 45%;
+    --accent-foreground: 20 15% 6%;
 
     /* Red Destructive */
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders and Inputs */
-    --border: 220 15% 18%;
-    --input: 220 15% 15%;
-    --ring: 38 90% 50%;
+    --border: 30 15% 20%;
+    --input: 20 15% 12%;
+    --ring: 35 85% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;
 
     /* Sidebar */
-    --sidebar-background: 220 18% 8%;
-    --sidebar-foreground: 45 10% 90%;
-    --sidebar-primary: 38 90% 50%;
-    --sidebar-primary-foreground: 220 20% 6%;
-    --sidebar-accent: 220 15% 12%;
-    --sidebar-accent-foreground: 45 10% 90%;
-    --sidebar-border: 220 15% 15%;
-    --sidebar-ring: 38 90% 50%;
+    --sidebar-background: 20 15% 8%;
+    --sidebar-foreground: 40 20% 90%;
+    --sidebar-primary: 35 85% 50%;
+    --sidebar-primary-foreground: 20 15% 6%;
+    --sidebar-accent: 20 12% 15%;
+    --sidebar-accent-foreground: 40 20% 90%;
+    --sidebar-border: 30 15% 18%;
+    --sidebar-ring: 35 85% 50%;
 
     /* Custom Gaming Tokens */
-    --gold: 38 90% 50%;
-    --gold-light: 45 85% 65%;
-    --gold-dark: 35 80% 35%;
+    --gold: 35 85% 50%;
+    --gold-light: 40 80% 60%;
+    --gold-dark: 30 75% 35%;
     --crimson: 0 70% 45%;
-    --emerald: 155 70% 40%;
+    --emerald: 140 60% 45%;
     --royal-blue: 220 80% 55%;
-    --surface-elevated: 220 18% 12%;
-    --surface-overlay: 220 20% 4%;
+    --surface-elevated: 20 15% 12%;
+    --surface-overlay: 20 18% 4%;
 
     /* Gradients as custom properties */
-    --gradient-gold: linear-gradient(135deg, hsl(38 90% 50%), hsl(45 85% 65%));
-    --gradient-dark: linear-gradient(180deg, hsl(220 20% 8%), hsl(220 20% 4%));
-    --gradient-card: linear-gradient(145deg, hsl(220 18% 12%), hsl(220 18% 8%));
-    --gradient-hero: linear-gradient(180deg, transparent 0%, hsl(220 20% 4% / 0.8) 50%, hsl(220 20% 4%) 100%);
+    --gradient-gold: linear-gradient(180deg, hsl(35 85% 50%), hsl(25 80% 40%));
+    --gradient-gold-horizontal: linear-gradient(90deg, hsl(35 85% 50%), hsl(40 80% 60%));
+    --gradient-dark: linear-gradient(180deg, hsl(20 15% 8%), hsl(20 18% 4%));
+    --gradient-card: linear-gradient(145deg, hsl(20 15% 12%), hsl(20 15% 8%));
+    --gradient-hero: linear-gradient(180deg, transparent 0%, hsl(20 18% 4% / 0.7) 60%, hsl(20 18% 4%) 100%);
+    --gradient-button: linear-gradient(180deg, hsl(35 85% 55%) 0%, hsl(30 80% 40%) 100%);
 
     /* Shadows */
-    --shadow-gold: 0 0 30px hsl(38 90% 50% / 0.3);
-    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.4);
-    --shadow-elevated: 0 16px 48px hsl(0 0% 0% / 0.5);
+    --shadow-gold: 0 0 20px hsl(35 85% 50% / 0.4);
+    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.5);
+    --shadow-elevated: 0 16px 48px hsl(0 0% 0% / 0.6);
   }
 
   .dark {
@@ -89,44 +91,66 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Rajdhani', system-ui, sans-serif;
+    font-weight: 500;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Orbitron', sans-serif;
-    @apply font-semibold tracking-wide;
+    font-family: 'Philosopher', serif;
+    @apply font-bold tracking-wide;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 }
 
 @layer components {
-  /* Gold gradient text */
+  /* Gold gradient text - Lin2Web style */
   .text-gradient-gold {
-    background: linear-gradient(135deg, hsl(38 90% 50%), hsl(45 85% 65%));
+    background: linear-gradient(180deg, hsl(40 80% 60%), hsl(35 85% 50%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Gaming card style */
+  /* Gaming card style - Lin2Web */
   .gaming-card {
-    background: linear-gradient(145deg, hsl(220 18% 12%), hsl(220 18% 8%));
-    border: 1px solid hsl(220 15% 18%);
-    box-shadow: 0 8px 32px hsl(0 0% 0% / 0.4);
+    background: linear-gradient(145deg, hsl(20 15% 11% / 0.95), hsl(20 15% 7% / 0.95));
+    border: 1px solid hsl(30 20% 18%);
+    box-shadow: 0 8px 32px hsl(0 0% 0% / 0.5);
+    backdrop-filter: blur(10px);
   }
 
-  /* Glowing button */
+  /* Lin2Web Button glow */
   .btn-glow {
-    box-shadow: 0 0 20px hsl(38 90% 50% / 0.4);
-    transition: box-shadow 0.3s ease;
+    background: linear-gradient(180deg, hsl(35 85% 55%) 0%, hsl(30 80% 40%) 100%);
+    box-shadow: 0 4px 15px hsl(35 85% 50% / 0.4), inset 0 1px 0 hsl(40 80% 70% / 0.3);
+    border: 1px solid hsl(35 70% 45%);
+    transition: all 0.3s ease;
   }
 
   .btn-glow:hover {
-    box-shadow: 0 0 30px hsl(38 90% 50% / 0.6);
+    background: linear-gradient(180deg, hsl(38 85% 60%) 0%, hsl(33 80% 45%) 100%);
+    box-shadow: 0 6px 25px hsl(35 85% 50% / 0.5), inset 0 1px 0 hsl(40 80% 70% / 0.4);
+    transform: translateY(-1px);
+  }
+
+  /* Lin2Web style outline button */
+  .btn-outline-gold {
+    background: transparent;
+    border: 1px solid hsl(35 60% 40%);
+    color: hsl(40 80% 60%);
+    transition: all 0.3s ease;
+  }
+
+  .btn-outline-gold:hover {
+    background: hsl(35 85% 50% / 0.1);
+    border-color: hsl(35 85% 50%);
+    color: hsl(40 80% 65%);
   }
 
   /* Server status indicators */
   .status-online {
-    background-color: hsl(155 70% 40%);
-    box-shadow: 0 0 10px hsl(155 70% 40% / 0.6);
+    background-color: hsl(140 60% 45%);
+    box-shadow: 0 0 10px hsl(140 60% 45% / 0.6);
   }
 
   .status-offline {
@@ -134,10 +158,148 @@
     box-shadow: 0 0 10px hsl(0 70% 50% / 0.6);
   }
 
-  /* Ornamental divider */
+  /* Ornamental divider - Lin2Web style */
   .ornament-divider {
-    background: linear-gradient(90deg, transparent, hsl(38 90% 50% / 0.5), transparent);
-    height: 1px;
+    position: relative;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, hsl(35 85% 50% / 0.5), transparent);
+  }
+
+  .ornament-divider::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 8px;
+    height: 8px;
+    background: hsl(35 85% 50%);
+    border: 1px solid hsl(40 80% 60%);
+  }
+
+  /* Lin2Web Tab Style */
+  .lin2web-tab {
+    background: linear-gradient(180deg, hsl(20 15% 15%) 0%, hsl(20 15% 10%) 100%);
+    border: 1px solid hsl(30 15% 20%);
+    color: hsl(40 20% 70%);
+    padding: 0.5rem 1.25rem;
+    font-family: 'Philosopher', serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .lin2web-tab:hover {
+    background: linear-gradient(180deg, hsl(20 15% 18%) 0%, hsl(20 15% 12%) 100%);
+    border-color: hsl(35 60% 35%);
+    color: hsl(40 80% 60%);
+  }
+
+  .lin2web-tab.active {
+    background: linear-gradient(180deg, hsl(35 85% 55%) 0%, hsl(30 80% 40%) 100%);
+    border-color: hsl(35 70% 45%);
+    color: hsl(20 15% 6%);
+    box-shadow: 0 0 15px hsl(35 85% 50% / 0.3);
+  }
+
+  /* Lin2Web Input Style */
+  .lin2web-input {
+    background: hsl(20 15% 8%);
+    border: 1px solid hsl(30 15% 20%);
+    color: hsl(40 20% 85%);
+    padding: 0.875rem 1rem;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .lin2web-input::placeholder {
+    color: hsl(30 10% 40%);
+  }
+
+  .lin2web-input:focus {
+    outline: none;
+    border-color: hsl(35 85% 50%);
+    box-shadow: 0 0 10px hsl(35 85% 50% / 0.2);
+  }
+
+  /* Social Icon Style */
+  .social-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, hsl(20 15% 14%), hsl(20 15% 8%));
+    border: 1px solid hsl(30 20% 22%);
+    border-radius: 0.5rem;
+    color: hsl(40 80% 55%);
+    transition: all 0.3s ease;
+  }
+
+  .social-icon:hover {
+    background: linear-gradient(145deg, hsl(20 15% 18%), hsl(20 15% 12%));
+    border-color: hsl(35 85% 50%);
+    color: hsl(40 80% 65%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px hsl(35 85% 50% / 0.2);
+  }
+
+  /* Server Card Style */
+  .server-card {
+    background: linear-gradient(145deg, hsl(20 15% 11% / 0.9), hsl(20 15% 7% / 0.9));
+    border: 1px solid hsl(30 20% 18%);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .server-card:hover {
+    border-color: hsl(35 60% 35%);
+    background: linear-gradient(145deg, hsl(20 15% 13% / 0.95), hsl(20 15% 9% / 0.95));
+  }
+
+  .server-card-icon {
+    width: 56px;
+    height: 56px;
+    border: 2px solid hsl(35 70% 45%);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, hsl(35 85% 50% / 0.2), hsl(35 85% 50% / 0.1));
+  }
+
+  /* Navbar style */
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: hsl(40 20% 75%);
+    font-family: 'Philosopher', serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+  }
+
+  .nav-link:hover {
+    color: hsl(40 80% 60%);
+  }
+
+  .nav-link.active {
+    color: hsl(40 80% 60%);
+  }
+
+  .nav-link svg {
+    width: 18px;
+    height: 18px;
+    opacity: 0.8;
   }
 }
 

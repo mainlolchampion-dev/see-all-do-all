@@ -18,27 +18,48 @@ const features = [
 export default function Features() {
   return (
     <Layout>
-      <div className="py-20">
+      <div className="py-12">
         <div className="container mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-            <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
-              <span className="text-gradient-gold">Server Features</span>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-10"
+          >
+            <h1 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide mb-2">
+              <span className="text-gradient-gold">About Our Server</span>
             </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">Everything you need for the ultimate L2 experience</p>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Everything you need for the ultimate L2 experience
+            </p>
           </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
             {features.map((feature, index) => (
-              <motion.div key={feature.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="gaming-card rounded-xl p-6 group hover:border-primary/50 transition-all">
-                <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <feature.icon className="w-6 h-6 text-primary" />
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="gaming-card rounded-lg p-5 group hover:border-primary/50 transition-all"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <feature.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-base font-semibold mb-1 text-foreground uppercase tracking-wide">
+                      {feature.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  </div>
                 </div>
-                <h3 className="font-display text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </div>
+
+      <div className="ornament-divider" />
     </Layout>
   );
 }
