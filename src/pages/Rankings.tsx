@@ -1,39 +1,30 @@
 import { motion } from "framer-motion";
 import { Trophy, Swords, Crown, Users, Medal, Loader2 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRankings } from "@/hooks/useRankings";
-import { useState } from "react";
-
-type TabType = "players" | "clans" | "heroes";
 
 export default function Rankings() {
   const { data, isLoading, error } = useRankings();
-  const [activeTab, setActiveTab] = useState<TabType>("players");
 
   const topPlayers = data?.players || [];
   const topClans = data?.clans || [];
   const heroes = data?.heroes || [];
 
-  const tabs: { id: TabType; label: string; icon: any }[] = [
-    { id: "players", label: "Top Players", icon: Swords },
-    { id: "clans", label: "Top Clans", icon: Users },
-    { id: "heroes", label: "Heroes", icon: Crown },
-  ];
-
   return (
     <Layout>
-      <div className="py-12">
+      <div className="py-20">
         <div className="container mx-auto px-4">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-8"
+            className="text-center mb-12"
           >
-            <h1 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide">
-              <span className="text-gradient-gold">Statistics</span>
+            <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-gradient-gold">Rankings</span>
             </h1>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-muted-foreground">
               Top players and clans on the server
             </p>
           </motion.div>
@@ -55,159 +46,163 @@ export default function Rankings() {
 
           {/* Tabs */}
           {!isLoading && (
-            <div className="max-w-5xl mx-auto">
-              {/* Tab Headers */}
-              <div className="flex flex-wrap gap-2 justify-center mb-6">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`lin2web-tab flex items-center gap-2 rounded-lg ${
-                      activeTab === tab.id ? "active" : ""
-                    }`}
-                  >
-                    <tab.icon className="w-4 h-4" />
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+            <Tabs defaultValue="players" className="max-w-5xl mx-auto">
+              <TabsList className="grid w-full grid-cols-3 mb-8 bg-muted/50">
+                <TabsTrigger value="players" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Swords className="w-4 h-4 mr-2" />
+                  Top Players
+                </TabsTrigger>
+                <TabsTrigger value="clans" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Users className="w-4 h-4 mr-2" />
+                  Top Clans
+                </TabsTrigger>
+                <TabsTrigger value="heroes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Crown className="w-4 h-4 mr-2" />
+                  Heroes
+                </TabsTrigger>
+              </TabsList>
 
-              {/* Content */}
-              <div className="gaming-card rounded-xl overflow-hidden">
-                {activeTab === "players" && (
-                  <PlayersTable players={topPlayers} />
-                )}
-                {activeTab === "clans" && (
-                  <ClansTable clans={topClans} />
-                )}
-                {activeTab === "heroes" && (
-                  <HeroesGrid heroes={heroes} />
-                )}
-              </div>
-            </div>
+              <TabsContent value="players">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="gaming-card rounded-xl overflow-hidden"
+                >
+                  {topPlayers.length === 0 ? (
+                    <div className="text-center py-10 text-muted-foreground">
+                      No player data available
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-muted/50 border-b border-border">
+                          <tr>
+                            <th className="px-6 py-4 text-left text-sm font-semibold">Rank</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold">Player</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold">Class</th>
+                            <th className="px-6 py-4 text-center text-sm font-semibold">Level</th>
+                            <th className="px-6 py-4 text-center text-sm font-semibold">PvP</th>
+                            <th className="px-6 py-4 text-center text-sm font-semibold">PK</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold">Clan</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {topPlayers.map((player) => (
+                            <tr key={player.rank} className="hover:bg-muted/30 transition-colors">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-2">
+                                  {player.rank <= 3 ? (
+                                    <Trophy className={`w-5 h-5 ${
+                                      player.rank === 1 ? "text-yellow-500" :
+                                      player.rank === 2 ? "text-gray-400" :
+                                      "text-amber-600"
+                                    }`} />
+                                  ) : (
+                                    <span className="w-5 text-center text-muted-foreground">{player.rank}</span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 font-medium">{player.name}</td>
+                              <td className="px-6 py-4 text-muted-foreground">{player.class}</td>
+                              <td className="px-6 py-4 text-center text-primary">{player.level}</td>
+                              <td className="px-6 py-4 text-center text-green-500">{player.pvp.toLocaleString()}</td>
+                              <td className="px-6 py-4 text-center text-red-500">{player.pk.toLocaleString()}</td>
+                              <td className="px-6 py-4 text-muted-foreground">{player.clan}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="clans">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="gaming-card rounded-xl overflow-hidden"
+                >
+                  {topClans.length === 0 ? (
+                    <div className="text-center py-10 text-muted-foreground">
+                      No clan data available
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-muted/50 border-b border-border">
+                          <tr>
+                            <th className="px-6 py-4 text-left text-sm font-semibold">Rank</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold">Clan</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold">Leader</th>
+                            <th className="px-6 py-4 text-center text-sm font-semibold">Level</th>
+                            <th className="px-6 py-4 text-center text-sm font-semibold">Members</th>
+                            <th className="px-6 py-4 text-center text-sm font-semibold">Reputation</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {topClans.map((clan) => (
+                            <tr key={clan.rank} className="hover:bg-muted/30 transition-colors">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-2">
+                                  {clan.rank <= 3 ? (
+                                    <Medal className={`w-5 h-5 ${
+                                      clan.rank === 1 ? "text-yellow-500" :
+                                      clan.rank === 2 ? "text-gray-400" :
+                                      "text-amber-600"
+                                    }`} />
+                                  ) : (
+                                    <span className="w-5 text-center text-muted-foreground">{clan.rank}</span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 font-medium">{clan.name}</td>
+                              <td className="px-6 py-4 text-muted-foreground">{clan.leader}</td>
+                              <td className="px-6 py-4 text-center text-primary">{clan.level}</td>
+                              <td className="px-6 py-4 text-center">{clan.members}</td>
+                              <td className="px-6 py-4 text-center text-gradient-gold font-semibold">{clan.reputation.toLocaleString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="heroes">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                >
+                  {heroes.length === 0 ? (
+                    <div className="col-span-3 text-center py-10 text-muted-foreground">
+                      No hero data available
+                    </div>
+                  ) : (
+                    heroes.map((hero, index) => (
+                      <div key={hero.name} className="gaming-card rounded-xl p-6 text-center">
+                        <div className="w-16 h-16 mx-auto rounded-full bg-gradient-gold flex items-center justify-center mb-4">
+                          <Crown className="w-8 h-8 text-background" />
+                        </div>
+                        <h3 className="font-display text-xl font-semibold mb-1">{hero.name}</h3>
+                        <p className="text-sm text-muted-foreground mb-4">{hero.class}</p>
+                        <div className="flex justify-center">
+                          <div>
+                            <div className="text-2xl font-bold text-gradient-gold">{hero.count}</div>
+                            <div className="text-xs text-muted-foreground">Hero Count</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </motion.div>
+              </TabsContent>
+            </Tabs>
           )}
         </div>
       </div>
     </Layout>
   );
-}
-
-function PlayersTable({ players }: { players: any[] }) {
-  if (players.length === 0) {
-    return (
-      <div className="text-center py-10 text-muted-foreground">
-        No player data available
-      </div>
-    );
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="border-b border-border">
-          <tr className="text-left text-sm text-muted-foreground">
-            <th className="px-4 py-3 w-12">#</th>
-            <th className="px-4 py-3">Player</th>
-            <th className="px-4 py-3">Class</th>
-            <th className="px-4 py-3 text-center">Level</th>
-            <th className="px-4 py-3 text-center">PvP</th>
-            <th className="px-4 py-3 text-center">PK</th>
-          </tr>
-        </thead>
-        <tbody>
-          {players.map((player) => (
-            <tr key={player.rank} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-              <td className="px-4 py-3">
-                <RankBadge rank={player.rank} />
-              </td>
-              <td className="px-4 py-3 font-medium text-foreground">{player.name}</td>
-              <td className="px-4 py-3 text-muted-foreground text-sm">{player.class}</td>
-              <td className="px-4 py-3 text-center text-primary font-semibold">{player.level}</td>
-              <td className="px-4 py-3 text-center text-emerald font-semibold">{player.pvp}</td>
-              <td className="px-4 py-3 text-center text-destructive font-semibold">{player.pk}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function ClansTable({ clans }: { clans: any[] }) {
-  if (clans.length === 0) {
-    return (
-      <div className="text-center py-10 text-muted-foreground">
-        No clan data available
-      </div>
-    );
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="border-b border-border">
-          <tr className="text-left text-sm text-muted-foreground">
-            <th className="px-4 py-3 w-12">#</th>
-            <th className="px-4 py-3">Clan</th>
-            <th className="px-4 py-3">Leader</th>
-            <th className="px-4 py-3 text-center">Level</th>
-            <th className="px-4 py-3 text-center">Members</th>
-            <th className="px-4 py-3 text-center">Reputation</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clans.map((clan) => (
-            <tr key={clan.rank} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-              <td className="px-4 py-3">
-                <RankBadge rank={clan.rank} />
-              </td>
-              <td className="px-4 py-3 font-medium text-foreground">{clan.name}</td>
-              <td className="px-4 py-3 text-muted-foreground">{clan.leader}</td>
-              <td className="px-4 py-3 text-center text-primary font-semibold">{clan.level}</td>
-              <td className="px-4 py-3 text-center text-muted-foreground">{clan.members}</td>
-              <td className="px-4 py-3 text-center text-primary font-semibold">{clan.reputation?.toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function HeroesGrid({ heroes }: { heroes: any[] }) {
-  if (heroes.length === 0) {
-    return (
-      <div className="text-center py-10 text-muted-foreground">
-        No hero data available
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
-      {heroes.map((hero) => (
-        <div key={hero.name} className="gaming-card rounded-lg p-4 text-center">
-          <div className="w-12 h-12 mx-auto rounded-full bg-primary/20 flex items-center justify-center mb-3">
-            <Crown className="w-6 h-6 text-primary" />
-          </div>
-          <h3 className="font-display font-semibold text-foreground">{hero.name}</h3>
-          <p className="text-sm text-muted-foreground mb-2">{hero.class}</p>
-          <div className="text-xl font-bold text-primary">{hero.count}x Hero</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) {
-    return <span className="text-yellow-400 text-lg">🥇</span>;
-  }
-  if (rank === 2) {
-    return <span className="text-gray-400 text-lg">🥈</span>;
-  }
-  if (rank === 3) {
-    return <span className="text-amber-600 text-lg">🥉</span>;
-  }
-  return <span className="text-muted-foreground">{rank}</span>;
 }

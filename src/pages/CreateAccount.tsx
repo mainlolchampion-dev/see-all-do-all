@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { User, Lock, Eye, EyeOff, Mail, Loader2 } from "lucide-react";
+import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import heroBg from "@/assets/lin2web-bg.jpg";
 
 export default function CreateAccount() {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,38 +22,41 @@ export default function CreateAccount() {
   const navigate = useNavigate();
 
   const validateUsername = (username: string): string | null => {
-    if (username.length < 4) return "Username must be at least 4 characters";
-    if (username.length > 14) return "Username cannot exceed 14 characters";
-    if (!/^[a-zA-Z0-9]+$/.test(username)) return "Username can only contain letters and numbers";
+    if (username.length < 4) return "Το username πρέπει να έχει τουλάχιστον 4 χαρακτήρες";
+    if (username.length > 14) return "Το username δεν μπορεί να υπερβαίνει τους 14 χαρακτήρες";
+    if (!/^[a-zA-Z0-9]+$/.test(username)) return "Το username μπορεί να περιέχει μόνο γράμματα και αριθμούς (χωρίς ελληνικά)";
     return null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate username
     const usernameError = validateUsername(formData.username);
     if (usernameError) {
       toast({
-        title: "Invalid username",
+        title: "Μη έγκυρο username",
         description: usernameError,
         variant: "destructive",
       });
       return;
     }
 
+    // Validate password length
     if (formData.password.length < 6) {
       toast({
-        title: "Invalid password",
-        description: "Password must be at least 6 characters",
+        title: "Μη έγκυρο password",
+        description: "Το password πρέπει να έχει τουλάχιστον 6 χαρακτήρες",
         variant: "destructive",
       });
       return;
     }
 
+    // Validate password match
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "Passwords don't match",
-        description: "Please make sure both passwords are the same",
+        title: "Τα passwords δεν ταιριάζουν",
+        description: "Βεβαιώσου ότι έχεις πληκτρολογήσει το ίδιο password και στα δύο πεδία",
         variant: "destructive",
       });
       return;
@@ -60,6 +65,7 @@ export default function CreateAccount() {
     setIsLoading(true);
 
     try {
+      // Step 1: Create L2 game account via edge function
       const { data: l2Data, error: l2Error } = await supabase.functions.invoke('create-l2-account', {
         body: {
           login: formData.username,
@@ -72,7 +78,7 @@ export default function CreateAccount() {
       
       if (l2Data?.error) {
         toast({
-          title: "Account creation failed",
+          title: "Σφάλμα δημιουργίας λογαριασμού",
           description: l2Data.error,
           variant: "destructive",
         });
@@ -80,6 +86,7 @@ export default function CreateAccount() {
         return;
       }
 
+      // Step 2: Create Supabase web account for UCP access
       const { error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -92,26 +99,28 @@ export default function CreateAccount() {
       });
 
       if (signUpError) {
+        // L2 account was created, but web signup failed
+        // This is okay - they can still play, just won't have UCP access until they create web account
         console.warn("Web signup failed:", signUpError.message);
         toast({
-          title: "Game account created!",
-          description: "You can play now. For UCP access, log in with your email.",
+          title: "Ο λογαριασμός παιχνιδιού δημιουργήθηκε!",
+          description: "Μπορείς να παίξεις τώρα. Για πρόσβαση στο UCP, κάνε login με το email σου.",
         });
         navigate("/login");
         return;
       }
 
       toast({
-        title: "Account created!",
-        description: "Your account has been created successfully.",
+        title: "Επιτυχής δημιουργία!",
+        description: "Ο λογαριασμός σου δημιουργήθηκε. Μπορείς τώρα να συνδεθείς.",
       });
       
       navigate("/login");
     } catch (error: any) {
       console.error("Registration error:", error);
       toast({
-        title: "Error",
-        description: error.message || "Something went wrong. Please try again.",
+        title: "Σφάλμα",
+        description: error.message || "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
         variant: "destructive",
       });
     } finally {
@@ -120,108 +129,132 @@ export default function CreateAccount() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center">
-      {/* Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBg})` }}
-      />
-      <div className="absolute inset-0 bg-background/70" />
-      
-      {/* Navbar spacer */}
-      <div className="absolute top-0 left-0 right-0 h-16 bg-background/95 border-b border-border" />
+    <Layout>
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md mx-4"
+        >
+          <div className="gaming-card rounded-2xl p-8">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h1 className="font-display text-3xl font-bold mb-2">
+                <span className="text-gradient-gold">Create Account</span>
+              </h1>
+              <p className="text-muted-foreground">
+                Δημιούργησε τον λογαριασμό σου για να ξεκινήσεις
+              </p>
+            </div>
 
-      {/* Form Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 w-full max-w-md mx-4 mt-16"
-      >
-        <div className="gaming-card rounded-xl p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">
-              Create a new account
-            </h1>
-          </div>
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Username */}
+              <div className="space-y-2">
+                <Label htmlFor="username">Game Username</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="Το username για το παιχνίδι"
+                    value={formData.username}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    className="pl-10 h-12"
+                    required
+                    maxLength={14}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">4-14 χαρακτήρες, μόνο λατινικοί</p>
+              </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              placeholder="Your login"
-              value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              className="lin2web-input w-full rounded-lg"
-              required
-              maxLength={14}
-            />
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Το email σου"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="pl-10 h-12"
+                    required
+                  />
+                </div>
+              </div>
 
-            <input
-              type="email"
-              placeholder="Your Email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="lin2web-input w-full rounded-lg"
-              required
-            />
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Τουλάχιστον 6 χαρακτήρες"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="pl-10 pr-10 h-12"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
 
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password 6 to 14 symbols"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="lin2web-input w-full rounded-lg pr-10"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              {/* Confirm Password */}
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    id="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Επανάλαβε το password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    className="pl-10 h-12"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                className="w-full h-12 text-lg font-semibold btn-glow"
+                disabled={isLoading}
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Δημιουργία...
+                  </span>
+                ) : (
+                  "Create Account"
+                )}
+              </Button>
+            </form>
+
+            {/* Login Link */}
+            <div className="mt-6 text-center">
+              <p className="text-muted-foreground">
+                Έχεις ήδη λογαριασμό;{" "}
+                <Link to="/login" className="text-primary hover:underline font-medium">
+                  Σύνδεση
+                </Link>
+              </p>
             </div>
-
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="lin2web-input w-full rounded-lg pr-10"
-                required
-              />
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full btn-glow py-6 text-lg font-display uppercase tracking-wide"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Creating...
-                </span>
-              ) : (
-                "Register"
-              )}
-            </Button>
-          </form>
-
-          {/* Login Link */}
-          <div className="mt-6 text-center">
-            <Link 
-              to="/login" 
-              className="text-muted-foreground hover:text-primary transition-colors text-sm btn-outline-gold px-4 py-2 rounded-lg inline-block border border-border"
-            >
-              Already registered?
-            </Link>
           </div>
-        </div>
-      </motion.div>
-    </div>
+        </motion.div>
+      </div>
+    </Layout>
   );
 }

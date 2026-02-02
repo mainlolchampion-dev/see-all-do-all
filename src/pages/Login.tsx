@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import heroBg from "@/assets/lin2web-bg.jpg";
 
 export default function Login() {
   const { toast } = useToast();
@@ -32,15 +34,15 @@ export default function Login() {
       if (error) throw error;
 
       toast({
-        title: "Login successful!",
-        description: "Welcome to L2 ALL STARS.",
+        title: "Επιτυχής σύνδεση!",
+        description: "Καλώς ήρθες στο L2 ALL STARS.",
       });
       
       navigate(redirectTo);
     } catch (error: any) {
       toast({
-        title: "Login failed",
-        description: error.message || "Invalid email or password.",
+        title: "Σφάλμα σύνδεσης",
+        description: error.message || "Λάθος email ή κωδικός.",
         variant: "destructive",
       });
     } finally {
@@ -49,87 +51,87 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center">
-      {/* Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBg})` }}
-      />
-      <div className="absolute inset-0 bg-background/70" />
-      
-      {/* Navbar spacer */}
-      <div className="absolute top-0 left-0 right-0 h-16 bg-background/95 border-b border-border" />
-
-      {/* Form Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 w-full max-w-md mx-4 mt-16"
-      >
-        <div className="gaming-card rounded-xl p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">
-              Sign In
-            </h1>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="email"
-              placeholder="Your Email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="lin2web-input w-full rounded-lg"
-              required
-            />
-
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="lin2web-input w-full rounded-lg pr-10"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
+    <Layout>
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-20">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-md mx-auto"
+          >
+            <div className="text-center mb-8">
+              <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">
+                <span className="text-gradient-gold">Welcome Back</span>
+              </h1>
+              <p className="text-muted-foreground">
+                Login to access your account and control panel
+              </p>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full btn-glow py-6 text-lg font-display uppercase tracking-wide"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Signing in...
-                </span>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-          </form>
+            <div className="gaming-card rounded-xl p-8">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      className="pl-10 bg-muted/50 border-border"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
 
-          {/* Register Link */}
-          <div className="mt-6 text-center">
-            <Link 
-              to="/register" 
-              className="text-muted-foreground hover:text-primary transition-colors text-sm btn-outline-gold px-4 py-2 rounded-lg inline-block border border-border"
-            >
-              Create new account
-            </Link>
-          </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    <Link to="/forgot-password" className="text-xs text-primary hover:underline">
+                      Forgot password?
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter password"
+                      className="pl-10 pr-10 bg-muted/50 border-border"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full btn-glow" size="lg" disabled={isLoading}>
+                  {isLoading ? "Σύνδεση..." : "Login"}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </form>
+
+              <div className="mt-6 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Don't have an account?{" "}
+                  <Link to="/create-account" className="text-primary hover:underline">
+                    Create Account
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </motion.div>
-    </div>
+      </div>
+    </Layout>
   );
 }

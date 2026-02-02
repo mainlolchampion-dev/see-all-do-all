@@ -1,139 +1,149 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Download as DownloadIcon, Monitor, HardDrive, FileDown, ExternalLink } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import heroBg from "@/assets/lin2web-bg.jpg";
+
+const downloads = [
+  {
+    title: "Full Client",
+    description: "Complete Lineage 2 High Five client with all required files.",
+    size: "7.2 GB",
+    icon: HardDrive,
+    type: "primary",
+  },
+  {
+    title: "System Patch",
+    description: "Latest system patch for connecting to our server.",
+    size: "245 MB",
+    icon: FileDown,
+    type: "secondary",
+  },
+  {
+    title: "Auto Updater",
+    description: "Keep your client up-to-date automatically.",
+    size: "15 MB",
+    icon: Monitor,
+    type: "secondary",
+  },
+];
+
+const mirrors = [
+  { name: "Google Drive", url: "#" },
+  { name: "Mega.nz", url: "#" },
+  { name: "MediaFire", url: "#" },
+  { name: "Torrent", url: "#" },
+];
 
 export default function Download() {
   return (
     <Layout>
-      {/* Hero Section with Background */}
-      <section className="relative py-16">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
-          style={{ backgroundImage: `url(${heroBg})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
-        
-        <div className="relative container mx-auto px-4">
+      <div className="py-20">
+        <div className="container mx-auto px-4">
+          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
-            <h1 className="font-display text-3xl md:text-4xl font-bold text-primary uppercase tracking-wide mb-2">
-              Start the game in just a few clicks
+            <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-gradient-gold">Download</span>
             </h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Get the game client and start your adventure. Make sure to download all required files.
+            </p>
           </motion.div>
 
-          {/* Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* Step 1 - Account Registration */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <div className="mb-4">
-                <span className="text-muted-foreground text-sm">Step 1</span>
-                <h2 className="font-display text-2xl font-bold text-foreground uppercase tracking-wide">
-                  Account Registration
-                </h2>
-              </div>
-              
-              <p className="text-muted-foreground mb-6">
-                The first step to start playing is to create a master account. This account will be used to log into the game and access your personal dashboard.
-              </p>
-
-              <Button className="btn-glow font-display uppercase tracking-wide mb-6" asChild>
-                <Link to="/register">Create Account</Link>
-              </Button>
-
-              <p className="text-muted-foreground mb-4">
-                After registering your account, you can log into your personal dashboard. There, you'll be able to manage your account settings, purchase in-game currency, control your characters, and access other features.
-              </p>
-
-              <Button variant="outline" className="btn-outline-gold font-display uppercase tracking-wide mb-8" asChild>
-                <Link to="/login">Log In to Dashboard</Link>
-              </Button>
-
-              {/* Project Rules */}
-              <div className="gaming-card rounded-lg p-4">
-                <h3 className="font-display text-lg font-semibold text-foreground uppercase tracking-wide mb-2">
-                  Project Rules
-                </h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  We recommend that you read the rules of our project. Ignorance of the rules does not exempt you from responsibility!
-                </p>
-                <div className="flex gap-3">
-                  <Link to="/terms" className="text-primary hover:underline text-sm">Terms of Agreement</Link>
-                  <Link to="/privacy" className="text-primary hover:underline text-sm">Privacy Policy</Link>
+          {/* Download Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
+            {downloads.map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className={`gaming-card rounded-xl p-6 ${
+                  item.type === "primary" ? "border-primary/50 md:col-span-1" : ""
+                }`}
+              >
+                <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center mb-4">
+                  <item.icon className="w-7 h-7 text-primary" />
                 </div>
-              </div>
-            </motion.div>
-
-            {/* Step 2 - File Download */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="mb-4">
-                <span className="text-muted-foreground text-sm">Step 2</span>
-                <h2 className="font-display text-2xl font-bold text-foreground uppercase tracking-wide">
-                  File Download
-                </h2>
-              </div>
-              
-              <p className="text-muted-foreground mb-6">
-                To connect to our servers, you need to download and install the Lineage 2 High Five client files, the patch, or the updater.
-              </p>
-
-              {/* Download Cards */}
-              <div className="space-y-4">
-                {/* Client */}
-                <div className="gaming-card rounded-lg p-4">
-                  <h3 className="font-display text-lg font-semibold text-foreground uppercase tracking-wide mb-2">
-                    Lineage 2 Client
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    You need the game client. We recommend using our client for the best experience.
-                  </p>
-                  <Button className="btn-glow font-display uppercase tracking-wide text-sm">
-                    Download Client
+                <h3 className="font-display text-xl font-semibold mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Size: {item.size}</span>
+                  <Button size="sm" className={item.type === "primary" ? "btn-glow" : ""}>
+                    <DownloadIcon className="w-4 h-4 mr-2" />
+                    Download
                   </Button>
                 </div>
-
-                {/* Patch */}
-                <div className="gaming-card rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Files required to play on our servers. Extract them into the root folder of the game.
-                  </p>
-                  <Button className="btn-glow font-display uppercase tracking-wide text-sm">
-                    Download Patch
-                  </Button>
-                </div>
-
-                {/* Updater */}
-                <div className="gaming-card rounded-lg p-4">
-                  <h3 className="font-display text-lg font-semibold text-foreground uppercase tracking-wide mb-2">
-                    Updater
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Automatic file check and download. Keeps your game files up to date.
-                  </p>
-                  <Button variant="outline" className="btn-outline-gold font-display uppercase tracking-wide text-sm">
-                    Download Updater
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            ))}
           </div>
-        </div>
-      </section>
 
-      {/* Bottom ornament */}
-      <div className="ornament-divider" />
+          {/* Mirror Links */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="max-w-3xl mx-auto"
+          >
+            <div className="gaming-card rounded-xl p-8">
+              <h2 className="font-display text-2xl font-bold mb-6 text-center">
+                <span className="text-gradient-gold">Download Mirrors</span>
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {mirrors.map((mirror) => (
+                  <a
+                    key={mirror.name}
+                    href={mirror.url}
+                    className="flex items-center justify-center gap-2 p-4 rounded-lg bg-muted/50 hover:bg-primary/20 hover:text-primary transition-all group"
+                  >
+                    <span className="font-medium">{mirror.name}</span>
+                    <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* System Requirements */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="max-w-3xl mx-auto mt-12"
+          >
+            <div className="gaming-card rounded-xl p-8">
+              <h2 className="font-display text-2xl font-bold mb-6 text-center">
+                <span className="text-gradient-gold">System Requirements</span>
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="font-semibold text-primary mb-4">Minimum</h3>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li>• OS: Windows 7 / 8 / 10 / 11</li>
+                    <li>• CPU: Pentium 4 2.0 GHz</li>
+                    <li>• RAM: 2 GB</li>
+                    <li>• GPU: GeForce 6600 / Radeon X1600</li>
+                    <li>• Storage: 10 GB</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-primary mb-4">Recommended</h3>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li>• OS: Windows 10 / 11</li>
+                    <li>• CPU: Core i3 or equivalent</li>
+                    <li>• RAM: 4 GB</li>
+                    <li>• GPU: GeForce GTX 650 / Radeon HD 7750</li>
+                    <li>• Storage: 15 GB SSD</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
     </Layout>
   );
 }

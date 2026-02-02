@@ -1,32 +1,33 @@
 import { Layout } from "@/components/layout/Layout";
 import { HeroSection } from "@/components/home/HeroSection";
-import { ContentTabs } from "@/components/home/ContentTabs";
-import { ServerCards } from "@/components/home/ServerCards";
+import { ServerStatus } from "@/components/home/ServerStatus";
+import { ServerRates } from "@/components/home/ServerRates";
+import { FeaturesSection } from "@/components/home/FeaturesSection";
+import { NewsSection } from "@/components/home/NewsSection";
+import { CTASection } from "@/components/home/CTASection";
+import { DiscordWidget } from "@/components/home/DiscordWidget";
+import { SiegeTimer } from "@/components/home/SiegeTimer";
 
 const Index = () => {
   return (
     <Layout>
       <HeroSection />
+      <ServerStatus />
       
-      {/* Main Content Section */}
-      <section className="py-12 bg-background">
+      {/* Discord & Siege Timer Section */}
+      <section className="py-12 bg-surface-overlay">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {/* Left - Content Tabs (News, Rankings, etc.) */}
-            <div className="lg:col-span-2">
-              <ContentTabs />
-            </div>
-            
-            {/* Right - Server Cards & Social */}
-            <div className="lg:col-span-1">
-              <ServerCards />
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            <SiegeTimer />
+            <DiscordWidget />
           </div>
         </div>
       </section>
-
-      {/* Bottom ornament */}
-      <div className="ornament-divider" />
+      
+      <ServerRates />
+      <FeaturesSection />
+      <NewsSection />
+      <CTASection />
     </Layout>
   );
 };
