@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles, Package } from "lucide-react";
 import randomSkinBoxIcon from "@/assets/donate/random-skin-box.gif";
+import donateCoinIcon from "@/assets/donate/donate-coin-icon.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -269,9 +270,11 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
           <div className="gaming-card rounded-2xl p-6 sticky top-6 border-primary/30">
             {/* Header */}
             <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 mb-4">
-                <Coins className="w-8 h-8 text-primary" />
-              </div>
+              <img 
+                src={donateCoinIcon} 
+                alt="Donation Coins" 
+                className="w-16 h-16 mx-auto mb-4"
+              />
               <h3 className="font-display text-lg font-bold text-foreground">Selected Package</h3>
             </div>
 
