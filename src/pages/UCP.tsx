@@ -25,7 +25,6 @@ const sidebarLinks = [
   { icon: UserCircle, label: "Account Overview", tab: "overview" },
   { icon: CreditCard, label: "Buy Coins", tab: "donate" },
   { icon: Package, label: "Starter Packs", tab: "starter-packs" },
-  { icon: History, label: "Donation History", tab: "donations" },
   { icon: Settings, label: "Settings", tab: "settings" },
 ];
 
@@ -363,108 +362,6 @@ export default function UCP() {
                 />
               )}
 
-              {/* Donations Tab */}
-              {activeTab === "donations" && !isLoading && !notLinkedError && (
-                <div className="space-y-6">
-                  <h1 className="font-display text-2xl font-bold text-gradient-gold">Donation History</h1>
-                  
-                  <div className="gaming-card rounded-xl overflow-hidden">
-                    {donationsLoading ? (
-                      <div className="flex items-center justify-center py-12">
-                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                        <span className="ml-2 text-muted-foreground">Loading donations...</span>
-                      </div>
-                    ) : donations && donations.length > 0 ? (
-                      <div className="space-y-4 p-4">
-                        {donations.map((donation) => {
-                          const coins = donation.coins;
-                          const bonusCoins = Math.floor(coins * 0.1);
-                          const hasPremium = coins >= 1500;
-                          const premiumDays = coins >= 25000 ? 21 : coins >= 15000 ? 7 : coins >= 10000 ? 5 : coins >= 5000 ? 3 : coins >= 3000 ? 2 : coins >= 1500 ? 1 : 0;
-                          const hasTreasure = coins >= 10000;
-                          const treasureCount = coins >= 25000 ? 15 : coins >= 15000 ? 9 : coins >= 10000 ? 6 : 0;
-                          
-                          return (
-                            <div key={donation.id} className="border border-border/50 rounded-lg p-4 bg-muted/20 hover:bg-muted/30 transition-colors">
-                              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <div className="flex items-center gap-4">
-                                  <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center p-2">
-                                    <img src={donateCoinIcon} alt="Coins" className="w-full h-full object-contain" />
-                                  </div>
-                                  <div>
-                                    <div className="font-semibold">Order {donation.id}</div>
-                                    <div className="text-sm text-muted-foreground">{donation.date}</div>
-                                  </div>
-                                </div>
-                                
-                                <div className="flex items-center gap-6">
-                                  <div className="text-center">
-                                    <div className="text-xs text-muted-foreground">Amount</div>
-                                    <div className="font-semibold">€{donation.amount}</div>
-                                  </div>
-                                  <div className="text-center">
-                                    <div className="text-xs text-muted-foreground">Coins</div>
-                                    <div className="font-bold text-gradient-gold">{coins.toLocaleString()}</div>
-                                  </div>
-                                  <div>
-                                    <span className="px-2 py-1 rounded text-xs font-medium bg-green-500/20 text-green-400 flex items-center gap-1">
-                                      <Check className="w-3 h-3" />
-                                      {donation.status}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {/* Bonuses Received */}
-                              <div className="mt-4 pt-4 border-t border-border/50">
-                                <div className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                                  <Gift className="w-3 h-3" />
-                                  Bonuses Received
-                                </div>
-                                <div className="flex flex-wrap gap-3">
-                                  {/* +10% Bonus Coins */}
-                                  <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg text-sm">
-                                    <img src={donateCoinIcon} alt="Bonus" className="w-5 h-5" />
-                                    <span>+{bonusCoins.toLocaleString()} Bonus Coins</span>
-                                  </div>
-                                  
-                                  {/* Random Skin Box */}
-                                  <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg text-sm">
-                                    <img src={randomSkinBoxIcon} alt="Skin Box" className="w-5 h-5" />
-                                    <span>1x Random Skin Box</span>
-                                  </div>
-                                  
-                                  {/* Premium Account */}
-                                  {hasPremium && (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg text-sm">
-                                      <img src={premiumIcon} alt="Premium" className="w-5 h-5" />
-                                      <span>Premium Account ({premiumDays} days)</span>
-                                    </div>
-                                  )}
-                                  
-                                  {/* Treasures Antharas */}
-                                  {hasTreasure && (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg text-sm">
-                                      <img src={antharasTreasureIcon} alt="Treasure" className="w-5 h-5" />
-                                      <span>{treasureCount}x Treasures Antharas</span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="text-center py-12 text-muted-foreground">
-                        <History className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                        <p>No donation history found</p>
-                        <p className="text-sm mt-2">Your donations will appear here after you make a purchase.</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
 
               {/* Settings Tab */}
               {activeTab === "settings" && !isLoading && !notLinkedError && (
