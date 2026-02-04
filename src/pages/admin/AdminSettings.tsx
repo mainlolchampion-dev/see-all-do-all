@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Save, Swords, Settings, MessageCircle, Castle } from "lucide-react";
+import { Loader2, Save, Swords, Settings, MessageCircle, Castle, Rocket } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { defaultServerSettings, type ServerSettings } from "@/lib/serverSettings";
 
@@ -248,6 +248,56 @@ export default function AdminSettings() {
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               <Save className="w-4 h-4 mr-2" />
               Save Discord Settings
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Server Launch Section */}
+        <Card className="gaming-card">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Rocket className="w-5 h-5 text-primary" />
+              <CardTitle>Server Launch Countdown</CardTitle>
+            </div>
+            <CardDescription>Configure the server launch date for the countdown timer. After launch, it will show server uptime.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="launch_date">Launch Date & Time</Label>
+                <Input
+                  id="launch_date"
+                  type="datetime-local"
+                  value={settings.launch?.date ? new Date(settings.launch.date).toISOString().slice(0, 16) : ""}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      launch: { ...settings.launch, date: new Date(e.target.value).toISOString(), enabled: settings.launch?.enabled ?? true },
+                    })
+                  }
+                />
+              </div>
+              <div className="flex items-center space-x-2 pt-8">
+                <Switch
+                  id="launch_enabled"
+                  checked={settings.launch?.enabled ?? true}
+                  onCheckedChange={(checked) =>
+                    setSettings({
+                      ...settings,
+                      launch: { ...settings.launch, enabled: checked, date: settings.launch?.date ?? new Date().toISOString() },
+                    })
+                  }
+                />
+                <Label htmlFor="launch_enabled">Show Launch Timer</Label>
+              </div>
+            </div>
+            <div className="p-3 bg-muted/30 rounded-lg text-sm text-muted-foreground">
+              <strong>Hint:</strong> Set the date to the past to show "Server Online" with uptime counter. Set it to the future to show countdown.
+            </div>
+            <Button onClick={() => saveSettings("launch", settings.launch)} disabled={saving}>
+              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Save className="w-4 h-4 mr-2" />
+              Save Launch Settings
             </Button>
           </CardContent>
         </Card>
