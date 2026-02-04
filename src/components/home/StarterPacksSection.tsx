@@ -115,15 +115,15 @@ const tierBadgeStyles: Record<string, string> = {
 const tierGlowStyles: Record<string, string> = {
   basic: "shadow-[0_0_30px_rgba(161,161,170,0.3)] hover:shadow-[0_0_50px_rgba(161,161,170,0.5)]",
   improved: "shadow-[0_0_30px_rgba(217,119,6,0.4)] hover:shadow-[0_0_50px_rgba(217,119,6,0.6)]",
-  premium: "shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:shadow-[0_0_50px_rgba(239,68,68,0.6)]",
-  elite: "shadow-[0_0_40px_rgba(250,204,21,0.5)] hover:shadow-[0_0_60px_rgba(250,204,21,0.7)]",
+  premium: "shadow-[0_0_40px_rgba(250,204,21,0.5)] hover:shadow-[0_0_60px_rgba(250,204,21,0.7)]",
+  elite: "shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:shadow-[0_0_50px_rgba(239,68,68,0.6)]",
 };
 
 const tierBorderStyles: Record<string, string> = {
   basic: "border-zinc-500/50 hover:border-zinc-400",
   improved: "border-amber-600/50 hover:border-amber-500",
-  premium: "border-red-500/50 hover:border-red-400",
-  elite: "border-yellow-500/50 hover:border-yellow-400",
+  premium: "border-yellow-500/50 hover:border-yellow-400",
+  elite: "border-red-500/50 hover:border-red-400",
 };
 
 export function StarterPacksSection() {
@@ -164,10 +164,10 @@ export function StarterPacksSection() {
               </div>
 
               {/* Animated corner accents */}
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-current opacity-50 rounded-tl-lg" style={{ borderColor: pack.id === 'elite' ? '#fbbf24' : pack.id === 'premium' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
-              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-current opacity-50 rounded-tr-lg" style={{ borderColor: pack.id === 'elite' ? '#fbbf24' : pack.id === 'premium' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-current opacity-50 rounded-bl-lg" style={{ borderColor: pack.id === 'elite' ? '#fbbf24' : pack.id === 'premium' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-current opacity-50 rounded-br-lg" style={{ borderColor: pack.id === 'elite' ? '#fbbf24' : pack.id === 'premium' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-current opacity-50 rounded-tl-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-current opacity-50 rounded-tr-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-current opacity-50 rounded-bl-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-current opacity-50 rounded-br-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
 
               {/* Floating particles for all tiers */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -175,8 +175,8 @@ export function StarterPacksSection() {
                   <motion.div
                     key={i}
                     className={`absolute w-1 h-1 rounded-full ${
-                      pack.id === 'elite' ? 'bg-yellow-400/60' :
-                      pack.id === 'premium' ? 'bg-red-400/50' :
+                      pack.id === 'premium' ? 'bg-yellow-400/60' :
+                      pack.id === 'elite' ? 'bg-red-400/50' :
                       pack.id === 'improved' ? 'bg-amber-400/50' :
                       'bg-zinc-400/40'
                     }`}
@@ -240,14 +240,13 @@ export function StarterPacksSection() {
               <div className="p-4 border-t border-border/50 bg-black/30 relative z-10 backdrop-blur-sm">
                 <div className="text-center mb-3">
                   <span className="text-lg line-through text-muted-foreground">{pack.originalPrice}</span>
-                  <p className="text-xs text-muted-foreground">PROMOTION UNTIL {pack.promoDate}</p>
                 </div>
                 <Button 
                   asChild
                   className={`w-full font-bold py-3 transition-all duration-300 ${
-                    pack.id === 'elite' 
+                    pack.id === 'premium' 
                       ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 shadow-[0_0_20px_rgba(250,204,21,0.4)]' 
-                      : pack.id === 'premium'
+                      : pack.id === 'elite'
                       ? 'bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400'
                       : pack.id === 'improved'
                       ? 'bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400'
