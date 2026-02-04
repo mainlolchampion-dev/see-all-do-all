@@ -8,6 +8,17 @@ import improvedBadge from "@/assets/starter-packs/improved-badge.png";
 import premiumBadge from "@/assets/starter-packs/premium-badge.png";
 import eliteBadge from "@/assets/starter-packs/elite-badge.png";
 
+// Item Icons
+import weaponIcon from "@/assets/starter-packs/items/weapon-icon.png";
+import armorIcon from "@/assets/starter-packs/items/armor-icon.png";
+import jewelIcon from "@/assets/starter-packs/items/jewel-icon.png";
+import pveIcon from "@/assets/starter-packs/items/pve-icon.png";
+import agathionIcon from "@/assets/starter-packs/items/agathion-icon.png";
+import premiumAccountIcon from "@/assets/starter-packs/items/premium-icon.png";
+import enchantIcon from "@/assets/starter-packs/items/enchant-icon.png";
+import lovePotionIcon from "@/assets/starter-packs/items/love-potion-icon.png";
+import generosityRuneIcon from "@/assets/starter-packs/items/generosity-rune-icon.png";
+
 interface PackItem {
   icon: string;
   name: string;
@@ -35,10 +46,10 @@ const starterPacks: StarterPack[] = [
     badgeImage: eliteBadge,
     bgClass: "bg-gradient-to-b from-zinc-800/50 to-zinc-900/80",
     items: [
-      { icon: "⚔️", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: "🛡️", name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: "💎", name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: "📜", name: "Generosity Rune", value: "5 Pcs.", valueColor: "text-crimson" },
+      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
+      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
+      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
+      { icon: generosityRuneIcon, name: "Generosity Rune", value: "5 Pcs.", valueColor: "text-crimson" },
     ],
     originalPrice: "€20.00",
     salePrice: "€9.99",
@@ -51,12 +62,12 @@ const starterPacks: StarterPack[] = [
     badgeImage: improvedBadge,
     bgClass: "bg-gradient-to-b from-amber-900/30 to-zinc-900/80",
     items: [
-      { icon: "⚔️", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: "🛡️", name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: "💎", name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: "💥", name: "PvE Damage +15%", value: "7 Days", valueColor: "text-emerald" },
-      { icon: "🐾", name: "Agathion Helper", value: "7 Days", valueColor: "text-emerald" },
-      { icon: "📜", name: "Generosity Rune", value: "10 Pcs.", valueColor: "text-crimson" },
+      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
+      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
+      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
+      { icon: pveIcon, name: "PvE Damage +15%", value: "7 Days", valueColor: "text-emerald" },
+      { icon: agathionIcon, name: "Agathion Helper", value: "7 Days", valueColor: "text-emerald" },
+      { icon: generosityRuneIcon, name: "Generosity Rune", value: "10 Pcs.", valueColor: "text-crimson" },
     ],
     originalPrice: "€30.00",
     salePrice: "€14.99",
@@ -69,14 +80,14 @@ const starterPacks: StarterPack[] = [
     badgeImage: premiumBadge,
     bgClass: "bg-gradient-to-b from-red-900/30 to-zinc-900/80",
     items: [
-      { icon: "⚔️", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: "🛡️", name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: "💎", name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: "💥", name: "PvE Damage +15%", value: "7 Days", valueColor: "text-emerald" },
-      { icon: "🐾", name: "Agathion Helper", value: "7 Days", valueColor: "text-emerald" },
-      { icon: "👑", name: "Premium Account 100%", value: "7 Days", valueColor: "text-emerald" },
-      { icon: "✨", name: "Enchant Bonus +10%", value: "7 Days", valueColor: "text-emerald" },
-      { icon: "📜", name: "Generosity Rune", value: "15 Pcs.", valueColor: "text-crimson" },
+      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
+      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
+      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
+      { icon: pveIcon, name: "PvE Damage +15%", value: "7 Days", valueColor: "text-emerald" },
+      { icon: agathionIcon, name: "Agathion Helper", value: "7 Days", valueColor: "text-emerald" },
+      { icon: premiumAccountIcon, name: "Premium Account 100%", value: "7 Days", valueColor: "text-emerald" },
+      { icon: enchantIcon, name: "Enchant Bonus +10%", value: "7 Days", valueColor: "text-emerald" },
+      { icon: generosityRuneIcon, name: "Generosity Rune", value: "15 Pcs.", valueColor: "text-crimson" },
     ],
     originalPrice: "€40.00",
     salePrice: "€19.99",
@@ -89,15 +100,15 @@ const starterPacks: StarterPack[] = [
     badgeImage: basicBadge,
     bgClass: "bg-gradient-to-b from-purple-900/50 to-purple-950/80",
     items: [
-      { icon: "⚔️", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: "🛡️", name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: "💎", name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: "💥", name: "PvE Damage +15%", value: "21 Days", valueColor: "text-emerald" },
-      { icon: "🐾", name: "Agathion Helper", value: "21 Days", valueColor: "text-emerald" },
-      { icon: "👑", name: "Premium Account 100%", value: "21 Days", valueColor: "text-emerald" },
-      { icon: "✨", name: "Enchant Bonus +10%", value: "21 Days", valueColor: "text-emerald" },
-      { icon: "❤️", name: "Love Potions", value: "100 Pcs.", valueColor: "text-crimson" },
-      { icon: "📜", name: "Generosity Rune", value: "25 Pcs.", valueColor: "text-crimson" },
+      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
+      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
+      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
+      { icon: pveIcon, name: "PvE Damage +15%", value: "21 Days", valueColor: "text-emerald" },
+      { icon: agathionIcon, name: "Agathion Helper", value: "21 Days", valueColor: "text-emerald" },
+      { icon: premiumAccountIcon, name: "Premium Account 100%", value: "21 Days", valueColor: "text-emerald" },
+      { icon: enchantIcon, name: "Enchant Bonus +10%", value: "21 Days", valueColor: "text-emerald" },
+      { icon: lovePotionIcon, name: "Love Potions", value: "100 Pcs.", valueColor: "text-crimson" },
+      { icon: generosityRuneIcon, name: "Generosity Rune", value: "25 Pcs.", valueColor: "text-crimson" },
     ],
     originalPrice: "€50.00",
     salePrice: "€24.99",
@@ -226,7 +237,7 @@ export function StarterPacksSection() {
                       whileInView={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 + itemIndex * 0.05 }}
                     >
-                      <span className="text-base flex-shrink-0">{item.icon}</span>
+                      <img src={item.icon} alt="" className="w-5 h-5 object-contain flex-shrink-0 drop-shadow-[0_0_4px_rgba(234,179,8,0.4)]" />
                       <span className="text-muted-foreground">{item.name}</span>
                       <span className={`ml-auto font-semibold ${item.valueColor || "text-foreground"}`}>
                         {item.value}
