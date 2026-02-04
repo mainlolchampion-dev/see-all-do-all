@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
@@ -7,11 +7,24 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+// Coin packages with +10% bonus
+const COIN_PACKAGES = [
+  { coins: 500, bonus: 50, total: 550, price: 5 },
+  { coins: 900, bonus: 90, total: 990, price: 9 },
+  { coins: 1500, bonus: 150, total: 1650, price: 15 },
+  { coins: 3000, bonus: 300, total: 3300, price: 30 },
+  { coins: 5000, bonus: 500, total: 5500, price: 50 },
+  { coins: 10000, bonus: 1000, total: 11000, price: 100 },
+  { coins: 15000, bonus: 1500, total: 16500, price: 150 },
+  { coins: 25000, bonus: 2500, total: 27500, price: 250 },
+];
+
 // Coin presets for quick selection
 const COIN_PRESETS = [500, 900, 1500, 3000, 5000, 10000, 15000, 25000];
 const MIN_COINS = 100;
 const MAX_COINS = 25000;
 const COINS_PER_EURO = 100; // 100 coins = 1 EUR
+const BONUS_PERCENTAGE = 0.10; // 10% bonus
 
 interface DonateTabProps {
   linkedLogin: string | null;
@@ -151,9 +164,76 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
     }
   };
 
+  // Calculate bonus coins (10%)
+  const bonusCoins = Math.floor(coins * BONUS_PERCENTAGE);
+  const totalCoins = coins + bonusCoins;
+
   return (
     <div className="space-y-6">
       <h1 className="font-display text-2xl font-bold text-gradient-gold">Buy Donation Coins</h1>
+
+      {/* Coin Packages Card */}
+      <div className="gaming-card rounded-2xl p-6 relative overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+            <Gift className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="font-display text-xl font-bold text-foreground">Coin Packages</h2>
+            <p className="text-sm text-muted-foreground flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-primary" />
+              All packages include +10% bonus coins!
+            </p>
+          </div>
+        </div>
+
+        {/* Packages Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {COIN_PACKAGES.map((pkg) => (
+            <button
+              key={pkg.coins}
+              onClick={() => handlePresetClick(pkg.coins)}
+              className={`relative p-4 rounded-xl border transition-all duration-300 group ${
+                coins === pkg.coins
+                  ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
+                  : "border-border/50 bg-card/50 hover:border-primary/50 hover:bg-primary/5"
+              }`}
+            >
+              {/* +10% Badge */}
+              <div className="absolute -top-2 -right-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+                +10%
+              </div>
+              
+              {/* Coin Amount */}
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <Coins className="w-4 h-4 text-primary" />
+                  <span className={`font-bold text-lg ${coins === pkg.coins ? "text-primary" : "text-foreground"}`}>
+                    {pkg.coins.toLocaleString()}
+                  </span>
+                </div>
+                
+                {/* Total with bonus */}
+                <div className="text-emerald-500 text-xs font-semibold mb-2">
+                  = {pkg.total.toLocaleString()} coins
+                </div>
+                
+                {/* Price */}
+                <div className={`text-sm font-semibold ${coins === pkg.coins ? "text-primary" : "text-muted-foreground"}`}>
+                  €{pkg.price}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Info Note */}
+        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <Info className="w-3 h-3" />
+          <span>Bonus coins (ID: 100108) are automatically added to your purchase</span>
+        </div>
+      </div>
 
       <div className="gaming-card rounded-2xl p-6 md:p-8">
         {/* Character Selection */}
@@ -270,9 +350,20 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
           <div className="inline-flex items-baseline gap-1">
             <span className="text-4xl font-bold text-gradient-gold">EUR {price.toFixed(2)}</span>
           </div>
+          
+          {/* Bonus Display */}
+          {bonusCoins > 0 && (
+            <div className="mt-3 inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-2">
+              <Sparkles className="w-4 h-4 text-emerald-500" />
+              <span className="text-emerald-500 font-semibold">
+                +{bonusCoins.toLocaleString()} bonus = {totalCoins.toLocaleString()} total
+              </span>
+            </div>
+          )}
+          
           <p className="text-sm text-muted-foreground mt-2 flex items-center justify-center gap-1">
             <Info className="w-4 h-4" />
-            100 coins = EUR 1.00
+            100 coins = EUR 1.00 (+10% bonus)
           </p>
         </div>
 
@@ -291,7 +382,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
           ) : (
             <span className="flex items-center gap-2">
               <CreditCard className="w-5 h-5" />
-              Buy {coins.toLocaleString()} Coins
+              Buy {coins.toLocaleString()} Coins (+{bonusCoins.toLocaleString()} bonus)
             </span>
           )}
         </Button>
