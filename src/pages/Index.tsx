@@ -6,6 +6,7 @@ import { NewsSection } from "@/components/home/NewsSection";
 import { CTASection } from "@/components/home/CTASection";
 import { DiscordWidget } from "@/components/home/DiscordWidget";
 import { ServerLaunchTimer } from "@/components/home/ServerLaunchTimer";
+import { StarterPacksSection } from "@/components/home/StarterPacksSection";
 
 const Index = () => {
   return (
@@ -21,6 +22,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Starter Packs Section */}
+      <StarterPacksSection />
       
       <ServerRates />
       <FeaturesSection />
