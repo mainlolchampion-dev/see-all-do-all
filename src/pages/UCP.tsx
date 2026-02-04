@@ -306,9 +306,44 @@ export default function UCP() {
                     )}
                   </div>
                   
-                  <div className="gaming-card rounded-xl p-6">
-                    <p className="text-muted-foreground">Welcome to your account panel. Use the sidebar to navigate.</p>
-                  </div>
+                  {userData?.characters && userData.characters.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {userData.characters.map((char) => (
+                        <div key={char.name} className="gaming-card rounded-xl p-6">
+                          <div className="flex items-center gap-4 mb-4">
+                            <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center">
+                              <Sword className="w-7 h-7 text-primary" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold flex items-center gap-2">
+                                {char.name}
+                                {char.online && <span className="w-2 h-2 rounded-full bg-green-500" />}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">{char.class}</p>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">Level</span>
+                              <span className="font-bold text-primary">{char.level}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">PvP Kills</span>
+                              <span className="font-semibold">{char.pvpkills}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">PK Kills</span>
+                              <span className="font-semibold text-destructive">{char.pkkills}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="gaming-card rounded-xl p-6 text-center">
+                      <p className="text-muted-foreground">No characters found for this account.</p>
+                    </div>
+                  )}
                 </div>
               )}
 
