@@ -4,6 +4,7 @@ import { Download, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useServerStatus } from "@/hooks/useServerStatus";
 import heroBg from "@/assets/hero-bg.jpg";
+import heroTitle from "@/assets/hero-title.png";
 
 export function HeroSection() {
   const { data, isLoading, error } = useServerStatus();
@@ -47,11 +48,12 @@ export function HeroSection() {
             <span className="text-sm font-medium">{statusText}</span>
           </motion.div>
 
-          {/* Main Title */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6" style={{ fontFamily: "'Cinzel Decorative', cursive" }}>
-            <span className="text-gradient-gold">L2</span>
-            <span className="text-foreground ml-3">ALL STARS</span>
-          </h1>
+          {/* Main Title Image */}
+          <img 
+            src={heroTitle} 
+            alt="L2 All Stars" 
+            className="h-24 md:h-32 lg:h-40 w-auto mx-auto mb-6 drop-shadow-[0_0_30px_rgba(200,200,200,0.5)]"
+          />
           
           <p className="text-xl md:text-2xl text-foreground/80 mb-4 font-display tracking-wide">
             LINEAGE <span className="tracking-tight">II</span> HIGH FIVE
