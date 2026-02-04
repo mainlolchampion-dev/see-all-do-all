@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Download, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useServerStatus } from "@/hooks/useServerStatus";
-import heroBg from "@/assets/hero-bg.jpg";
 import heroTitle from "@/assets/hero-title.png";
 
 export function HeroSection() {
@@ -20,11 +19,16 @@ export function HeroSection() {
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-top bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBg})` }}
-      />
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="/videos/hero-bg.mp4" type="video/mp4" />
+      </video>
       
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
