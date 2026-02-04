@@ -211,6 +211,42 @@ export type Database = {
         }
         Relationships: []
       }
+      starter_pack_metrics: {
+        Row: {
+          basic_count: number
+          elite_count: number
+          id: string
+          improved_count: number
+          key: string
+          premium_count: number
+          reset_at: string | null
+          total_revenue: number
+          updated_at: string
+        }
+        Insert: {
+          basic_count?: number
+          elite_count?: number
+          id?: string
+          improved_count?: number
+          key: string
+          premium_count?: number
+          reset_at?: string | null
+          total_revenue?: number
+          updated_at?: string
+        }
+        Update: {
+          basic_count?: number
+          elite_count?: number
+          id?: string
+          improved_count?: number
+          key?: string
+          premium_count?: number
+          reset_at?: string | null
+          total_revenue?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -246,6 +282,10 @@ export type Database = {
       }
       increment_donation_coins: {
         Args: { _amount: number }
+        Returns: undefined
+      }
+      increment_starter_pack_sale: {
+        Args: { _amount: number; _pack_id: string }
         Returns: undefined
       }
     }

@@ -85,11 +85,25 @@ serve(async (req) => {
           // Handle Starter Pack purchase
           const packId = session.metadata?.pack_id;
           const itemId = parseInt(session.metadata?.item_id || "0", 10);
+          const amountTotal = session.amount_total || 0; // Amount in cents
           
           if (itemId > 0) {
             try {
               await addItemToCharacter(characterName, accountName, itemId, 1);
               logStep("Starter pack delivered successfully", { characterName, packId, itemId });
+              
+              // Update starter pack metrics
+              if (supabaseAdmin && packId) {
+                const { error } = await supabaseAdmin.rpc("increment_starter_pack_sale", { 
+                  _pack_id: packId, 
+                  _amount: amountTotal 
+                });
+                if (error) {
+                  logStep("Failed to update starter pack metrics", { error: error.message });
+                } else {
+                  logStep("Starter pack metrics updated", { packId, amountTotal });
+                }
+              }
             } catch (dbError: unknown) {
               const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
               logStep("Database error delivering starter pack", { error: errorMessage });
