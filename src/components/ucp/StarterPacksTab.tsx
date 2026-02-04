@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { User, CheckCircle, XCircle, Loader2, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,6 +114,20 @@ const tierBadgeStyles: Record<string, string> = {
   improved: "from-amber-600 via-amber-500 to-amber-700",
   premium: "from-red-500 via-red-400 to-red-600",
   elite: "from-yellow-400 via-amber-300 to-yellow-500",
+};
+
+const tierGlowStyles: Record<string, string> = {
+  basic: "shadow-[0_0_30px_rgba(161,161,170,0.3)] hover:shadow-[0_0_50px_rgba(161,161,170,0.5)]",
+  improved: "shadow-[0_0_30px_rgba(217,119,6,0.4)] hover:shadow-[0_0_50px_rgba(217,119,6,0.6)]",
+  premium: "shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:shadow-[0_0_50px_rgba(239,68,68,0.6)]",
+  elite: "shadow-[0_0_40px_rgba(250,204,21,0.5)] hover:shadow-[0_0_60px_rgba(250,204,21,0.7)]",
+};
+
+const tierBorderStyles: Record<string, string> = {
+  basic: "border-zinc-500/50 hover:border-zinc-400",
+  improved: "border-amber-600/50 hover:border-amber-500",
+  premium: "border-red-500/50 hover:border-red-400",
+  elite: "border-yellow-500/50 hover:border-yellow-400",
 };
 
 interface StarterPacksTabProps {
@@ -278,46 +293,93 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
 
       {/* Packs Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {starterPacks.map((pack) => (
-          <div
+        {starterPacks.map((pack, index) => (
+          <motion.div
             key={pack.id}
-            className={`rounded-xl border border-border ${pack.bgClass} flex flex-col`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ scale: 1.02, y: -3 }}
+            className={`rounded-xl border-2 ${tierBorderStyles[pack.id]} ${pack.bgClass} ${tierGlowStyles[pack.id]} flex flex-col transition-all duration-500 relative overflow-hidden group`}
           >
-            {/* Elite sparkle effect */}
-            {pack.id === "elite" && (
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-4 right-4 w-2 h-2 bg-primary/60 rounded-full animate-pulse" />
-                <div className="absolute top-8 right-8 w-1 h-1 bg-accent/60 rounded-full animate-pulse" style={{ animationDelay: "100ms" }} />
-                <div className="absolute top-16 right-6 w-1.5 h-1.5 bg-primary/50 rounded-full animate-pulse" style={{ animationDelay: "200ms" }} />
-              </div>
-            )}
+            {/* Shimmer effect overlay */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+            </div>
 
-            {/* Badge */}
-            <div className="flex flex-col items-center pt-6 pb-4">
-              <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${tierBadgeStyles[pack.id]} flex items-center justify-center shadow-lg mb-3`}>
-                <span className="text-2xl">{pack.badge}</span>
-              </div>
+            {/* Animated corner accents */}
+            <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 opacity-50 rounded-tl-lg" style={{ borderColor: pack.id === 'elite' ? '#fbbf24' : pack.id === 'premium' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+            <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 opacity-50 rounded-tr-lg" style={{ borderColor: pack.id === 'elite' ? '#fbbf24' : pack.id === 'premium' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+            <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 opacity-50 rounded-bl-lg" style={{ borderColor: pack.id === 'elite' ? '#fbbf24' : pack.id === 'premium' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+            <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 opacity-50 rounded-br-lg" style={{ borderColor: pack.id === 'elite' ? '#fbbf24' : pack.id === 'premium' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+
+            {/* Floating particles for all tiers */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className={`absolute w-1 h-1 rounded-full ${
+                    pack.id === 'elite' ? 'bg-yellow-400/60' :
+                    pack.id === 'premium' ? 'bg-red-400/50' :
+                    pack.id === 'improved' ? 'bg-amber-400/50' :
+                    'bg-zinc-400/40'
+                  }`}
+                  style={{
+                    left: `${15 + i * 18}%`,
+                    top: `${20 + (i % 3) * 25}%`,
+                  }}
+                  animate={{
+                    y: [-8, 8, -8],
+                    opacity: [0.3, 0.8, 0.3],
+                    scale: [0.8, 1.2, 0.8],
+                  }}
+                  transition={{
+                    duration: 2 + i * 0.3,
+                    repeat: Infinity,
+                    delay: i * 0.2,
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Badge with glow */}
+            <div className="flex flex-col items-center pt-6 pb-4 relative z-10">
+              <motion.div 
+                className={`w-16 h-16 rounded-full bg-gradient-to-br ${tierBadgeStyles[pack.id]} flex items-center justify-center shadow-lg mb-3 relative`}
+                whileHover={{ rotate: [0, -5, 5, 0] }}
+                transition={{ duration: 0.5 }}
+              >
+                {/* Badge glow ring */}
+                <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${tierBadgeStyles[pack.id]} animate-pulse opacity-50 blur-sm`} />
+                <span className="text-2xl relative z-10">{pack.badge}</span>
+              </motion.div>
               <span className="text-xs text-muted-foreground tracking-wider uppercase">{pack.tier}</span>
               <h3 className="text-lg font-bold text-foreground mt-1">{pack.name}</h3>
             </div>
 
             {/* Items List */}
-            <div className="flex-1 px-4 pb-4">
+            <div className="flex-1 px-4 pb-4 relative z-10">
               <ul className="space-y-1.5">
                 {pack.items.map((item, itemIndex) => (
-                  <li key={itemIndex} className="flex items-start gap-2 text-sm">
+                  <motion.li 
+                    key={itemIndex} 
+                    className="flex items-start gap-2 text-sm"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 + itemIndex * 0.03 }}
+                  >
                     <span className="text-base flex-shrink-0">{item.icon}</span>
                     <span className="text-muted-foreground text-xs">{item.name}</span>
                     <span className={`ml-auto font-semibold text-xs ${item.valueColor || "text-foreground"}`}>
                       {item.value}
                     </span>
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
             </div>
 
             {/* Price & CTA */}
-            <div className="p-4 border-t border-border/50 bg-black/20">
+            <div className="p-4 border-t border-border/50 bg-black/30 relative z-10 backdrop-blur-sm">
               <div className="text-center mb-3">
                 <span className="text-base line-through text-muted-foreground">{pack.originalPrice}</span>
                 <p className="text-xs text-muted-foreground">PROMOTION UNTIL {pack.promoDate}</p>
@@ -325,7 +387,15 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
               <Button 
                 onClick={() => handlePurchase(pack)}
                 disabled={purchasingPack === pack.id || charValidation.valid !== true || isValidatingChar}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
+                className={`w-full font-bold transition-all duration-300 ${
+                  pack.id === 'elite' 
+                    ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 shadow-[0_0_20px_rgba(250,204,21,0.4)]' 
+                    : pack.id === 'premium'
+                    ? 'bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400'
+                    : pack.id === 'improved'
+                    ? 'bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400'
+                    : 'bg-primary hover:bg-primary/90'
+                } text-primary-foreground`}
               >
                 {purchasingPack === pack.id ? (
                   <span className="flex items-center gap-2">
@@ -340,7 +410,7 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
                 )}
               </Button>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
