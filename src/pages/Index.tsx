@@ -2,7 +2,6 @@ import { Layout } from "@/components/layout/Layout";
 import { HeroSection } from "@/components/home/HeroSection";
 import { ServerRates } from "@/components/home/ServerRates";
 import { FeaturesSection } from "@/components/home/FeaturesSection";
-import { NewsSection } from "@/components/home/NewsSection";
 import { CTASection } from "@/components/home/CTASection";
 import { DiscordWidget } from "@/components/home/DiscordWidget";
 import { ServerLaunchTimer } from "@/components/home/ServerLaunchTimer";
@@ -28,7 +27,6 @@ const Index = () => {
       
       <ServerRates />
       <FeaturesSection />
-      <NewsSection />
       <CTASection />
     </Layout>
   );
