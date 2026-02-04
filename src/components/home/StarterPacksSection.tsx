@@ -32,7 +32,7 @@ const starterPacks: StarterPack[] = [
     id: "basic",
     tier: "Beginner's Kit",
     name: "BASIC",
-    badgeImage: basicBadge,
+    badgeImage: eliteBadge,
     bgClass: "bg-gradient-to-b from-zinc-800/50 to-zinc-900/80",
     items: [
       { icon: "⚔️", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
@@ -86,7 +86,7 @@ const starterPacks: StarterPack[] = [
     id: "elite",
     tier: "Beginner's Kit",
     name: "ELITE",
-    badgeImage: eliteBadge,
+    badgeImage: basicBadge,
     bgClass: "bg-gradient-to-b from-purple-900/50 to-purple-950/80",
     items: [
       { icon: "⚔️", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
