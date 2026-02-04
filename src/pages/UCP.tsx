@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   User, Settings, Sword, History, CreditCard, Shield, LogOut, ChevronRight,
-  Key, Mail, Bell, Lock, UserCircle, Loader2
+  Key, Mail, Bell, Lock, UserCircle, Loader2, Package
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -16,11 +16,13 @@ import { useUserData } from "@/hooks/useUserData";
 import { useDonationHistory } from "@/hooks/useDonationHistory";
 import { useToast } from "@/hooks/use-toast";
 import { DonateTab } from "@/components/ucp/DonateTab";
+import { StarterPacksTab } from "@/components/ucp/StarterPacksTab";
 
 const sidebarLinks = [
   { icon: UserCircle, label: "Account Overview", tab: "overview" },
   { icon: Sword, label: "Characters", tab: "characters" },
   { icon: CreditCard, label: "Buy Coins", tab: "donate" },
+  { icon: Package, label: "Starter Packs", tab: "starter-packs" },
   { icon: History, label: "Donation History", tab: "donations" },
   { icon: Settings, label: "Settings", tab: "settings" },
   { icon: Shield, label: "Security", tab: "security" },
@@ -402,6 +404,14 @@ export default function UCP() {
               {/* Donate Tab */}
               {activeTab === "donate" && !isLoading && !notLinkedError && (
                 <DonateTab 
+                  linkedLogin={linkedLogin} 
+                  characters={userData?.characters}
+                />
+              )}
+
+              {/* Starter Packs Tab */}
+              {activeTab === "starter-packs" && !isLoading && !notLinkedError && (
+                <StarterPacksTab 
                   linkedLogin={linkedLogin} 
                   characters={userData?.characters}
                 />
