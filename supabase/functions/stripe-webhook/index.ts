@@ -98,11 +98,20 @@ serve(async (req) => {
         } else {
           // Handle donation coins purchase (default)
           const coins = parseInt(session.metadata?.coins || "0", 10);
+          const bonusItemId = parseInt(session.metadata?.bonus_item_id || "0", 10);
+          const bonusItemCount = parseInt(session.metadata?.bonus_item_count || "0", 10);
           
           if (coins > 0) {
             try {
+              // Add donation coins
               await addItemToCharacter(characterName, accountName, DONATE_COIN_ITEM_ID, coins);
               logStep("Coins added successfully", { characterName, accountName, coins });
+              
+              // Add bonus item (Random Skin Box) if specified
+              if (bonusItemId > 0 && bonusItemCount > 0) {
+                await addItemToCharacter(characterName, accountName, bonusItemId, bonusItemCount);
+                logStep("Bonus item added successfully", { characterName, bonusItemId, bonusItemCount });
+              }
             } catch (dbError: unknown) {
               const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
               logStep("Database error", { error: errorMessage });
