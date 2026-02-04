@@ -2,6 +2,12 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
+// Starter Pack Badge Icons
+import basicBadge from "@/assets/starter-packs/basic-badge.png";
+import improvedBadge from "@/assets/starter-packs/improved-badge.png";
+import premiumBadge from "@/assets/starter-packs/premium-badge.png";
+import eliteBadge from "@/assets/starter-packs/elite-badge.png";
+
 interface PackItem {
   icon: string;
   name: string;
@@ -13,7 +19,7 @@ interface StarterPack {
   id: string;
   tier: string;
   name: string;
-  badge: string;
+  badgeImage: string;
   bgClass: string;
   items: PackItem[];
   originalPrice: string;
@@ -26,7 +32,7 @@ const starterPacks: StarterPack[] = [
     id: "basic",
     tier: "Beginner's Kit",
     name: "BASIC",
-    badge: "🛡️",
+    badgeImage: basicBadge,
     bgClass: "bg-gradient-to-b from-zinc-800/50 to-zinc-900/80",
     items: [
       { icon: "⚔️", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
@@ -42,7 +48,7 @@ const starterPacks: StarterPack[] = [
     id: "improved",
     tier: "Beginner's Kit",
     name: "IMPROVED",
-    badge: "🛡️",
+    badgeImage: improvedBadge,
     bgClass: "bg-gradient-to-b from-amber-900/30 to-zinc-900/80",
     items: [
       { icon: "⚔️", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
@@ -60,7 +66,7 @@ const starterPacks: StarterPack[] = [
     id: "premium",
     tier: "Beginner's Kit",
     name: "PREMIUM",
-    badge: "🛡️",
+    badgeImage: premiumBadge,
     bgClass: "bg-gradient-to-b from-red-900/30 to-zinc-900/80",
     items: [
       { icon: "⚔️", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
@@ -80,7 +86,7 @@ const starterPacks: StarterPack[] = [
     id: "elite",
     tier: "Beginner's Kit",
     name: "ELITE",
-    badge: "👑",
+    badgeImage: eliteBadge,
     bgClass: "bg-gradient-to-b from-purple-900/50 to-purple-950/80",
     items: [
       { icon: "⚔️", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
@@ -195,13 +201,15 @@ export function StarterPacksSection() {
               {/* Badge with glow */}
               <div className="flex flex-col items-center pt-6 pb-4 relative z-10">
                 <motion.div 
-                  className={`w-20 h-20 rounded-full bg-gradient-to-br ${tierBadgeStyles[pack.id]} flex items-center justify-center shadow-lg mb-3 relative`}
-                  whileHover={{ rotate: [0, -5, 5, 0] }}
-                  transition={{ duration: 0.5 }}
+                  className="w-28 h-28 flex items-center justify-center mb-3 relative"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  {/* Badge glow ring */}
-                  <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${tierBadgeStyles[pack.id]} animate-pulse opacity-50 blur-sm`} />
-                  <span className="text-3xl relative z-10">{pack.badge}</span>
+                  <img 
+                    src={pack.badgeImage} 
+                    alt={`${pack.name} badge`} 
+                    className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"
+                  />
                 </motion.div>
                 <span className="text-xs text-muted-foreground tracking-wider uppercase">{pack.tier}</span>
                 <h3 className="text-xl font-bold text-foreground mt-1">{pack.name}</h3>
