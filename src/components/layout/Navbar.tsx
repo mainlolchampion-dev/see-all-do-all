@@ -44,12 +44,12 @@ export function Navbar() {
           <Link to="/" className="relative flex items-center">
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute -inset-4 rounded-full bg-[radial-gradient(closest-side,rgba(250,204,21,0.45),transparent)] blur-xl opacity-80"
+              className="pointer-events-none absolute -inset-6 rounded-full bg-[radial-gradient(closest-side,rgba(250,204,21,0.5),transparent)] blur-2xl opacity-90"
             />
             <img
               src={logo}
               alt="L2 All Stars"
-              className="relative h-14 sm:h-16 md:h-20 w-auto brightness-125 contrast-125 saturate-120 drop-shadow-[0_0_18px_rgba(250,204,21,0.6)] drop-shadow-[0_0_40px_rgba(234,179,8,0.35)]"
+              className="relative h-20 sm:h-24 md:h-32 w-auto brightness-150 contrast-125 saturate-150 drop-shadow-[0_0_25px_rgba(250,204,21,0.8)] drop-shadow-[0_0_50px_rgba(234,179,8,0.5)]"
             />
           </Link>
 
