@@ -28,6 +28,10 @@ export interface ServerSettings {
   siege: {
     schedule: string;
   };
+  launch: {
+    date: string; // ISO date string for server launch
+    enabled: boolean; // Whether to show countdown or uptime
+  };
 }
 
 export const defaultServerSettings: ServerSettings = {
@@ -59,5 +63,9 @@ export const defaultServerSettings: ServerSettings = {
   },
   siege: {
     schedule: "Every Sunday 20:00 GMT+2",
+  },
+  launch: {
+    date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Default: 1 week from now
+    enabled: true,
   },
 };
