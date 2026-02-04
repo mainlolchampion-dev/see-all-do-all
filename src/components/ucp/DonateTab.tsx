@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles, Package, Crown } from "lucide-react";
+import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles, Package, Crown, Gem } from "lucide-react";
 import randomSkinBoxIcon from "@/assets/donate/random-skin-box.gif";
 import donateCoinIcon from "@/assets/donate/donate-coin-icon.png";
 import premiumIcon from "@/assets/donate/premium-icon.png";
+import antharasTreasureIcon from "@/assets/donate/antharas-treasure-icon.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,13 @@ const PREMIUM_BONUSES: Record<number, { days: number; itemId: string }> = {
   10000: { days: 5, itemId: "600636" },
   15000: { days: 7, itemId: "600634" },
   25000: { days: 21, itemId: "600628" },
+};
+
+// Treasures Antharas bonuses (only for packages 10000+)
+const TREASURE_BONUSES: Record<number, { count: number; itemId: string }> = {
+  10000: { count: 6, itemId: "600642" },
+  15000: { count: 9, itemId: "600642" },
+  25000: { count: 15, itemId: "600642" },
 };
 
 // Coin packages with +10% bonus
@@ -121,6 +129,8 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
     try {
       // Get premium bonus if applicable
       const premiumBonus = PREMIUM_BONUSES[selectedPackage.coins];
+      // Get treasure bonus if applicable
+      const treasureBonus = TREASURE_BONUSES[selectedPackage.coins];
       
       const { data, error } = await supabase.functions.invoke('create-coin-checkout', {
         body: { 
@@ -129,7 +139,9 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
           characterName: characterName.trim(),
           accountName: charValidation.accountName,
           premiumItemId: premiumBonus?.itemId,
-          premiumDays: premiumBonus?.days
+          premiumDays: premiumBonus?.days,
+          treasureItemId: treasureBonus?.itemId,
+          treasureCount: treasureBonus?.count
         }
       });
 
@@ -367,6 +379,26 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                     </div>
                     <p className="text-xs text-amber-500/80 mt-0.5">
                       {PREMIUM_BONUSES[selectedPackage.coins].days} day{PREMIUM_BONUSES[selectedPackage.coins].days > 1 ? 's' : ''} included!
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Treasures Antharas - only for packages 10000+ */}
+              {TREASURE_BONUSES[selectedPackage.coins] && (
+                <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 rounded-xl border border-emerald-500/20">
+                  <img 
+                    src={antharasTreasureIcon} 
+                    alt="Treasures Antharas" 
+                    className="w-12 h-12 object-contain"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Gem className="w-4 h-4 text-emerald-500" />
+                      <span className="font-semibold text-foreground text-sm">Treasures Antharas</span>
+                    </div>
+                    <p className="text-xs text-emerald-500/80 mt-0.5">
+                      x{TREASURE_BONUSES[selectedPackage.coins].count} included!
                     </p>
                   </div>
                 </div>
