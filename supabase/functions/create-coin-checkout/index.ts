@@ -62,7 +62,11 @@ serve(async (req) => {
       throw new Error("Character name is required");
     }
 
-    logStep("Request data", { coins, amount, characterName, accountName });
+    // Calculate bonus (10%)
+    const bonusCoins = Math.floor(coins * 0.10);
+    const totalCoins = coins + bonusCoins;
+
+    logStep("Request data", { coins, bonusCoins, totalCoins, amount, characterName, accountName });
 
     const linkedLogin = (user.user_metadata?.l2_login || "").toString().toLowerCase();
     if (linkedLogin && accountName && accountName.toLowerCase() !== linkedLogin) {
@@ -99,8 +103,8 @@ serve(async (req) => {
           price_data: {
             currency: "eur",
             product_data: {
-              name: `${coins.toLocaleString()} Donation Coins`,
-              description: `Coins for character: ${characterName}`,
+              name: `${totalCoins.toLocaleString()} Donation Coins`,
+              description: `${coins.toLocaleString()} coins + ${bonusCoins.toLocaleString()} bonus (10%) for: ${characterName}`,
             },
             unit_amount: amount, // amount in cents
           },
@@ -108,11 +112,13 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${origin}/donate?success=true&coins=${coins}&char=${encodeURIComponent(characterName)}`,
+      success_url: `${origin}/donate?success=true&coins=${totalCoins}&char=${encodeURIComponent(characterName)}`,
       cancel_url: `${origin}/donate?canceled=true`,
       metadata: {
         user_id: user.id,
-        coins: coins.toString(),
+        coins: totalCoins.toString(), // Send total coins (including bonus)
+        base_coins: coins.toString(),
+        bonus_coins: bonusCoins.toString(),
         character_name: characterName.trim(),
         account_name: accountName || "",
       },
