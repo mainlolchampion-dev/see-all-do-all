@@ -157,18 +157,8 @@ export function ServerLaunchTimer() {
       </div>
 
       {/* Status Info */}
-      <div className="mt-6 pt-4 border-t border-border">
-        {isLaunched ? (
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-green-400">Server is Live!</span>
-            </div>
-            <span className="text-muted-foreground">
-              Players: {serverStatus?.gameServer?.players ?? 0}
-            </span>
-          </div>
-        ) : (
+      {!isLaunched && (
+        <div className="mt-6 pt-4 border-t border-border">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
@@ -184,8 +174,8 @@ export function ServerLaunchTimer() {
               })}
             </span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </motion.div>
   );
 }
