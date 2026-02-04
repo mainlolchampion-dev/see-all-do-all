@@ -2,21 +2,24 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  User, Settings, Sword, History, CreditCard, Shield, LogOut, ChevronRight,
-  Key, Mail, Bell, Lock, UserCircle, Loader2, Package
+  User, Settings, Sword, History, CreditCard, LogOut, ChevronRight,
+  Key, Mail, Lock, UserCircle, Loader2, Package, Gift, Check
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserData } from "@/hooks/useUserData";
 import { useDonationHistory } from "@/hooks/useDonationHistory";
 import { useToast } from "@/hooks/use-toast";
 import { DonateTab } from "@/components/ucp/DonateTab";
 import { StarterPacksTab } from "@/components/ucp/StarterPacksTab";
+import donateCoinIcon from "@/assets/donate/donate-coin-icon.png";
+import premiumIcon from "@/assets/donate/premium-icon.png";
+import antharasTreasureIcon from "@/assets/donate/antharas-treasure-icon.png";
+import randomSkinBoxIcon from "@/assets/donate/random-skin-box.gif";
 
 const sidebarLinks = [
   { icon: UserCircle, label: "Account Overview", tab: "overview" },
@@ -25,7 +28,6 @@ const sidebarLinks = [
   { icon: Package, label: "Starter Packs", tab: "starter-packs" },
   { icon: History, label: "Donation History", tab: "donations" },
   { icon: Settings, label: "Settings", tab: "settings" },
-  { icon: Shield, label: "Security", tab: "security" },
 ];
 
 export default function UCP() {
@@ -305,42 +307,68 @@ export default function UCP() {
                     )}
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Donation Coins Card */}
                     <div className="gaming-card rounded-xl p-6">
-                      <div className="text-sm text-muted-foreground mb-1">Donation Coins</div>
-                      <div className="text-3xl font-bold text-gradient-gold">
-                        {userData?.donationCoins?.toLocaleString() || "0"}
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 rounded-lg bg-primary/20 flex items-center justify-center p-2">
+                          <img src={donateCoinIcon} alt="Donation Coins" className="w-full h-full object-contain" />
+                        </div>
+                        <div>
+                          <div className="text-sm text-muted-foreground mb-1">Donation Coins</div>
+                          <div className="text-3xl font-bold text-gradient-gold">
+                            {userData?.donationCoins?.toLocaleString() || "0"}
+                          </div>
+                        </div>
                       </div>
                     </div>
+                    
+                    {/* Characters Card */}
                     <div className="gaming-card rounded-xl p-6">
-                      <div className="text-sm text-muted-foreground mb-1">Characters</div>
-                      <div className="text-3xl font-bold">{userData?.characterCount || 0}</div>
-                    </div>
-                    <div className="gaming-card rounded-xl p-6">
-                      <div className="text-sm text-muted-foreground mb-1">Account Status</div>
-                      <div className="text-lg font-semibold text-primary">
-                        {userData?.characters?.some(c => c.online) ? "Online" : "Offline"}
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 rounded-lg bg-primary/20 flex items-center justify-center">
+                          <Sword className="w-8 h-8 text-primary" />
+                        </div>
+                        <div>
+                          <div className="text-sm text-muted-foreground mb-1">Your Characters</div>
+                          <div className="text-3xl font-bold">{userData?.characterCount || 0}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {userData?.characters?.filter(c => c.online).length || 0} Online
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="gaming-card rounded-xl p-6">
-                    <h2 className="font-display text-lg font-semibold mb-4">Your Characters</h2>
+                    <h2 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Sword className="w-5 h-5 text-primary" />
+                      Your Characters ({userData?.characterCount || 0})
+                    </h2>
                     {userData?.characters && userData.characters.length > 0 ? (
                       <div className="space-y-3">
-                        {userData.characters.slice(0, 5).map((char) => (
-                          <div key={char.name} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                        {userData.characters.slice(0, 7).map((char) => (
+                          <div key={char.name} className="flex items-center justify-between py-3 px-4 border border-border/50 rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors">
                             <div className="flex items-center gap-3">
-                              <Sword className="w-5 h-5 text-primary" />
+                              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                                <Sword className="w-5 h-5 text-primary" />
+                              </div>
                               <div>
                                 <span className="font-medium flex items-center gap-2">
                                   {char.name}
-                                  {char.online && <span className="w-2 h-2 rounded-full bg-green-500" />}
+                                  {char.online && (
+                                    <span className="px-2 py-0.5 text-xs bg-green-500/20 text-green-400 rounded-full">Online</span>
+                                  )}
                                 </span>
                                 <span className="text-xs text-muted-foreground block">{char.class}</span>
                               </div>
                             </div>
-                            <span className="text-sm font-semibold text-primary">Lv. {char.level}</span>
+                            <div className="text-right">
+                              <span className="text-lg font-bold text-primary">Lv. {char.level}</span>
+                              <div className="text-xs text-muted-foreground">
+                                PvP: {char.pvpkills} | PK: {char.pkkills}
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -429,32 +457,86 @@ export default function UCP() {
                         <span className="ml-2 text-muted-foreground">Loading donations...</span>
                       </div>
                     ) : donations && donations.length > 0 ? (
-                      <table className="w-full">
-                        <thead className="bg-muted/50 border-b border-border">
-                          <tr>
-                            <th className="px-6 py-4 text-left text-sm font-semibold">Order ID</th>
-                            <th className="px-6 py-4 text-left text-sm font-semibold">Date</th>
-                            <th className="px-6 py-4 text-center text-sm font-semibold">Amount</th>
-                            <th className="px-6 py-4 text-center text-sm font-semibold">Coins</th>
-                            <th className="px-6 py-4 text-right text-sm font-semibold">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border">
-                          {donations.map((donation) => (
-                            <tr key={donation.id} className="hover:bg-muted/30 transition-colors">
-                              <td className="px-6 py-4 font-medium">{donation.id}</td>
-                              <td className="px-6 py-4 text-muted-foreground">{donation.date}</td>
-                              <td className="px-6 py-4 text-center">EUR {donation.amount}</td>
-                              <td className="px-6 py-4 text-center text-gradient-gold font-semibold">{donation.coins.toLocaleString()}</td>
-                              <td className="px-6 py-4 text-right">
-                                <span className="px-2 py-1 rounded text-xs font-medium bg-primary/20 text-primary">
-                                  {donation.status}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      <div className="space-y-4 p-4">
+                        {donations.map((donation) => {
+                          const coins = donation.coins;
+                          const bonusCoins = Math.floor(coins * 0.1);
+                          const hasPremium = coins >= 1500;
+                          const premiumDays = coins >= 25000 ? 21 : coins >= 15000 ? 7 : coins >= 10000 ? 5 : coins >= 5000 ? 3 : coins >= 3000 ? 2 : coins >= 1500 ? 1 : 0;
+                          const hasTreasure = coins >= 10000;
+                          const treasureCount = coins >= 25000 ? 15 : coins >= 15000 ? 9 : coins >= 10000 ? 6 : 0;
+                          
+                          return (
+                            <div key={donation.id} className="border border-border/50 rounded-lg p-4 bg-muted/20 hover:bg-muted/30 transition-colors">
+                              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center p-2">
+                                    <img src={donateCoinIcon} alt="Coins" className="w-full h-full object-contain" />
+                                  </div>
+                                  <div>
+                                    <div className="font-semibold">Order {donation.id}</div>
+                                    <div className="text-sm text-muted-foreground">{donation.date}</div>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-6">
+                                  <div className="text-center">
+                                    <div className="text-xs text-muted-foreground">Amount</div>
+                                    <div className="font-semibold">€{donation.amount}</div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-xs text-muted-foreground">Coins</div>
+                                    <div className="font-bold text-gradient-gold">{coins.toLocaleString()}</div>
+                                  </div>
+                                  <div>
+                                    <span className="px-2 py-1 rounded text-xs font-medium bg-green-500/20 text-green-400 flex items-center gap-1">
+                                      <Check className="w-3 h-3" />
+                                      {donation.status}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Bonuses Received */}
+                              <div className="mt-4 pt-4 border-t border-border/50">
+                                <div className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                                  <Gift className="w-3 h-3" />
+                                  Bonuses Received
+                                </div>
+                                <div className="flex flex-wrap gap-3">
+                                  {/* +10% Bonus Coins */}
+                                  <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg text-sm">
+                                    <img src={donateCoinIcon} alt="Bonus" className="w-5 h-5" />
+                                    <span>+{bonusCoins.toLocaleString()} Bonus Coins</span>
+                                  </div>
+                                  
+                                  {/* Random Skin Box */}
+                                  <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg text-sm">
+                                    <img src={randomSkinBoxIcon} alt="Skin Box" className="w-5 h-5" />
+                                    <span>1x Random Skin Box</span>
+                                  </div>
+                                  
+                                  {/* Premium Account */}
+                                  {hasPremium && (
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg text-sm">
+                                      <img src={premiumIcon} alt="Premium" className="w-5 h-5" />
+                                      <span>Premium Account ({premiumDays} days)</span>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Treasures Antharas */}
+                                  {hasTreasure && (
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg text-sm">
+                                      <img src={antharasTreasureIcon} alt="Treasure" className="w-5 h-5" />
+                                      <span>{treasureCount}x Treasures Antharas</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     ) : (
                       <div className="text-center py-12 text-muted-foreground">
                         <History className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -468,93 +550,228 @@ export default function UCP() {
 
               {/* Settings Tab */}
               {activeTab === "settings" && !isLoading && !notLinkedError && (
-                <div className="space-y-6">
-                  <h1 className="font-display text-2xl font-bold text-gradient-gold">Account Settings</h1>
-                  
-                  <div className="gaming-card rounded-xl p-6 space-y-6">
-                    <div className="space-y-4">
-                      <h2 className="font-semibold flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-primary" />
-                        Email Address
-                      </h2>
-                      <div className="flex gap-4">
-                        <Input defaultValue={userEmail || ""} className="bg-muted/50" disabled />
-                        <Button variant="outline">Update</Button>
-                      </div>
-                    </div>
-
-                    <div className="ornament-divider" />
-
-                    <div className="space-y-4">
-                      <h2 className="font-semibold flex items-center gap-2">
-                        <Bell className="w-4 h-4 text-primary" />
-                        Notifications
-                      </h2>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Label>Email notifications</Label>
-                          <Switch />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Label>Newsletter</Label>
-                          <Switch defaultChecked />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Label>Event reminders</Label>
-                          <Switch defaultChecked />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Security Tab */}
-              {activeTab === "security" && !isLoading && !notLinkedError && (
-                <div className="space-y-6">
-                  <h1 className="font-display text-2xl font-bold text-gradient-gold">Security</h1>
-                  
-                  <div className="gaming-card rounded-xl p-6 space-y-6">
-                    <div className="space-y-4">
-                      <h2 className="font-semibold flex items-center gap-2">
-                        <Lock className="w-4 h-4 text-primary" />
-                        Change Password
-                      </h2>
-                      <div className="space-y-3 max-w-md">
-                        <div>
-                          <Label>Current Password</Label>
-                          <Input type="password" className="bg-muted/50 mt-1" />
-                        </div>
-                        <div>
-                          <Label>New Password</Label>
-                          <Input type="password" className="bg-muted/50 mt-1" />
-                        </div>
-                        <div>
-                          <Label>Confirm New Password</Label>
-                          <Input type="password" className="bg-muted/50 mt-1" />
-                        </div>
-                        <Button className="btn-glow">Update Password</Button>
-                      </div>
-                    </div>
-
-                    <div className="ornament-divider" />
-
-                    <div className="space-y-4">
-                      <h2 className="font-semibold flex items-center gap-2">
-                        <Key className="w-4 h-4 text-primary" />
-                        Two-Factor Authentication
-                      </h2>
-                      <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
-                      <Button variant="outline">Enable 2FA</Button>
-                    </div>
-                  </div>
-                </div>
+                <SettingsTab userEmail={userEmail} />
               )}
             </motion.main>
           </div>
         </div>
       </div>
       <Footer />
+    </div>
+  );
+}
+
+// Settings Tab Component with Email Change and Security (Password Change)
+function SettingsTab({ userEmail }: { userEmail: string | null }) {
+  const [newEmail, setNewEmail] = useState("");
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const { toast } = useToast();
+
+  const handleEmailUpdate = async () => {
+    if (!newEmail.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a new email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUpdatingEmail(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail });
+      if (error) throw error;
+
+      toast({
+        title: "Verification Email Sent",
+        description: "Please check your new email to confirm the change.",
+      });
+      setIsEditingEmail(false);
+      setNewEmail("");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update email",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingEmail(false);
+    }
+  };
+
+  const handlePasswordUpdate = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Please fill in all password fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+
+      toast({
+        title: "Password Updated",
+        description: "Your password has been successfully changed.",
+      });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-bold text-gradient-gold">Account Settings</h1>
+      
+      {/* Email Address Section */}
+      <div className="gaming-card rounded-xl p-6 space-y-6">
+        <div className="space-y-4">
+          <h2 className="font-semibold flex items-center gap-2">
+            <Mail className="w-4 h-4 text-primary" />
+            Email Address
+          </h2>
+          
+          {!isEditingEmail ? (
+            <div className="flex gap-4 items-center">
+              <Input value={userEmail || ""} className="bg-muted/50" disabled />
+              <Button variant="outline" onClick={() => setIsEditingEmail(true)}>
+                Change Email
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3 max-w-md">
+              <div>
+                <Label>Current Email</Label>
+                <Input value={userEmail || ""} className="bg-muted/50 mt-1" disabled />
+              </div>
+              <div>
+                <Label>New Email Address</Label>
+                <Input 
+                  type="email" 
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="Enter new email address"
+                  className="bg-muted/50 mt-1" 
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleEmailUpdate} 
+                  disabled={isUpdatingEmail}
+                  className="btn-glow"
+                >
+                  {isUpdatingEmail ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    "Update Email"
+                  )}
+                </Button>
+                <Button variant="outline" onClick={() => { setIsEditingEmail(false); setNewEmail(""); }}>
+                  Cancel
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                A verification email will be sent to your new address.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Security Section - Password Change */}
+      <div className="gaming-card rounded-xl p-6 space-y-6">
+        <div className="space-y-4">
+          <h2 className="font-semibold flex items-center gap-2">
+            <Lock className="w-4 h-4 text-primary" />
+            Security - Change Password
+          </h2>
+          <div className="space-y-3 max-w-md">
+            <div>
+              <Label>Current Password</Label>
+              <Input 
+                type="password" 
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="bg-muted/50 mt-1" 
+                placeholder="Enter current password"
+              />
+            </div>
+            <div>
+              <Label>New Password</Label>
+              <Input 
+                type="password" 
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="bg-muted/50 mt-1" 
+                placeholder="Enter new password"
+              />
+            </div>
+            <div>
+              <Label>Confirm New Password</Label>
+              <Input 
+                type="password" 
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="bg-muted/50 mt-1" 
+                placeholder="Confirm new password"
+              />
+            </div>
+            <Button 
+              onClick={handlePasswordUpdate} 
+              disabled={isUpdatingPassword}
+              className="btn-glow"
+            >
+              {isUpdatingPassword ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                "Update Password"
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
