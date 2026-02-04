@@ -41,7 +41,7 @@ interface StarterPack {
   originalPrice: string;
   salePrice: string;
   priceAmount: number; // in cents
-  promoDate: string;
+  itemId: number; // L2 item ID for delivery
 }
 
 const starterPacks: StarterPack[] = [
@@ -60,7 +60,7 @@ const starterPacks: StarterPack[] = [
     originalPrice: "€20.00",
     salePrice: "€9.99",
     priceAmount: 999,
-    promoDate: "11.01 23:59",
+    itemId: 600623,
   },
   {
     id: "improved",
@@ -79,7 +79,7 @@ const starterPacks: StarterPack[] = [
     originalPrice: "€30.00",
     salePrice: "€14.99",
     priceAmount: 1499,
-    promoDate: "11.01 23:59",
+    itemId: 600624,
   },
   {
     id: "premium",
@@ -100,7 +100,7 @@ const starterPacks: StarterPack[] = [
     originalPrice: "€40.00",
     salePrice: "€19.99",
     priceAmount: 1999,
-    promoDate: "11.01 23:59",
+    itemId: 600625,
   },
   {
     id: "elite",
@@ -122,7 +122,7 @@ const starterPacks: StarterPack[] = [
     originalPrice: "€50.00",
     salePrice: "€24.99",
     priceAmount: 2499,
-    promoDate: "11.01 23:59",
+    itemId: 600626,
   },
 ];
 
@@ -226,12 +226,32 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
     setPurchasingPack(pack.id);
 
     try {
-      // TODO: Create a dedicated edge function for starter pack checkout
-      // For now, we'll show a placeholder message
-      toast({
-        title: "Coming Soon",
-        description: `Starter Pack checkout for "${pack.name}" will be available soon!`,
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to purchase a starter pack.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-starterpack-checkout', {
+        body: {
+          packId: pack.id,
+          characterName: characterName.trim(),
+          accountName: charValidation.accountName || "",
+        }
       });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL received");
+      }
     } catch (error: any) {
       console.error('Checkout error:', error);
       toast({

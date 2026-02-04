@@ -73,33 +73,52 @@ serve(async (req) => {
       
       // Get metadata
       const userId = session.metadata?.user_id;
-      const coins = parseInt(session.metadata?.coins || "0", 10);
+      const purchaseType = session.metadata?.type || "donation_coins";
       const characterName = session.metadata?.character_name;
       const accountName = session.metadata?.account_name;
       const customerEmail = session.customer_email || session.customer_details?.email;
 
-      logStep("Processing payment", { userId, coins, characterName, accountName, customerEmail, paymentStatus: session.payment_status });
+      logStep("Processing payment", { userId, purchaseType, characterName, accountName, customerEmail, paymentStatus: session.payment_status });
 
-      if (session.payment_status === "paid" && coins > 0) {
-        // Connect to L2 MySQL database and add coins to the specific character/account
-        try {
-          await addCoinsToCharacter(characterName, accountName, coins);
-          logStep("Coins added successfully", { characterName, accountName, coins });
-        } catch (dbError: unknown) {
-          const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
-          logStep("Database error", { error: errorMessage });
-          // Don't return error - we still want to acknowledge the webhook
-        }
-
-        if (supabaseAdmin) {
-          const { error } = await supabaseAdmin.rpc("increment_donation_coins", { _amount: coins });
-          if (error) {
-            logStep("Failed to increment donation metrics", { error: error.message });
-          } else {
-            logStep("Donation metrics updated", { coins });
+      if (session.payment_status === "paid") {
+        if (purchaseType === "starter_pack") {
+          // Handle Starter Pack purchase
+          const packId = session.metadata?.pack_id;
+          const itemId = parseInt(session.metadata?.item_id || "0", 10);
+          
+          if (itemId > 0) {
+            try {
+              await addItemToCharacter(characterName, accountName, itemId, 1);
+              logStep("Starter pack delivered successfully", { characterName, packId, itemId });
+            } catch (dbError: unknown) {
+              const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+              logStep("Database error delivering starter pack", { error: errorMessage });
+            }
           }
         } else {
-          logStep("SUPABASE_SERVICE_ROLE_KEY not configured - metrics not updated");
+          // Handle donation coins purchase (default)
+          const coins = parseInt(session.metadata?.coins || "0", 10);
+          
+          if (coins > 0) {
+            try {
+              await addItemToCharacter(characterName, accountName, DONATE_COIN_ITEM_ID, coins);
+              logStep("Coins added successfully", { characterName, accountName, coins });
+            } catch (dbError: unknown) {
+              const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+              logStep("Database error", { error: errorMessage });
+            }
+
+            if (supabaseAdmin) {
+              const { error } = await supabaseAdmin.rpc("increment_donation_coins", { _amount: coins });
+              if (error) {
+                logStep("Failed to increment donation metrics", { error: error.message });
+              } else {
+                logStep("Donation metrics updated", { coins });
+              }
+            } else {
+              logStep("SUPABASE_SERVICE_ROLE_KEY not configured - metrics not updated");
+            }
+          }
         }
       }
     }
@@ -122,10 +141,11 @@ serve(async (req) => {
 // Donate Coin Item ID in L2
 const DONATE_COIN_ITEM_ID = 100108;
 
-async function addCoinsToCharacter(
+async function addItemToCharacter(
   characterName: string | null | undefined, 
   accountName: string | null | undefined, 
-  coins: number
+  itemId: number,
+  count: number
 ) {
   if (!characterName) {
     throw new Error("No character name provided");
@@ -168,20 +188,20 @@ async function addCoinsToCharacter(
     const charAccountName = charResult[0].account_name;
     logStep("Found character", { characterName, charId, accountName: charAccountName });
 
-    // Check if character already has donate coins in inventory
+    // Check if character already has this item in inventory (for stackable items)
     const existingItem = await client.query(
       `SELECT object_id, count FROM items WHERE owner_id = ? AND item_id = ? AND loc = 'INVENTORY' LIMIT 1`,
-      [charId, DONATE_COIN_ITEM_ID]
+      [charId, itemId]
     );
 
     if (existingItem.length > 0) {
       // Update existing item count
-      const newCount = existingItem[0].count + coins;
+      const newCount = existingItem[0].count + count;
       await client.execute(
         `UPDATE items SET count = ? WHERE object_id = ?`,
         [newCount, existingItem[0].object_id]
       );
-      logStep("Updated existing donate coins", { charId, objectId: existingItem[0].object_id, oldCount: existingItem[0].count, newCount });
+      logStep("Updated existing item", { charId, itemId, objectId: existingItem[0].object_id, oldCount: existingItem[0].count, newCount });
     } else {
       // Generate a new unique object_id for the item
       const maxIdResult = await client.query(
@@ -193,13 +213,13 @@ async function addCoinsToCharacter(
       await client.execute(
         `INSERT INTO items (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, custom_type1, custom_type2, mana_left, time) 
          VALUES (?, ?, ?, ?, 0, 'INVENTORY', 0, 0, 0, -1, -1)`,
-        [charId, newObjectId, DONATE_COIN_ITEM_ID, coins]
+        [charId, newObjectId, itemId, count]
       );
-      logStep("Created new donate coins item", { charId, objectId: newObjectId, itemId: DONATE_COIN_ITEM_ID, count: coins });
+      logStep("Created new item", { charId, objectId: newObjectId, itemId, count });
     }
 
     await client.close();
-    logStep("Database connection closed - Coins added to character inventory!");
+    logStep("Database connection closed - Item added to character inventory!");
     
   } catch (error) {
     try {
