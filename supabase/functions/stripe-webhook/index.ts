@@ -100,6 +100,7 @@ serve(async (req) => {
           const coins = parseInt(session.metadata?.coins || "0", 10);
           const bonusItemId = parseInt(session.metadata?.bonus_item_id || "0", 10);
           const bonusItemCount = parseInt(session.metadata?.bonus_item_count || "0", 10);
+          const premiumItemId = parseInt(session.metadata?.premium_item_id || "0", 10);
           
           if (coins > 0) {
             try {
@@ -111,6 +112,12 @@ serve(async (req) => {
               if (bonusItemId > 0 && bonusItemCount > 0) {
                 await addItemToCharacter(characterName, accountName, bonusItemId, bonusItemCount);
                 logStep("Bonus item added successfully", { characterName, bonusItemId, bonusItemCount });
+              }
+              
+              // Add premium account item if specified (for packages 1500+)
+              if (premiumItemId > 0) {
+                await addItemToCharacter(characterName, accountName, premiumItemId, 1);
+                logStep("Premium account item added successfully", { characterName, premiumItemId });
               }
             } catch (dbError: unknown) {
               const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);

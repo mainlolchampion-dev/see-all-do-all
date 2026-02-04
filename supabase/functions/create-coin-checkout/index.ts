@@ -48,7 +48,7 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     // Get request body
-    const { coins, amount, characterName, accountName } = await req.json();
+    const { coins, amount, characterName, accountName, premiumItemId, premiumDays } = await req.json();
     
     if (!coins || coins < 100) {
       throw new Error("Minimum 100 coins required");
@@ -66,7 +66,7 @@ serve(async (req) => {
     const bonusCoins = Math.floor(coins * 0.10);
     const totalCoins = coins + bonusCoins;
 
-    logStep("Request data", { coins, bonusCoins, totalCoins, amount, characterName, accountName });
+    logStep("Request data", { coins, bonusCoins, totalCoins, amount, characterName, accountName, premiumItemId, premiumDays });
 
     const linkedLogin = (user.user_metadata?.l2_login || "").toString().toLowerCase();
     if (linkedLogin && accountName && accountName.toLowerCase() !== linkedLogin) {
@@ -123,6 +123,8 @@ serve(async (req) => {
         account_name: accountName || "",
         bonus_item_id: "100111", // Random Skin Box
         bonus_item_count: "1",
+        premium_item_id: premiumItemId || "",
+        premium_days: premiumDays?.toString() || "",
       },
     });
 
