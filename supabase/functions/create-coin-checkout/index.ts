@@ -121,6 +121,8 @@ serve(async (req) => {
         bonus_coins: bonusCoins.toString(),
         character_name: characterName.trim(),
         account_name: accountName || "",
+        bonus_item_id: "100111", // Random Skin Box
+        bonus_item_count: "1",
       },
     });
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles } from "lucide-react";
+import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles, Package } from "lucide-react";
+import randomSkinBoxIcon from "@/assets/donate/random-skin-box.gif";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -314,10 +315,28 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               </div>
             </div>
 
+            {/* Bonus Item */}
+            <div className="mt-6 pt-4 border-t border-border/50">
+              <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border border-primary/20">
+                <img 
+                  src={randomSkinBoxIcon} 
+                  alt="Random Skin Box" 
+                  className="w-12 h-12 object-contain"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <Package className="w-4 h-4 text-primary" />
+                    <span className="font-semibold text-foreground text-sm">Random Skin Box</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">x1 included with every purchase!</p>
+                </div>
+              </div>
+            </div>
+
             {/* Info Note */}
-            <div className="mt-6 flex items-start gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg p-3">
+            <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg p-3">
               <Info className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>Item ID: 100108 will be credited to your selected character after purchase.</span>
+              <span>Items will be credited to your selected character after purchase.</span>
             </div>
           </div>
         </div>
