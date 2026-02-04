@@ -88,12 +88,16 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Rajdhani', system-ui, sans-serif;
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Orbitron', sans-serif;
-    @apply font-semibold tracking-wide;
+    font-family: 'Cinzel Decorative', serif;
+    @apply font-bold tracking-wider;
+  }
+
+  p, span, a, button, input, textarea, select, label {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
   }
 }
 
