@@ -86,8 +86,8 @@ export default function UCP() {
     linkedLogin ? undefined : userEmail
   );
 
-  // Fetch donation history
-  const { data: donations, isLoading: donationsLoading } = useDonationHistory(linkedLogin || undefined);
+  // Fetch donation history - use userData.login when available (from email lookup)
+  const { data: donations, isLoading: donationsLoading } = useDonationHistory(userData?.login || linkedLogin || undefined);
 
   // Check if error is "not linked" error
   const notLinkedError = error && (error as any).notLinked;
