@@ -264,13 +264,16 @@ export function StarterPacksSection() {
                       : 'bg-primary hover:bg-primary/90'
                   } text-primary-foreground`}
                 >
-                  <Link to="/donate">
+                  <Link to="/ucp?tab=starter-packs">
                     BUY FOR {pack.salePrice}
                   </Link>
                 </Button>
-                <button className="w-full mt-2 text-xs text-muted-foreground underline hover:text-foreground transition-colors">
+                <Link 
+                  to="/ucp?tab=donate" 
+                  className="block w-full mt-2 text-xs text-muted-foreground text-center underline hover:text-foreground transition-colors"
+                >
                   LEARN MORE
-                </button>
+                </Link>
               </div>
             </motion.div>
           ))}
