@@ -52,7 +52,7 @@ export function HeroSection() {
           <img 
             src={heroTitle} 
             alt="L2 All Stars" 
-            className="h-24 md:h-32 lg:h-40 w-auto mx-auto mb-6 drop-shadow-[0_0_30px_rgba(200,200,200,0.5)]"
+            className="h-40 md:h-56 lg:h-72 xl:h-80 w-auto mx-auto mb-6 drop-shadow-[0_0_40px_rgba(200,200,200,0.6)]"
           />
           
           <p className="text-xl md:text-2xl text-foreground/80 mb-4 font-display tracking-wide">
