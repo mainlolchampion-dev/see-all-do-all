@@ -298,7 +298,7 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
       </div>
 
       {/* Packs Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {starterPacks.map((pack, index) => (
           <motion.div
             key={pack.id}
@@ -306,7 +306,7 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             whileHover={{ scale: 1.02, y: -3 }}
-            className={`rounded-xl border-2 ${tierBorderStyles[pack.id]} ${pack.bgClass} ${tierGlowStyles[pack.id]} flex flex-col transition-all duration-500 relative overflow-hidden group`}
+            className={`rounded-lg border-2 ${tierBorderStyles[pack.id]} ${pack.bgClass} ${tierGlowStyles[pack.id]} flex flex-col transition-all duration-500 relative overflow-hidden group`}
           >
             {/* Shimmer effect overlay */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
@@ -314,10 +314,10 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
             </div>
 
             {/* Animated corner accents */}
-            <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 opacity-50 rounded-tl-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
-            <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 opacity-50 rounded-tr-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
-            <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 opacity-50 rounded-bl-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
-            <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 opacity-50 rounded-br-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 opacity-50 rounded-tl-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 opacity-50 rounded-tr-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 opacity-50 rounded-bl-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 opacity-50 rounded-br-lg" style={{ borderColor: pack.id === 'premium' ? '#fbbf24' : pack.id === 'elite' ? '#ef4444' : pack.id === 'improved' ? '#d97706' : '#a1a1aa' }} />
 
             {/* Floating particles for all tiers */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -349,36 +349,36 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
             </div>
 
             {/* Badge with image */}
-            <div className="flex flex-col items-center pt-6 pb-4 relative z-10">
+            <div className="flex flex-col items-center pt-4 pb-2 relative z-10">
               <motion.div 
-                className="w-24 h-24 flex items-center justify-center mb-3 relative"
+                className="w-16 h-16 flex items-center justify-center mb-2 relative"
                 whileHover={{ scale: 1.1 }}
                 transition={{ duration: 0.3 }}
               >
                 <img 
                   src={pack.badgeImage} 
                   alt={`${pack.name} badge`} 
-                  className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"
+                  className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]"
                 />
               </motion.div>
-              <span className="text-xs text-muted-foreground tracking-wider uppercase">{pack.tier}</span>
-              <h3 className="text-lg font-bold text-foreground mt-1">{pack.name}</h3>
+              <span className="text-[10px] text-muted-foreground tracking-wider uppercase">{pack.tier}</span>
+              <h3 className="text-sm font-bold text-foreground mt-0.5">{pack.name}</h3>
             </div>
 
             {/* Items List */}
-            <div className="flex-1 px-4 pb-4 relative z-10">
-              <ul className="space-y-1.5">
+            <div className="flex-1 px-3 pb-3 relative z-10">
+              <ul className="space-y-1">
                 {pack.items.map((item, itemIndex) => (
                   <motion.li 
                     key={itemIndex} 
-                    className="flex items-start gap-2 text-sm"
+                    className="flex items-start gap-1.5 text-xs"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 + itemIndex * 0.03 }}
                   >
-                    <span className="text-base flex-shrink-0">{item.icon}</span>
-                    <span className="text-muted-foreground text-xs">{item.name}</span>
-                    <span className={`ml-auto font-semibold text-xs ${item.valueColor || "text-foreground"}`}>
+                    <span className="text-sm flex-shrink-0">{item.icon}</span>
+                    <span className="text-muted-foreground text-[10px]">{item.name}</span>
+                    <span className={`ml-auto font-semibold text-[10px] ${item.valueColor || "text-foreground"}`}>
                       {item.value}
                     </span>
                   </motion.li>
@@ -387,14 +387,15 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
             </div>
 
             {/* Price & CTA */}
-            <div className="p-4 border-t border-border/50 bg-black/30 relative z-10 backdrop-blur-sm">
-              <div className="text-center mb-3">
-                <span className="text-base line-through text-muted-foreground">{pack.originalPrice}</span>
+            <div className="p-3 border-t border-border/50 bg-black/30 relative z-10 backdrop-blur-sm">
+              <div className="text-center mb-2">
+                <span className="text-sm line-through text-muted-foreground">{pack.originalPrice}</span>
               </div>
               <Button 
                 onClick={() => handlePurchase(pack)}
                 disabled={purchasingPack === pack.id || charValidation.valid !== true || isValidatingChar}
-                className={`w-full font-bold transition-all duration-300 ${
+                size="sm"
+                className={`w-full text-xs font-bold transition-all duration-300 ${
                   pack.id === 'premium' 
                     ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 shadow-[0_0_20px_rgba(250,204,21,0.4)]' 
                     : pack.id === 'elite'
