@@ -2,21 +2,9 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Download, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useServerStatus } from "@/hooks/useServerStatus";
 import heroTitle from "@/assets/hero-title.png";
 
 export function HeroSection() {
-  const { data, isLoading, error } = useServerStatus();
-  const gameServer = data?.gameServer ?? { status: "offline" as const, players: 0 };
-
-  const statusText = isLoading
-    ? "Checking server status..."
-    : error
-      ? "Server status unavailable"
-      : gameServer.status === "online"
-        ? `Server Online - ${gameServer.players.toLocaleString()} Players`
-        : "Server Offline";
-
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Background Video */}
@@ -41,16 +29,6 @@ export function HeroSection() {
           transition={{ duration: 0.8 }}
           className="max-w-4xl mx-auto"
         >
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-primary mb-6"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald animate-pulse" />
-            <span className="text-sm font-medium">{statusText}</span>
-          </motion.div>
 
           {/* Main Title Image */}
           <img 
