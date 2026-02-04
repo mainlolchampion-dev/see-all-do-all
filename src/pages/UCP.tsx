@@ -23,7 +23,6 @@ import randomSkinBoxIcon from "@/assets/donate/random-skin-box.gif";
 
 const sidebarLinks = [
   { icon: UserCircle, label: "Account Overview", tab: "overview" },
-  { icon: Sword, label: "Characters", tab: "characters" },
   { icon: CreditCard, label: "Buy Coins", tab: "donate" },
   { icon: Package, label: "Starter Packs", tab: "starter-packs" },
   { icon: History, label: "Donation History", tab: "donations" },
@@ -307,125 +306,9 @@ export default function UCP() {
                     )}
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Donation Coins Card */}
-                    <div className="gaming-card rounded-xl p-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-lg bg-primary/20 flex items-center justify-center p-2">
-                          <img src={donateCoinIcon} alt="Donation Coins" className="w-full h-full object-contain" />
-                        </div>
-                        <div>
-                          <div className="text-sm text-muted-foreground mb-1">Donation Coins</div>
-                          <div className="text-3xl font-bold text-gradient-gold">
-                            {userData?.donationCoins?.toLocaleString() || "0"}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Characters Card */}
-                    <div className="gaming-card rounded-xl p-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-lg bg-primary/20 flex items-center justify-center">
-                          <Sword className="w-8 h-8 text-primary" />
-                        </div>
-                        <div>
-                          <div className="text-sm text-muted-foreground mb-1">Your Characters</div>
-                          <div className="text-3xl font-bold">{userData?.characterCount || 0}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {userData?.characters?.filter(c => c.online).length || 0} Online
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   <div className="gaming-card rounded-xl p-6">
-                    <h2 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
-                      <Sword className="w-5 h-5 text-primary" />
-                      Your Characters ({userData?.characterCount || 0})
-                    </h2>
-                    {userData?.characters && userData.characters.length > 0 ? (
-                      <div className="space-y-3">
-                        {userData.characters.slice(0, 7).map((char) => (
-                          <div key={char.name} className="flex items-center justify-between py-3 px-4 border border-border/50 rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                                <Sword className="w-5 h-5 text-primary" />
-                              </div>
-                              <div>
-                                <span className="font-medium flex items-center gap-2">
-                                  {char.name}
-                                  {char.online && (
-                                    <span className="px-2 py-0.5 text-xs bg-green-500/20 text-green-400 rounded-full">Online</span>
-                                  )}
-                                </span>
-                                <span className="text-xs text-muted-foreground block">{char.class}</span>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <span className="text-lg font-bold text-primary">Lv. {char.level}</span>
-                              <div className="text-xs text-muted-foreground">
-                                PvP: {char.pvpkills} | PK: {char.pkkills}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-muted-foreground text-sm">No characters found for this account.</p>
-                    )}
+                    <p className="text-muted-foreground">Welcome to your account panel. Use the sidebar to navigate.</p>
                   </div>
-                </div>
-              )}
-
-              {/* Characters Tab */}
-              {activeTab === "characters" && !isLoading && !notLinkedError && (
-                <div className="space-y-6">
-                  <h1 className="font-display text-2xl font-bold text-gradient-gold">My Characters</h1>
-                  
-                  {userData?.characters && userData.characters.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {userData.characters.map((char) => (
-                        <div key={char.name} className="gaming-card rounded-xl p-6">
-                          <div className="flex items-center gap-4 mb-4">
-                            <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center">
-                              <Sword className="w-7 h-7 text-primary" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold flex items-center gap-2">
-                                {char.name}
-                                {char.online && <span className="w-2 h-2 rounded-full bg-green-500" />}
-                              </h3>
-                              <p className="text-sm text-muted-foreground">{char.class}</p>
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">Level</span>
-                              <span className="font-bold text-primary">{char.level}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">PvP Kills</span>
-                              <span className="font-semibold">{char.pvpkills}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">PK Kills</span>
-                              <span className="font-semibold text-destructive">{char.pkkills}</span>
-                            </div>
-                          </div>
-                          <div className="mt-4 flex gap-2">
-                            <Button size="sm" variant="outline" className="flex-1">Teleport</Button>
-                            <Button size="sm" variant="outline" className="flex-1">Unstuck</Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="gaming-card rounded-xl p-6 text-center">
-                      <p className="text-muted-foreground">No characters found for this account.</p>
-                    </div>
-                  )}
                 </div>
               )}
 
