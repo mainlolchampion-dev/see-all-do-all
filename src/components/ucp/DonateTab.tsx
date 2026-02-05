@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles, Package, Crown, Gem, SlidersHorizontal } from "lucide-react";
+import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles, Package, Crown, Gem } from "lucide-react";
 import randomSkinBoxIcon from "@/assets/donate/random-skin-box.gif";
 import donateCoinIcon from "@/assets/donate/donate-coin-icon.png";
 import premiumIcon from "@/assets/donate/premium-icon.png";
@@ -41,9 +41,12 @@ const COIN_PACKAGES = [
 ];
 
 const MIN_COINS = 100;
-const MAX_COINS = 50000;
+const MAX_COINS = 25000;
 const COINS_PER_EURO = 100; // 100 coins = 1 EUR
 const BONUS_PERCENTAGE = 0.10; // 10% bonus
+
+// Package coin values for matching
+const PACKAGE_COIN_VALUES = COIN_PACKAGES.map(p => p.coins);
 
 interface DonateTabProps {
   linkedLogin: string | null;
@@ -51,9 +54,7 @@ interface DonateTabProps {
 }
 
 export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
-  const [useCustomAmount, setUseCustomAmount] = useState(false);
-  const [customCoins, setCustomCoins] = useState(MIN_COINS);
-  const [selectedPackage, setSelectedPackage] = useState(COIN_PACKAGES[0]);
+  const [selectedCoins, setSelectedCoins] = useState(500); // Start with first package
   const [isLoading, setIsLoading] = useState(false);
   const [characterName, setCharacterName] = useState("");
   const [isValidatingChar, setIsValidatingChar] = useState(false);
@@ -64,16 +65,18 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
   }>({ valid: null });
   const { toast } = useToast();
 
-  // Calculate custom package values
-  const customBonus = Math.floor(customCoins * BONUS_PERCENTAGE);
-  const customTotal = customCoins + customBonus;
-  const customPrice = customCoins / COINS_PER_EURO;
-
-  // Get current active values based on mode
-  const activeCoins = useCustomAmount ? customCoins : selectedPackage.coins;
-  const activeBonus = useCustomAmount ? customBonus : selectedPackage.bonus;
-  const activeTotal = useCustomAmount ? customTotal : selectedPackage.total;
-  const activePrice = useCustomAmount ? customPrice : selectedPackage.price;
+  // Check if current value matches a package
+  const matchedPackage = COIN_PACKAGES.find(p => p.coins === selectedCoins);
+  
+  // Calculate values - use package values if matched, otherwise calculate
+  const activeCoins = selectedCoins;
+  const activeBonus = matchedPackage ? matchedPackage.bonus : Math.floor(selectedCoins * BONUS_PERCENTAGE);
+  const activeTotal = matchedPackage ? matchedPackage.total : selectedCoins + activeBonus;
+  const activePrice = matchedPackage ? matchedPackage.price : selectedCoins / COINS_PER_EURO;
+  
+  // Get bonuses only if matched to a package
+  const premiumBonus = matchedPackage ? PREMIUM_BONUSES[matchedPackage.coins] : undefined;
+  const treasureBonus = matchedPackage ? TREASURE_BONUSES[matchedPackage.coins] : undefined;
 
   // Auto-select first character if available
   useEffect(() => {
@@ -117,20 +120,17 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
   }, [characterName]);
 
   const handlePackageSelect = (pkg: typeof COIN_PACKAGES[0]) => {
-    setSelectedPackage(pkg);
-    setUseCustomAmount(false);
+    setSelectedCoins(pkg.coins);
   };
 
-  const handleCustomCoinsChange = (value: number[]) => {
-    setCustomCoins(value[0]);
-    setUseCustomAmount(true);
+  const handleSliderChange = (value: number[]) => {
+    setSelectedCoins(value[0]);
   };
 
-  const handleCustomInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value) || MIN_COINS;
     const clampedValue = Math.min(Math.max(value, MIN_COINS), MAX_COINS);
-    setCustomCoins(clampedValue);
-    setUseCustomAmount(true);
+    setSelectedCoins(clampedValue);
   };
 
   const handlePurchase = async () => {
@@ -155,10 +155,6 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
     setIsLoading(true);
 
     try {
-      // For custom amounts, no premium/treasure bonuses
-      const premiumBonus = useCustomAmount ? undefined : PREMIUM_BONUSES[selectedPackage.coins];
-      const treasureBonus = useCustomAmount ? undefined : TREASURE_BONUSES[selectedPackage.coins];
-      
       const { data, error } = await supabase.functions.invoke('create-coin-checkout', {
         body: { 
           coins: activeCoins, 
@@ -258,87 +254,83 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
             )}
           </div>
 
-          {/* Custom Amount Slider */}
-          <div className="gaming-card rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                <SlidersHorizontal className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h2 className="font-display text-lg font-bold text-foreground">Custom Amount</h2>
-                <p className="text-sm text-muted-foreground">
-                  1€ = 100 coins + 10% bonus
-                </p>
-              </div>
-            </div>
-
-            {/* Slider */}
-            <div className="space-y-4">
-              <Slider
-                value={[customCoins]}
-                onValueChange={handleCustomCoinsChange}
-                min={MIN_COINS}
-                max={MAX_COINS}
-                step={100}
-                className="w-full"
-              />
-              
-              {/* Input + Labels */}
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    value={customCoins}
-                    onChange={handleCustomInputChange}
-                    min={MIN_COINS}
-                    max={MAX_COINS}
-                    step={100}
-                    className={`w-28 h-10 text-center font-bold ${useCustomAmount ? 'border-primary' : ''}`}
-                  />
-                  <span className="text-muted-foreground text-sm">coins</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-2xl font-bold text-gradient-gold">€{customPrice.toFixed(2)}</span>
-                  <p className="text-xs text-emerald-500">+{customBonus} bonus</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Coin Packages Selection */}
+          {/* Coin Selection - Slider + Packages Combined */}
           <div className="gaming-card rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                 <Gift className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="font-display text-lg font-bold text-foreground">Or Choose Package</h2>
+                <h2 className="font-display text-lg font-bold text-foreground">Choose Amount</h2>
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-primary" />
-                  Packages include extra bonuses!
+                  1€ = 100 coins + 10% bonus
                 </p>
               </div>
             </div>
 
-            {/* Packages Grid */}
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-              {COIN_PACKAGES.map((pkg) => (
-                <button
-                  key={pkg.coins}
-                  onClick={() => handlePackageSelect(pkg)}
-                  className={`relative p-3 rounded-xl border transition-all duration-300 ${
-                    !useCustomAmount && selectedPackage.coins === pkg.coins
-                      ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
-                      : "border-border/50 bg-card/50 hover:border-primary/50 hover:bg-primary/5"
-                  }`}
-                >
-                  <div className="text-center">
-                    <span className={`font-bold text-sm ${!useCustomAmount && selectedPackage.coins === pkg.coins ? "text-primary" : "text-foreground"}`}>
-                      {pkg.coins >= 1000 ? `${(pkg.coins / 1000).toFixed(pkg.coins % 1000 === 0 ? 0 : 1)}k` : pkg.coins}
-                    </span>
-                  </div>
-                </button>
-              ))}
+            {/* Slider */}
+            <div className="space-y-4 mb-6">
+              <Slider
+                value={[selectedCoins]}
+                onValueChange={handleSliderChange}
+                min={MIN_COINS}
+                max={MAX_COINS}
+                step={100}
+                className="w-full"
+              />
+              
+              {/* Input + Price Display */}
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={selectedCoins}
+                    onChange={handleInputChange}
+                    min={MIN_COINS}
+                    max={MAX_COINS}
+                    step={100}
+                    className="w-28 h-10 text-center font-bold"
+                  />
+                  <span className="text-muted-foreground text-sm">coins</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-2xl font-bold text-gradient-gold">€{activePrice.toFixed(2)}</span>
+                  <p className="text-xs text-emerald-500">+{activeBonus.toLocaleString()} bonus</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Select Packages */}
+            <div className="border-t border-border/50 pt-4">
+              <p className="text-xs text-muted-foreground mb-3">Quick select package:</p>
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                {COIN_PACKAGES.map((pkg) => (
+                  <button
+                    key={pkg.coins}
+                    onClick={() => handlePackageSelect(pkg)}
+                    className={`relative p-3 rounded-xl border transition-all duration-300 ${
+                      selectedCoins === pkg.coins
+                        ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
+                        : "border-border/50 bg-card/50 hover:border-primary/50 hover:bg-primary/5"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <span className={`font-bold text-sm ${selectedCoins === pkg.coins ? "text-primary" : "text-foreground"}`}>
+                        {pkg.coins >= 1000 ? `${(pkg.coins / 1000).toFixed(pkg.coins % 1000 === 0 ? 0 : 1)}k` : pkg.coins}
+                      </span>
+                    </div>
+                    {/* Indicator for packages with extra bonuses */}
+                    {(PREMIUM_BONUSES[pkg.coins] || TREASURE_BONUSES[pkg.coins]) && (
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full" />
+                    )}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                <span className="w-2 h-2 bg-amber-500 rounded-full inline-block" />
+                Packages with extra bonuses (Premium, Treasures)
+              </p>
             </div>
           </div>
 
@@ -383,7 +375,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
             {/* Package Details */}
             <div className="space-y-4">
               {/* Mode indicator */}
-              {useCustomAmount && (
+              {!matchedPackage && (
                 <div className="text-center py-2 px-3 bg-primary/10 rounded-lg border border-primary/30">
                   <span className="text-xs font-medium text-primary">Custom Amount</span>
                 </div>
@@ -445,8 +437,8 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                 </div>
               </div>
 
-              {/* Premium Account - only for packages 1500+ (not for custom) */}
-              {!useCustomAmount && PREMIUM_BONUSES[selectedPackage.coins] && (
+              {/* Premium Account - only for matched packages 1500+ */}
+              {premiumBonus && (
                 <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-amber-500/10 to-amber-600/5 rounded-xl border border-amber-500/20">
                   <img 
                     src={premiumIcon} 
@@ -459,14 +451,14 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                       <span className="font-semibold text-foreground text-sm">Premium Account 100%</span>
                     </div>
                     <p className="text-xs text-amber-500/80 mt-0.5">
-                      {PREMIUM_BONUSES[selectedPackage.coins].days} day{PREMIUM_BONUSES[selectedPackage.coins].days > 1 ? 's' : ''} included!
+                      {premiumBonus.days} day{premiumBonus.days > 1 ? 's' : ''} included!
                     </p>
                   </div>
                 </div>
               )}
 
-              {/* Treasures Antharas - only for packages 10000+ (not for custom) */}
-              {!useCustomAmount && TREASURE_BONUSES[selectedPackage.coins] && (
+              {/* Treasures Antharas - only for matched packages 10000+ */}
+              {treasureBonus && (
                 <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 rounded-xl border border-emerald-500/20">
                   <img 
                     src={antharasTreasureIcon} 
@@ -479,14 +471,14 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                       <span className="font-semibold text-foreground text-sm">Treasures Antharas</span>
                     </div>
                     <p className="text-xs text-emerald-500/80 mt-0.5">
-                      x{TREASURE_BONUSES[selectedPackage.coins].count} included!
+                      x{treasureBonus.count} included!
                     </p>
                   </div>
                 </div>
               )}
 
               {/* Note for custom amounts */}
-              {useCustomAmount && (
+              {!matchedPackage && (
                 <p className="text-xs text-muted-foreground text-center italic">
                   Custom amounts include only coins + 10% bonus + Random Skin Box
                 </p>
