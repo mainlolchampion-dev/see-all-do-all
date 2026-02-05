@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles, Package, Crown, Gem } from "lucide-react";
+import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles, Package, Crown, Gem, SlidersHorizontal } from "lucide-react";
 import randomSkinBoxIcon from "@/assets/donate/random-skin-box.gif";
 import donateCoinIcon from "@/assets/donate/donate-coin-icon.png";
 import premiumIcon from "@/assets/donate/premium-icon.png";
@@ -7,6 +7,7 @@ import antharasTreasureIcon from "@/assets/donate/antharas-treasure-icon.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -40,6 +41,7 @@ const COIN_PACKAGES = [
 ];
 
 const MIN_COINS = 100;
+const MAX_COINS = 50000;
 const COINS_PER_EURO = 100; // 100 coins = 1 EUR
 const BONUS_PERCENTAGE = 0.10; // 10% bonus
 
@@ -49,6 +51,8 @@ interface DonateTabProps {
 }
 
 export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
+  const [useCustomAmount, setUseCustomAmount] = useState(false);
+  const [customCoins, setCustomCoins] = useState(MIN_COINS);
   const [selectedPackage, setSelectedPackage] = useState(COIN_PACKAGES[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [characterName, setCharacterName] = useState("");
@@ -59,6 +63,17 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
     accountName?: string;
   }>({ valid: null });
   const { toast } = useToast();
+
+  // Calculate custom package values
+  const customBonus = Math.floor(customCoins * BONUS_PERCENTAGE);
+  const customTotal = customCoins + customBonus;
+  const customPrice = customCoins / COINS_PER_EURO;
+
+  // Get current active values based on mode
+  const activeCoins = useCustomAmount ? customCoins : selectedPackage.coins;
+  const activeBonus = useCustomAmount ? customBonus : selectedPackage.bonus;
+  const activeTotal = useCustomAmount ? customTotal : selectedPackage.total;
+  const activePrice = useCustomAmount ? customPrice : selectedPackage.price;
 
   // Auto-select first character if available
   useEffect(() => {
@@ -103,6 +118,19 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
 
   const handlePackageSelect = (pkg: typeof COIN_PACKAGES[0]) => {
     setSelectedPackage(pkg);
+    setUseCustomAmount(false);
+  };
+
+  const handleCustomCoinsChange = (value: number[]) => {
+    setCustomCoins(value[0]);
+    setUseCustomAmount(true);
+  };
+
+  const handleCustomInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || MIN_COINS;
+    const clampedValue = Math.min(Math.max(value, MIN_COINS), MAX_COINS);
+    setCustomCoins(clampedValue);
+    setUseCustomAmount(true);
   };
 
   const handlePurchase = async () => {
@@ -127,15 +155,14 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
     setIsLoading(true);
 
     try {
-      // Get premium bonus if applicable
-      const premiumBonus = PREMIUM_BONUSES[selectedPackage.coins];
-      // Get treasure bonus if applicable
-      const treasureBonus = TREASURE_BONUSES[selectedPackage.coins];
+      // For custom amounts, no premium/treasure bonuses
+      const premiumBonus = useCustomAmount ? undefined : PREMIUM_BONUSES[selectedPackage.coins];
+      const treasureBonus = useCustomAmount ? undefined : TREASURE_BONUSES[selectedPackage.coins];
       
       const { data, error } = await supabase.functions.invoke('create-coin-checkout', {
         body: { 
-          coins: selectedPackage.coins, 
-          amount: Math.round(selectedPackage.price * 100),
+          coins: activeCoins, 
+          amount: Math.round(activePrice * 100),
           characterName: characterName.trim(),
           accountName: charValidation.accountName,
           premiumItemId: premiumBonus?.itemId,
@@ -231,6 +258,53 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
             )}
           </div>
 
+          {/* Custom Amount Slider */}
+          <div className="gaming-card rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                <SlidersHorizontal className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-display text-lg font-bold text-foreground">Custom Amount</h2>
+                <p className="text-sm text-muted-foreground">
+                  1€ = 100 coins + 10% bonus
+                </p>
+              </div>
+            </div>
+
+            {/* Slider */}
+            <div className="space-y-4">
+              <Slider
+                value={[customCoins]}
+                onValueChange={handleCustomCoinsChange}
+                min={MIN_COINS}
+                max={MAX_COINS}
+                step={100}
+                className="w-full"
+              />
+              
+              {/* Input + Labels */}
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={customCoins}
+                    onChange={handleCustomInputChange}
+                    min={MIN_COINS}
+                    max={MAX_COINS}
+                    step={100}
+                    className={`w-28 h-10 text-center font-bold ${useCustomAmount ? 'border-primary' : ''}`}
+                  />
+                  <span className="text-muted-foreground text-sm">coins</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-2xl font-bold text-gradient-gold">€{customPrice.toFixed(2)}</span>
+                  <p className="text-xs text-emerald-500">+{customBonus} bonus</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Coin Packages Selection */}
           <div className="gaming-card rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-4">
@@ -238,10 +312,10 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                 <Gift className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="font-display text-lg font-bold text-foreground">Choose Package</h2>
+                <h2 className="font-display text-lg font-bold text-foreground">Or Choose Package</h2>
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-primary" />
-                  All packages include +10% bonus!
+                  Packages include extra bonuses!
                 </p>
               </div>
             </div>
@@ -253,13 +327,13 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                   key={pkg.coins}
                   onClick={() => handlePackageSelect(pkg)}
                   className={`relative p-3 rounded-xl border transition-all duration-300 ${
-                    selectedPackage.coins === pkg.coins
+                    !useCustomAmount && selectedPackage.coins === pkg.coins
                       ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
                       : "border-border/50 bg-card/50 hover:border-primary/50 hover:bg-primary/5"
                   }`}
                 >
                   <div className="text-center">
-                    <span className={`font-bold text-sm ${selectedPackage.coins === pkg.coins ? "text-primary" : "text-foreground"}`}>
+                    <span className={`font-bold text-sm ${!useCustomAmount && selectedPackage.coins === pkg.coins ? "text-primary" : "text-foreground"}`}>
                       {pkg.coins >= 1000 ? `${(pkg.coins / 1000).toFixed(pkg.coins % 1000 === 0 ? 0 : 1)}k` : pkg.coins}
                     </span>
                   </div>
@@ -283,7 +357,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
             ) : (
               <span className="flex items-center gap-2">
                 <CreditCard className="w-5 h-5" />
-                Buy Now - €{selectedPackage.price}
+                Buy Now - €{activePrice.toFixed(2)}
               </span>
             )}
           </Button>
@@ -308,11 +382,18 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
 
             {/* Package Details */}
             <div className="space-y-4">
+              {/* Mode indicator */}
+              {useCustomAmount && (
+                <div className="text-center py-2 px-3 bg-primary/10 rounded-lg border border-primary/30">
+                  <span className="text-xs font-medium text-primary">Custom Amount</span>
+                </div>
+              )}
+
               {/* Base Coins */}
               <div className="flex justify-between items-center py-3 border-b border-border/50">
                 <span className="text-muted-foreground">Base Coins</span>
                 <span className="font-bold text-foreground text-lg">
-                  {selectedPackage.coins.toLocaleString()}
+                  {activeCoins.toLocaleString()}
                 </span>
               </div>
 
@@ -323,7 +404,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                   Bonus (+10%)
                 </span>
                 <span className="font-bold text-emerald-500 text-lg">
-                  +{selectedPackage.bonus.toLocaleString()}
+                  +{activeBonus.toLocaleString()}
                 </span>
               </div>
 
@@ -331,17 +412,17 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               <div className="flex justify-between items-center py-3 border-b border-border/50">
                 <span className="text-foreground font-semibold">Total Coins</span>
                 <span className="font-bold text-primary text-xl">
-                  {selectedPackage.total.toLocaleString()}
+                  {activeTotal.toLocaleString()}
                 </span>
               </div>
 
               {/* Price */}
               <div className="text-center pt-4">
                 <div className="text-4xl font-bold text-gradient-gold">
-                  €{selectedPackage.price}
+                  €{activePrice.toFixed(2)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  {(selectedPackage.total / selectedPackage.price).toFixed(0)} coins per €1
+                  {(activeTotal / activePrice).toFixed(0)} coins per €1
                 </p>
               </div>
             </div>
@@ -364,8 +445,8 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                 </div>
               </div>
 
-              {/* Premium Account - only for packages 1500+ */}
-              {PREMIUM_BONUSES[selectedPackage.coins] && (
+              {/* Premium Account - only for packages 1500+ (not for custom) */}
+              {!useCustomAmount && PREMIUM_BONUSES[selectedPackage.coins] && (
                 <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-amber-500/10 to-amber-600/5 rounded-xl border border-amber-500/20">
                   <img 
                     src={premiumIcon} 
@@ -384,8 +465,8 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                 </div>
               )}
 
-              {/* Treasures Antharas - only for packages 10000+ */}
-              {TREASURE_BONUSES[selectedPackage.coins] && (
+              {/* Treasures Antharas - only for packages 10000+ (not for custom) */}
+              {!useCustomAmount && TREASURE_BONUSES[selectedPackage.coins] && (
                 <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 rounded-xl border border-emerald-500/20">
                   <img 
                     src={antharasTreasureIcon} 
@@ -402,6 +483,13 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                     </p>
                   </div>
                 </div>
+              )}
+
+              {/* Note for custom amounts */}
+              {useCustomAmount && (
+                <p className="text-xs text-muted-foreground text-center italic">
+                  Custom amounts include only coins + 10% bonus + Random Skin Box
+                </p>
               )}
             </div>
 
