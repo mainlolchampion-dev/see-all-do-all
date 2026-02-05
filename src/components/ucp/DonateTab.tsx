@@ -65,8 +65,16 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
   }>({ valid: null });
   const { toast } = useToast();
 
-  // Check if current value matches a package
+  // Check if current value matches a package exactly
   const matchedPackage = COIN_PACKAGES.find(p => p.coins === selectedCoins);
+  
+  // Find the closest lower tier for rewards (e.g., 11000 -> 10000 tier rewards)
+  const getClosestLowerTier = (coins: number): number | undefined => {
+    const tiers = [...PACKAGE_COIN_VALUES].sort((a, b) => b - a); // Sort descending
+    return tiers.find(tier => coins >= tier);
+  };
+  
+  const closestTier = getClosestLowerTier(selectedCoins);
   
   // Calculate values - use package values if matched, otherwise calculate
   const activeCoins = selectedCoins;
@@ -74,9 +82,9 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
   const activeTotal = matchedPackage ? matchedPackage.total : selectedCoins + activeBonus;
   const activePrice = matchedPackage ? matchedPackage.price : selectedCoins / COINS_PER_EURO;
   
-  // Get bonuses only if matched to a package
-  const premiumBonus = matchedPackage ? PREMIUM_BONUSES[matchedPackage.coins] : undefined;
-  const treasureBonus = matchedPackage ? TREASURE_BONUSES[matchedPackage.coins] : undefined;
+  // Get bonuses based on closest lower tier (not just exact match)
+  const premiumBonus = closestTier ? PREMIUM_BONUSES[closestTier] : undefined;
+  const treasureBonus = closestTier ? TREASURE_BONUSES[closestTier] : undefined;
 
   // Auto-select first character if available
   useEffect(() => {
@@ -375,9 +383,16 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
             {/* Package Details */}
             <div className="space-y-4">
               {/* Mode indicator */}
-              {!matchedPackage && (
+              {!matchedPackage && closestTier && (
                 <div className="text-center py-2 px-3 bg-primary/10 rounded-lg border border-primary/30">
-                  <span className="text-xs font-medium text-primary">Custom Amount</span>
+                  <span className="text-xs font-medium text-primary">
+                    Custom Amount • {closestTier >= 1000 ? `${closestTier / 1000}k` : closestTier} tier rewards
+                  </span>
+                </div>
+              )}
+              {!matchedPackage && !closestTier && (
+                <div className="text-center py-2 px-3 bg-muted/50 rounded-lg border border-border/50">
+                  <span className="text-xs font-medium text-muted-foreground">Custom Amount</span>
                 </div>
               )}
 
