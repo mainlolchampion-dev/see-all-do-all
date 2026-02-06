@@ -34,7 +34,7 @@ export function HeroSection() {
           <img 
             src={heroTitle} 
             alt="L2 All Stars" 
-            className="h-14 sm:h-16 md:h-20 lg:h-24 xl:h-32 w-auto mx-auto drop-shadow-[0_0_60px_rgba(200,170,50,0.7)] drop-shadow-[0_0_120px_rgba(200,170,50,0.3)]"
+            className="h-24 sm:h-32 md:h-40 lg:h-48 xl:h-56 w-auto mx-auto drop-shadow-[0_0_60px_rgba(200,170,50,0.7)] drop-shadow-[0_0_120px_rgba(200,170,50,0.3)]"
           />
         </motion.div>
 
