@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles, Package, Crown, Gem } from "lucide-react";
+import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles } from "lucide-react";
 import randomSkinBoxIcon from "@/assets/donate/random-skin-box.gif";
 import coinBagIcon from "@/assets/donate/coin-bag.png";
 import treasureChestIcon from "@/assets/donate/treasure-chest.png";
@@ -368,7 +368,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            Coins are credited instantly. Secure payment via Stripe.
+            Coins are credited instantly.
           </p>
         </div>
 
@@ -376,17 +376,17 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
         <div className="lg:col-span-1">
           <div className="gaming-card rounded-2xl p-6 sticky top-6 border-primary/30">
             {/* Header */}
-            <div className="text-center mb-6">
+            <div className="text-center mb-4">
               <img 
                 src={coinBagIcon} 
                 alt="Donation Coins" 
-                className="w-16 h-16 mx-auto mb-4"
+                className="w-14 h-14 mx-auto mb-3"
               />
               <h3 className="font-display text-lg font-bold text-foreground">Selected Package</h3>
             </div>
 
             {/* Package Details */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               {/* Mode indicator */}
               {!matchedPackage && closestTier && (
                 <div className="text-center py-2 px-3 bg-primary/10 rounded-lg border border-primary/30">
@@ -402,75 +402,66 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               )}
 
               {/* Base Coins */}
-              <div className="flex justify-between items-center py-3 border-b border-border/50">
-                <span className="text-muted-foreground">Base Coins</span>
-                <span className="font-bold text-foreground text-lg">
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-muted-foreground text-sm">Base Coins</span>
+                <span className="font-bold text-foreground">
                   {activeCoins.toLocaleString()}
                 </span>
               </div>
 
               {/* Bonus */}
-              <div className="flex justify-between items-center py-3 border-b border-border/50">
-                <span className="text-muted-foreground flex items-center gap-1">
-                  <Sparkles className="w-4 h-4 text-emerald-500" />
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-muted-foreground text-sm flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-emerald-500" />
                   Bonus (+10%)
                 </span>
-                <span className="font-bold text-emerald-500 text-lg">
+                <span className="font-bold text-emerald-500">
                   +{activeBonus.toLocaleString()}
                 </span>
               </div>
 
               {/* Total */}
-              <div className="flex justify-between items-center py-3 border-b border-border/50">
-                <span className="text-foreground font-semibold">Total Coins</span>
-                <span className="font-bold text-primary text-xl">
+              <div className="flex justify-between items-center py-2">
+                <span className="text-foreground font-semibold text-sm">Total Coins</span>
+                <span className="font-bold text-primary text-lg">
                   {activeTotal.toLocaleString()}
                 </span>
               </div>
 
               {/* Price */}
-              <div className="text-center pt-4">
-                <div className="text-4xl font-bold text-gradient-gold">
+              <div className="text-center pt-2">
+                <div className="text-3xl font-bold text-gradient-gold">
                   €{activePrice.toFixed(2)}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {(activeTotal / activePrice).toFixed(0)} coins per €1
-                </p>
               </div>
             </div>
 
             {/* Bonus Items */}
-            <div className="mt-6 pt-4 border-t border-border/50 space-y-3">
+            <div className="mt-4 pt-3 border-t border-border/50 space-y-2">
               {/* Random Skin Box - included with all packages */}
-              <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border border-primary/20">
+              <div className="flex items-center gap-3 p-2.5 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border border-primary/20">
                 <img 
                   src={randomSkinBoxIcon} 
                   alt="Random Skin Box" 
-                  className="w-12 h-12 object-contain"
+                  className="w-10 h-10 object-contain"
                 />
                 <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-primary" />
-                    <span className="font-semibold text-foreground text-sm">Random Skin Box</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">x1 included with every purchase!</p>
+                  <span className="font-semibold text-foreground text-sm">Random Skin Box</span>
+                  <p className="text-xs text-muted-foreground">x1 included with every purchase!</p>
                 </div>
               </div>
 
               {/* Premium Account - only for matched packages 1500+ */}
               {premiumBonus && (
-                <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-amber-500/10 to-amber-600/5 rounded-xl border border-amber-500/20">
+                <div className="flex items-center gap-3 p-2.5 bg-gradient-to-r from-amber-500/10 to-amber-600/5 rounded-xl border border-amber-500/20">
                   <img 
                     src={premiumBonus.icon} 
                     alt={`Premium Account ${premiumBonus.days} days`} 
-                    className="w-12 h-12 object-contain"
+                    className="w-10 h-10 object-contain"
                   />
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Crown className="w-4 h-4 text-amber-500" />
-                      <span className="font-semibold text-foreground text-sm">Premium Account 100%</span>
-                    </div>
-                    <p className="text-xs text-amber-500/80 mt-0.5">
+                    <span className="font-semibold text-foreground text-sm">Premium Account 100%</span>
+                    <p className="text-xs text-amber-500/80">
                       {premiumBonus.days} day{premiumBonus.days > 1 ? 's' : ''} included!
                     </p>
                   </div>
@@ -479,18 +470,15 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
 
               {/* Treasures Antharas - only for matched packages 10000+ */}
               {treasureBonus && (
-                <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 rounded-xl border border-emerald-500/20">
+                <div className="flex items-center gap-3 p-2.5 bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 rounded-xl border border-emerald-500/20">
                   <img 
                     src={treasureChestIcon} 
                     alt="Treasures Antharas" 
-                    className="w-12 h-12 object-contain"
+                    className="w-10 h-10 object-contain"
                   />
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Gem className="w-4 h-4 text-emerald-500" />
-                      <span className="font-semibold text-foreground text-sm">Treasures Antharas</span>
-                    </div>
-                    <p className="text-xs text-emerald-500/80 mt-0.5">
+                    <span className="font-semibold text-foreground text-sm">Treasures Antharas</span>
+                    <p className="text-xs text-emerald-500/80">
                       x{treasureBonus.count} included!
                     </p>
                   </div>
