@@ -31,8 +31,14 @@ export function DiscordWidget() {
       initial={{ opacity: 0, x: 20 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
-      className="gaming-card rounded-xl overflow-hidden"
+      className="gaming-card rounded-xl overflow-hidden border-yellow-500/50 shadow-[0_0_30px_hsl(38_90%_50%/0.15)] relative"
     >
+      {/* Gold corner accents */}
+      <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-yellow-500/60 rounded-tl-xl z-10" />
+      <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-yellow-500/60 rounded-tr-xl z-10" />
+      <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-yellow-500/60 rounded-bl-xl z-10" />
+      <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-yellow-500/60 rounded-br-xl z-10" />
+
       {/* Header */}
       <div className="bg-[#5865F2] p-4 flex items-center gap-3">
         <Discord className="w-6 h-6 text-white" />
