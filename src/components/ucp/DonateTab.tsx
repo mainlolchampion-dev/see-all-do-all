@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
 import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles, Package, Crown, Gem } from "lucide-react";
 import randomSkinBoxIcon from "@/assets/donate/random-skin-box.gif";
-import donateCoinIcon from "@/assets/donate/donate-coin-icon.png";
-import premiumIcon from "@/assets/donate/premium-icon.png";
-import antharasTreasureIcon from "@/assets/donate/antharas-treasure-icon.png";
+import coinBagIcon from "@/assets/donate/coin-bag.png";
+import treasureChestIcon from "@/assets/donate/treasure-chest.png";
+import premiumAcc1 from "@/assets/donate/premium-acc-1.png";
+import premiumAcc2 from "@/assets/donate/premium-acc-2.png";
+import premiumAcc3 from "@/assets/donate/premium-acc-3.png";
+import premiumAcc5 from "@/assets/donate/premium-acc-5.png";
+import premiumAcc7 from "@/assets/donate/premium-acc-7.png";
+import premiumAcc21 from "@/assets/donate/premium-acc-21.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,13 +17,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 // Premium bonuses per package (only for packages 1500+)
-const PREMIUM_BONUSES: Record<number, { days: number; itemId: string }> = {
-  1500: { days: 1, itemId: "600639" },
-  3000: { days: 2, itemId: "600638" },
-  5000: { days: 3, itemId: "600637" },
-  10000: { days: 5, itemId: "600636" },
-  15000: { days: 7, itemId: "600634" },
-  25000: { days: 21, itemId: "600628" },
+const PREMIUM_BONUSES: Record<number, { days: number; itemId: string; icon: string }> = {
+  1500: { days: 1, itemId: "600639", icon: premiumAcc1 },
+  3000: { days: 2, itemId: "600638", icon: premiumAcc2 },
+  5000: { days: 3, itemId: "600637", icon: premiumAcc3 },
+  10000: { days: 5, itemId: "600636", icon: premiumAcc5 },
+  15000: { days: 7, itemId: "600634", icon: premiumAcc7 },
+  25000: { days: 21, itemId: "600628", icon: premiumAcc21 },
 };
 
 // Treasures Antharas bonuses (only for packages 10000+)
@@ -373,7 +378,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
             {/* Header */}
             <div className="text-center mb-6">
               <img 
-                src={donateCoinIcon} 
+                src={coinBagIcon} 
                 alt="Donation Coins" 
                 className="w-16 h-16 mx-auto mb-4"
               />
@@ -456,8 +461,8 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               {premiumBonus && (
                 <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-amber-500/10 to-amber-600/5 rounded-xl border border-amber-500/20">
                   <img 
-                    src={premiumIcon} 
-                    alt="Premium Account" 
+                    src={premiumBonus.icon} 
+                    alt={`Premium Account ${premiumBonus.days} days`} 
                     className="w-12 h-12 object-contain"
                   />
                   <div className="flex-1">
@@ -476,7 +481,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               {treasureBonus && (
                 <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 rounded-xl border border-emerald-500/20">
                   <img 
-                    src={antharasTreasureIcon} 
+                    src={treasureChestIcon} 
                     alt="Treasures Antharas" 
                     className="w-12 h-12 object-contain"
                   />
