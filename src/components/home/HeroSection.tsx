@@ -34,7 +34,7 @@ export function HeroSection() {
           <img 
             src={heroTitle} 
             alt="L2 All Stars" 
-            className="h-32 sm:h-44 md:h-56 lg:h-64 xl:h-72 w-auto mx-auto drop-shadow-[0_0_60px_rgba(200,170,50,0.7)] drop-shadow-[0_0_120px_rgba(200,170,50,0.3)]"
+            className="h-44 sm:h-56 md:h-72 lg:h-80 xl:h-96 w-auto mx-auto drop-shadow-[0_0_60px_rgba(200,170,50,0.7)] drop-shadow-[0_0_120px_rgba(200,170,50,0.3)]"
           />
         </motion.div>
 
@@ -139,7 +139,7 @@ export function HeroSection() {
           className="flex flex-col items-center gap-2 cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
           onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
         >
-          <span className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground">Scroll</span>
+          <span className="text-[10px] tracking-[0.3em] uppercase text-foreground">Scroll</span>
           <ChevronDown className="w-5 h-5 text-primary/60" />
         </motion.div>
       </motion.div>
