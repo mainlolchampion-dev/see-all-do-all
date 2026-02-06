@@ -20,6 +20,7 @@ import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Rules from "./pages/Rules";
 import ForgotPassword from "./pages/ForgotPassword";
+import Description from "./pages/Description";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -38,6 +39,7 @@ const App = () => (
         <Sonner />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/description" element={<Description />} />
           <Route path="/register" element={<CreateAccount />} />
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/login" element={<Login />} />
