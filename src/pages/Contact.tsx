@@ -12,7 +12,7 @@ export default function Contact() {
             Need help? Reach out through the channels below.
           </p>
           <div className="space-y-4 text-sm text-muted-foreground">
-            <p>Email: support@l2allstars.com</p>
+            <p>Email: LineageAllstars@gmail.com</p>
             <p>Discord: Use the invite link in the footer to join our community.</p>
           </div>
         </div>

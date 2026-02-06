@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { User, CheckCircle, XCircle, Loader2, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -161,7 +162,9 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
     accountName?: string;
   }>({ valid: null });
   const [purchasingPack, setPurchasingPack] = useState<string | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
   const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Auto-select first character if available
   useEffect(() => {
@@ -169,6 +172,55 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
       setCharacterName(characters[0].name);
     }
   }, [characters]);
+
+  // Handle PayPal return - capture the order
+  useEffect(() => {
+    const paypalSuccess = searchParams.get("paypal_success");
+    const paypalToken = searchParams.get("token");
+
+    if (paypalSuccess === "true" && paypalToken && !isCapturing) {
+      setIsCapturing(true);
+      capturePayPalOrder(paypalToken);
+    }
+  }, [searchParams]);
+
+  const capturePayPalOrder = async (orderId: string) => {
+    try {
+      toast({
+        title: "Processing payment...",
+        description: "Please wait while we confirm your payment.",
+      });
+
+      const { data, error } = await supabase.functions.invoke("capture-paypal-order", {
+        body: { orderId },
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "Payment Successful! 🎉",
+          description: "Your starter pack has been delivered. Relog to see items in-game.",
+        });
+      } else {
+        throw new Error(data?.error || "Payment capture failed");
+      }
+    } catch (error: any) {
+      console.error("PayPal capture error:", error);
+      toast({
+        title: "Payment Error",
+        description: error.message || "Failed to process payment. Please contact support.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCapturing(false);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("paypal_success");
+      newParams.delete("token");
+      newParams.delete("PayerID");
+      setSearchParams(newParams, { replace: true });
+    }
+  };
 
   // Debounced character validation
   useEffect(() => {
@@ -237,8 +289,9 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('create-starterpack-checkout', {
+      const { data, error } = await supabase.functions.invoke('create-paypal-order', {
         body: {
+          type: "starter_pack",
           packId: pack.id,
           characterName: characterName.trim(),
           accountName: charValidation.accountName || "",
@@ -247,13 +300,13 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
 
       if (error) throw error;
 
-      if (data?.url) {
-        window.location.href = data.url;
+      if (data?.approvalUrl) {
+        window.location.href = data.approvalUrl;
       } else {
-        throw new Error("No checkout URL received");
+        throw new Error("No PayPal approval URL received");
       }
     } catch (error: any) {
-      console.error('Checkout error:', error);
+      console.error('PayPal order error:', error);
       toast({
         title: "Error",
         description: error.message || "Something went wrong. Please try again.",
@@ -263,6 +316,16 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
       setPurchasingPack(null);
     }
   };
+
+  if (isCapturing) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        <h2 className="font-display text-xl font-bold">Processing your payment...</h2>
+        <p className="text-muted-foreground">Please wait while we deliver your starter pack.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -455,7 +518,7 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
 
       {/* Info */}
       <p className="text-xs text-muted-foreground text-center">
-        Items are credited instantly after payment. Secure payment via Stripe.
+        Items are credited instantly after payment. Secure payment via PayPal.
       </p>
     </div>
   );
