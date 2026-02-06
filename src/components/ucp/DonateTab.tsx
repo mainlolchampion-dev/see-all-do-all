@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles } from "lucide-react";
 import randomSkinBoxIcon from "@/assets/donate/random-skin-box.gif";
-import coinBagIcon from "@/assets/donate/coin-bag.png";
+import coinBagIcon from "@/assets/donate/donate-coin-icon.png";
 import treasureChestIcon from "@/assets/donate/treasure-chest.png";
 import premiumAcc1 from "@/assets/donate/premium-acc-1.png";
 import premiumAcc2 from "@/assets/donate/premium-acc-2.png";
