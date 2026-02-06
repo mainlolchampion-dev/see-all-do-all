@@ -13,6 +13,7 @@ import UCP from "./pages/UCP";
 import NotFound from "./pages/NotFound";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Cookies from "./pages/Cookies";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Rules from "./pages/Rules";
@@ -45,6 +46,7 @@ const App = () => (
           <Route path="/ucp" element={<UCP />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/cookies" element={<Cookies />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/rules" element={<Rules />} />
