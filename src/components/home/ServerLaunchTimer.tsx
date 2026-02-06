@@ -102,7 +102,7 @@ export function ServerLaunchTimer() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="gaming-card rounded-xl p-6 flex items-center justify-center min-h-[200px]"
+        className="gaming-card rounded-xl p-6 flex items-center justify-center min-h-[200px] border-yellow-500/50 shadow-[0_0_30px_hsl(38_90%_50%/0.15)]"
       >
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </motion.div>
@@ -114,8 +114,14 @@ export function ServerLaunchTimer() {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="gaming-card rounded-xl p-6"
+      className="gaming-card rounded-xl p-6 border-yellow-500/50 shadow-[0_0_30px_hsl(38_90%_50%/0.15)] relative overflow-hidden"
     >
+      {/* Gold corner accents */}
+      <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-yellow-500/60 rounded-tl-xl" />
+      <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-yellow-500/60 rounded-tr-xl" />
+      <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-yellow-500/60 rounded-bl-xl" />
+      <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-yellow-500/60 rounded-br-xl" />
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
