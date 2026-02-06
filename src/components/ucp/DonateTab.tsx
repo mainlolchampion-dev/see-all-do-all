@@ -380,7 +380,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               <img 
                 src={coinBagIcon} 
                 alt="Donation Coins" 
-                className="w-14 h-14 mx-auto mb-3"
+                className="w-28 h-28 mx-auto mb-3"
               />
               <h3 className="font-display text-lg font-bold text-foreground">Selected Package</h3>
             </div>
