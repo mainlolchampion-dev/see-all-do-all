@@ -11,7 +11,7 @@ const faqs = [
   },
   {
     question: "How do donations work?",
-    answer: "Donations are processed through Stripe. Coins are delivered automatically.",
+    answer: "Donations are processed through PayPal. Coins are delivered automatically.",
   },
 ];
 

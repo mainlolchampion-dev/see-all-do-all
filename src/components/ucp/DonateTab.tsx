@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CreditCard, Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles } from "lucide-react";
+import { Coins, Info, User, CheckCircle, XCircle, Loader2, Gift, Sparkles } from "lucide-react";
 import randomSkinBoxIcon from "@/assets/donate/random-skin-box.gif";
 import coinBagIcon from "@/assets/donate/donate-coin-icon.png";
 import treasureChestIcon from "@/assets/donate/treasure-chest.png";
@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSearchParams } from "react-router-dom";
 
 // Premium bonuses per package (only for packages 1500+)
 const PREMIUM_BONUSES: Record<number, { days: number; itemId: string; icon: string }> = {
@@ -47,10 +48,9 @@ const COIN_PACKAGES = [
 
 const MIN_COINS = 100;
 const MAX_COINS = 25000;
-const COINS_PER_EURO = 100; // 100 coins = 1 EUR
-const BONUS_PERCENTAGE = 0.10; // 10% bonus
+const COINS_PER_EURO = 100;
+const BONUS_PERCENTAGE = 0.10;
 
-// Package coin values for matching
 const PACKAGE_COIN_VALUES = COIN_PACKAGES.map(p => p.coins);
 
 interface DonateTabProps {
@@ -59,8 +59,9 @@ interface DonateTabProps {
 }
 
 export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
-  const [selectedCoins, setSelectedCoins] = useState(500); // Start with first package
+  const [selectedCoins, setSelectedCoins] = useState(500);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
   const [characterName, setCharacterName] = useState("");
   const [isValidatingChar, setIsValidatingChar] = useState(false);
   const [charValidation, setCharValidation] = useState<{
@@ -69,34 +70,81 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
     accountName?: string;
   }>({ valid: null });
   const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Check if current value matches a package exactly
   const matchedPackage = COIN_PACKAGES.find(p => p.coins === selectedCoins);
-  
-  // Find the closest lower tier for rewards (e.g., 11000 -> 10000 tier rewards)
+
   const getClosestLowerTier = (coins: number): number | undefined => {
-    const tiers = [...PACKAGE_COIN_VALUES].sort((a, b) => b - a); // Sort descending
+    const tiers = [...PACKAGE_COIN_VALUES].sort((a, b) => b - a);
     return tiers.find(tier => coins >= tier);
   };
-  
+
   const closestTier = getClosestLowerTier(selectedCoins);
-  
-  // Calculate values - use package values if matched, otherwise calculate
+
   const activeCoins = selectedCoins;
   const activeBonus = matchedPackage ? matchedPackage.bonus : Math.floor(selectedCoins * BONUS_PERCENTAGE);
   const activeTotal = matchedPackage ? matchedPackage.total : selectedCoins + activeBonus;
   const activePrice = matchedPackage ? matchedPackage.price : selectedCoins / COINS_PER_EURO;
-  
-  // Get bonuses based on closest lower tier (not just exact match)
+
   const premiumBonus = closestTier ? PREMIUM_BONUSES[closestTier] : undefined;
   const treasureBonus = closestTier ? TREASURE_BONUSES[closestTier] : undefined;
 
-  // Auto-select first character if available
+  // Auto-select first character
   useEffect(() => {
     if (characters && characters.length > 0 && !characterName) {
       setCharacterName(characters[0].name);
     }
   }, [characters]);
+
+  // Handle PayPal return - capture the order
+  useEffect(() => {
+    const paypalSuccess = searchParams.get("paypal_success");
+    const paypalToken = searchParams.get("token");
+
+    if (paypalSuccess === "true" && paypalToken && !isCapturing) {
+      setIsCapturing(true);
+      capturePayPalOrder(paypalToken);
+    }
+  }, [searchParams]);
+
+  const capturePayPalOrder = async (orderId: string) => {
+    try {
+      toast({
+        title: "Processing payment...",
+        description: "Please wait while we confirm your payment.",
+      });
+
+      const { data, error } = await supabase.functions.invoke("capture-paypal-order", {
+        body: { orderId },
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "Payment Successful! 🎉",
+          description: "Your coins have been delivered. Relog to see them in-game.",
+        });
+      } else {
+        throw new Error(data?.error || "Payment capture failed");
+      }
+    } catch (error: any) {
+      console.error("PayPal capture error:", error);
+      toast({
+        title: "Payment Error",
+        description: error.message || "Failed to process payment. Please contact support.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCapturing(false);
+      // Clean URL params
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("paypal_success");
+      newParams.delete("token");
+      newParams.delete("PayerID");
+      setSearchParams(newParams, { replace: true });
+    }
+  };
 
   // Debounced character validation
   useEffect(() => {
@@ -111,15 +159,13 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
         const { data, error } = await supabase.functions.invoke('validate-character', {
           body: { characterName: characterName.trim() }
         });
-
         if (error) throw error;
-
         setCharValidation({
           valid: data.valid,
           error: data.error,
           accountName: data.accountName
         });
-      } catch (error: any) {
+      } catch {
         setCharValidation({
           valid: false,
           error: "Failed to communicate with the server"
@@ -168,9 +214,10 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-coin-checkout', {
-        body: { 
-          coins: activeCoins, 
+      const { data, error } = await supabase.functions.invoke('create-paypal-order', {
+        body: {
+          type: "donation_coins",
+          coins: activeCoins,
           amount: Math.round(activePrice * 100),
           characterName: characterName.trim(),
           accountName: charValidation.accountName,
@@ -183,11 +230,13 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
 
       if (error) throw error;
 
-      if (data?.url) {
-        window.open(data.url, '_blank');
+      if (data?.approvalUrl) {
+        window.location.href = data.approvalUrl;
+      } else {
+        throw new Error("No PayPal approval URL received");
       }
     } catch (error: any) {
-      console.error('Checkout error:', error);
+      console.error('PayPal order error:', error);
       toast({
         title: "Error",
         description: error.message || "Something went wrong. Please try again.",
@@ -197,6 +246,16 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
       setIsLoading(false);
     }
   };
+
+  if (isCapturing) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        <h2 className="font-display text-xl font-bold">Processing your payment...</h2>
+        <p className="text-muted-foreground">Please wait while we confirm your transaction.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -214,7 +273,6 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               Select Character
             </Label>
             
-            {/* Character Quick Select */}
             {characters && characters.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-3">
                 {characters.map((char) => (
@@ -267,7 +325,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
             )}
           </div>
 
-          {/* Coin Selection - Slider + Packages Combined */}
+          {/* Coin Selection */}
           <div className="gaming-card rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
@@ -293,7 +351,6 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                 className="w-full"
               />
               
-              {/* Input + Price Display */}
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                   <Input
@@ -314,7 +371,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               </div>
             </div>
 
-            {/* Quick Select Packages */}
+            {/* Quick Select */}
             <div className="border-t border-border/50 pt-4">
               <p className="text-xs text-muted-foreground mb-3">Quick select package:</p>
               <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
@@ -333,7 +390,6 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                         {pkg.coins >= 1000 ? `${(pkg.coins / 1000).toFixed(pkg.coins % 1000 === 0 ? 0 : 1)}k` : pkg.coins}
                       </span>
                     </div>
-                    {/* Indicator for packages with extra bonuses */}
                     {(PREMIUM_BONUSES[pkg.coins] || TREASURE_BONUSES[pkg.coins]) && (
                       <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full" />
                     )}
@@ -357,25 +413,24 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Processing...
+                Redirecting to PayPal...
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <CreditCard className="w-5 h-5" />
-                Buy Now - €{activePrice.toFixed(2)}
+                <Coins className="w-5 h-5" />
+                Pay with PayPal - €{activePrice.toFixed(2)}
               </span>
             )}
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            Coins are credited instantly.
+            Coins are credited instantly. Secure payment via PayPal.
           </p>
         </div>
 
         {/* RIGHT: Selected Package Details Card */}
         <div className="lg:col-span-1">
           <div className="gaming-card rounded-2xl p-6 sticky top-6 border-primary/30">
-            {/* Header */}
             <div className="text-center mb-4">
               <img 
                 src={coinBagIcon} 
@@ -385,9 +440,7 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               <h3 className="font-display text-lg font-bold text-foreground">Selected Package</h3>
             </div>
 
-            {/* Package Details */}
             <div className="space-y-2">
-              {/* Mode indicator */}
               {!matchedPackage && closestTier && (
                 <div className="text-center py-2 px-3 bg-primary/10 rounded-lg border border-primary/30">
                   <span className="text-xs font-medium text-primary">
@@ -401,91 +454,59 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
                 </div>
               )}
 
-              {/* Base Coins */}
               <div className="flex justify-between items-center py-2 border-b border-border/50">
                 <span className="text-muted-foreground text-sm">Base Coins</span>
-                <span className="font-bold text-foreground">
-                  {activeCoins.toLocaleString()}
-                </span>
+                <span className="font-bold text-foreground">{activeCoins.toLocaleString()}</span>
               </div>
 
-              {/* Bonus */}
               <div className="flex justify-between items-center py-2 border-b border-border/50">
                 <span className="text-muted-foreground text-sm flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-emerald-500" />
                   Bonus (+10%)
                 </span>
-                <span className="font-bold text-emerald-500">
-                  +{activeBonus.toLocaleString()}
-                </span>
+                <span className="font-bold text-emerald-500">+{activeBonus.toLocaleString()}</span>
               </div>
 
-              {/* Total */}
               <div className="flex justify-between items-center py-2">
                 <span className="text-foreground font-semibold text-sm">Total Coins</span>
-                <span className="font-bold text-primary text-lg">
-                  {activeTotal.toLocaleString()}
-                </span>
+                <span className="font-bold text-primary text-lg">{activeTotal.toLocaleString()}</span>
               </div>
 
-              {/* Price */}
               <div className="text-center pt-2">
-                <div className="text-3xl font-bold text-gradient-gold">
-                  €{activePrice.toFixed(2)}
-                </div>
+                <div className="text-3xl font-bold text-gradient-gold">€{activePrice.toFixed(2)}</div>
               </div>
             </div>
 
             {/* Bonus Items */}
             <div className="mt-4 pt-3 border-t border-border/50 space-y-2">
-              {/* Random Skin Box - included with all packages */}
               <div className="flex items-center gap-3 p-2.5 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border border-primary/20">
-                <img 
-                  src={randomSkinBoxIcon} 
-                  alt="Random Skin Box" 
-                  className="w-10 h-10 object-contain"
-                />
+                <img src={randomSkinBoxIcon} alt="Random Skin Box" className="w-10 h-10 object-contain" />
                 <div className="flex-1">
                   <span className="font-semibold text-foreground text-sm">Random Skin Box</span>
                   <p className="text-xs text-muted-foreground">x1 included with every purchase!</p>
                 </div>
               </div>
 
-              {/* Premium Account - only for matched packages 1500+ */}
               {premiumBonus && (
                 <div className="flex items-center gap-3 p-2.5 bg-gradient-to-r from-amber-500/10 to-amber-600/5 rounded-xl border border-amber-500/20">
-                  <img 
-                    src={premiumBonus.icon} 
-                    alt={`Premium Account ${premiumBonus.days} days`} 
-                    className="w-10 h-10 object-contain"
-                  />
+                  <img src={premiumBonus.icon} alt={`Premium Account ${premiumBonus.days} days`} className="w-10 h-10 object-contain" />
                   <div className="flex-1">
                     <span className="font-semibold text-foreground text-sm">Premium Account 100%</span>
-                    <p className="text-xs text-amber-500/80">
-                      {premiumBonus.days} day{premiumBonus.days > 1 ? 's' : ''} included!
-                    </p>
+                    <p className="text-xs text-amber-500/80">{premiumBonus.days} day{premiumBonus.days > 1 ? 's' : ''} included!</p>
                   </div>
                 </div>
               )}
 
-              {/* Treasures Antharas - only for matched packages 10000+ */}
               {treasureBonus && (
                 <div className="flex items-center gap-3 p-2.5 bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 rounded-xl border border-emerald-500/20">
-                  <img 
-                    src={treasureChestIcon} 
-                    alt="Treasures Antharas" 
-                    className="w-10 h-10 object-contain"
-                  />
+                  <img src={treasureChestIcon} alt="Treasures Antharas" className="w-10 h-10 object-contain" />
                   <div className="flex-1">
                     <span className="font-semibold text-foreground text-sm">Treasures Antharas</span>
-                    <p className="text-xs text-emerald-500/80">
-                      x{treasureBonus.count} included!
-                    </p>
+                    <p className="text-xs text-emerald-500/80">x{treasureBonus.count} included!</p>
                   </div>
                 </div>
               )}
 
-              {/* Note for custom amounts */}
               {!matchedPackage && (
                 <p className="text-xs text-muted-foreground text-center italic">
                   Custom amounts include only coins + 10% bonus + Random Skin Box
@@ -493,7 +514,6 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               )}
             </div>
 
-            {/* Info Note */}
             <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg p-3">
               <Info className="w-4 h-4 shrink-0 mt-0.5" />
               <span>Items will be credited to your selected character after purchase.</span>
