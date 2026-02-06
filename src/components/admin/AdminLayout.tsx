@@ -3,9 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   LayoutDashboard, 
-  Newspaper, 
   Download, 
-  Image, 
   Settings, 
   LogOut,
   Shield,
@@ -21,10 +19,8 @@ interface AdminLayoutProps {
 
 const navItems = [
   { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
-  { name: "News", path: "/admin/news", icon: Newspaper },
   { name: "Description", path: "/admin/description", icon: FileText },
   { name: "Downloads", path: "/admin/downloads", icon: Download },
-  { name: "Media", path: "/admin/media", icon: Image },
   { name: "Settings", path: "/admin/settings", icon: Settings },
 ];
 

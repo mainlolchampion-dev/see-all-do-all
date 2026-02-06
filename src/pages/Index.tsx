@@ -1,7 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { HeroSection } from "@/components/home/HeroSection";
 import { ServerRates } from "@/components/home/ServerRates";
-import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { CTASection } from "@/components/home/CTASection";
 import { DiscordWidget } from "@/components/home/DiscordWidget";
 import { ServerLaunchTimer } from "@/components/home/ServerLaunchTimer";
@@ -26,7 +25,6 @@ const Index = () => {
       <StarterPacksSection />
       
       <ServerRates />
-      <FeaturesSection />
       <CTASection />
     </Layout>
   );
