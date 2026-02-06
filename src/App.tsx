@@ -9,9 +9,6 @@ import Login from "./pages/Login";
 import Download from "./pages/Download";
 import Donate from "./pages/Donate";
 import Rankings from "./pages/Rankings";
-import Features from "./pages/Features";
-import Media from "./pages/Media";
-import News from "./pages/News";
 import UCP from "./pages/UCP";
 import NotFound from "./pages/NotFound";
 import Privacy from "./pages/Privacy";
@@ -24,9 +21,7 @@ import Description from "./pages/Description";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminNews from "./pages/admin/AdminNews";
 import AdminDownloads from "./pages/admin/AdminDownloads";
-import AdminMedia from "./pages/admin/AdminMedia";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminDescription from "./pages/admin/AdminDescription";
 
@@ -47,9 +42,6 @@ const App = () => (
           <Route path="/download" element={<Download />} />
           <Route path="/donate" element={<Donate />} />
           <Route path="/rankings" element={<Rankings />} />
-          <Route path="/features" element={<Features />} />
-          <Route path="/media" element={<Media />} />
-          <Route path="/news" element={<News />} />
           <Route path="/ucp" element={<UCP />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
@@ -60,9 +52,7 @@ const App = () => (
           
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/news" element={<AdminNews />} />
           <Route path="/admin/downloads" element={<AdminDownloads />} />
-          <Route path="/admin/media" element={<AdminMedia />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/description" element={<AdminDescription />} />
           
