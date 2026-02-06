@@ -8,7 +8,8 @@ import {
   Image, 
   Settings, 
   LogOut,
-  Shield
+  Shield,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +22,7 @@ interface AdminLayoutProps {
 const navItems = [
   { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { name: "News", path: "/admin/news", icon: Newspaper },
+  { name: "Description", path: "/admin/description", icon: FileText },
   { name: "Downloads", path: "/admin/downloads", icon: Download },
   { name: "Media", path: "/admin/media", icon: Image },
   { name: "Settings", path: "/admin/settings", icon: Settings },

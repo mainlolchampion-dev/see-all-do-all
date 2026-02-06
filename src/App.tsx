@@ -28,6 +28,7 @@ import AdminNews from "./pages/admin/AdminNews";
 import AdminDownloads from "./pages/admin/AdminDownloads";
 import AdminMedia from "./pages/admin/AdminMedia";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminDescription from "./pages/admin/AdminDescription";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
           <Route path="/admin/downloads" element={<AdminDownloads />} />
           <Route path="/admin/media" element={<AdminMedia />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/description" element={<AdminDescription />} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>
