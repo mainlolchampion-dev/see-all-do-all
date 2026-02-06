@@ -4,7 +4,7 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Newspaper, Download, Image, Users, Coins, Package } from "lucide-react";
+import { Loader2, Download, Users, Coins, Package, FileText, Settings } from "lucide-react";
 
 interface StarterPackMetrics {
   basic_count: number;
@@ -18,9 +18,7 @@ interface StarterPackMetrics {
 export default function AdminDashboard() {
   const { isAdmin, isLoading } = useAdminAuth();
   const [stats, setStats] = useState({
-    news: 0,
     downloads: 0,
-    media: 0,
   });
   const [donationTotal, setDonationTotal] = useState(0);
   const [donationResetAt, setDonationResetAt] = useState<string | null>(null);
@@ -37,18 +35,14 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [newsResult, downloadsResult, mediaResult, donationResult, starterPackResult] = await Promise.all([
-          supabase.from("news").select("id", { count: "exact", head: true }),
+        const [downloadsResult, donationResult, starterPackResult] = await Promise.all([
           supabase.from("downloads").select("id", { count: "exact", head: true }),
-          supabase.from("media").select("id", { count: "exact", head: true }),
           supabase.from("donation_metrics").select("total_coins, reset_at").eq("key", "global").single(),
           supabase.from("starter_pack_metrics").select("*").eq("key", "global").single(),
         ]);
 
         setStats({
-          news: newsResult.count || 0,
           downloads: downloadsResult.count || 0,
-          media: mediaResult.count || 0,
         });
 
         setDonationTotal(donationResult?.data?.total_coins || 0);
@@ -148,9 +142,7 @@ export default function AdminDashboard() {
   }
 
   const statCards = [
-    { title: "News Articles", value: stats.news, icon: Newspaper, color: "text-blue-500" },
     { title: "Downloads", value: stats.downloads, icon: Download, color: "text-green-500" },
-    { title: "Media Items", value: stats.media, icon: Image, color: "text-purple-500" },
     { title: "Donation Coins Sold", value: donationTotal, icon: Coins, color: "text-amber-500" },
   ];
 
@@ -263,21 +255,17 @@ export default function AdminDashboard() {
             <CardTitle className="text-lg">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <a href="/admin/news" className="p-4 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center">
-                <Newspaper className="w-8 h-8 mx-auto mb-2 text-primary" />
-                <span className="text-sm font-medium">Add News</span>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <a href="/admin/description" className="p-4 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center">
+                <FileText className="w-8 h-8 mx-auto mb-2 text-primary" />
+                <span className="text-sm font-medium">Edit Description</span>
               </a>
               <a href="/admin/downloads" className="p-4 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center">
                 <Download className="w-8 h-8 mx-auto mb-2 text-primary" />
                 <span className="text-sm font-medium">Manage Downloads</span>
               </a>
-              <a href="/admin/media" className="p-4 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center">
-                <Image className="w-8 h-8 mx-auto mb-2 text-primary" />
-                <span className="text-sm font-medium">Upload Media</span>
-              </a>
               <a href="/admin/settings" className="p-4 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center">
-                <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
+                <Settings className="w-8 h-8 mx-auto mb-2 text-primary" />
                 <span className="text-sm font-medium">Server Settings</span>
               </a>
             </div>
