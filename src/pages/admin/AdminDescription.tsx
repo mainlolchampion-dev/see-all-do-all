@@ -28,6 +28,7 @@ interface DescriptionSection {
   icon: string;
   headers?: string[];
   rows?: string[][];
+  row_icons?: string[];
   cards?: CardItem[];
   footer_notes?: string[];
   // Treasure-specific
@@ -125,7 +126,11 @@ export default function AdminDescription() {
       ...prev,
       sections: prev.sections.map(s => {
         if (s.id !== sectionId || !s.rows || !s.headers) return s;
-        return { ...s, rows: [...s.rows, s.headers.map(() => "")] };
+        return {
+          ...s,
+          rows: [...s.rows, s.headers.map(() => "")],
+          row_icons: [...(s.row_icons || []), ""],
+        };
       }),
     }));
   };
@@ -135,7 +140,25 @@ export default function AdminDescription() {
       ...prev,
       sections: prev.sections.map(s => {
         if (s.id !== sectionId || !s.rows) return s;
-        return { ...s, rows: s.rows.filter((_, i) => i !== rowIdx) };
+        return {
+          ...s,
+          rows: s.rows.filter((_, i) => i !== rowIdx),
+          row_icons: (s.row_icons || []).filter((_, i) => i !== rowIdx),
+        };
+      }),
+    }));
+  };
+
+  const updateRowIcon = (sectionId: string, rowIdx: number, value: string) => {
+    setContent(prev => ({
+      ...prev,
+      sections: prev.sections.map(s => {
+        if (s.id !== sectionId) return s;
+        const icons = [...(s.row_icons || [])];
+        // Ensure array is long enough
+        while (icons.length <= rowIdx) icons.push("");
+        icons[rowIdx] = value;
+        return { ...s, row_icons: icons };
       }),
     }));
   };
@@ -355,6 +378,8 @@ export default function AdminDescription() {
                     <Label className="text-primary">Table Content</Label>
                     {/* Headers */}
                     <div className="flex gap-2 items-center">
+                      <span className="text-xs text-muted-foreground w-6 flex-shrink-0" />
+                      <span className="text-xs text-muted-foreground w-24 flex-shrink-0 font-bold">Icon</span>
                       {section.headers?.map((h, hi) => (
                         <Input
                           key={hi}
@@ -368,12 +393,28 @@ export default function AdminDescription() {
                           placeholder={`Header ${hi + 1}`}
                         />
                       ))}
+                      <span className="w-8 flex-shrink-0" />
                     </div>
                     {/* Rows */}
                     <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
                       {section.rows.map((row, ri) => (
                         <div key={ri} className="flex gap-2 items-center">
                           <span className="text-xs text-muted-foreground w-6 text-right flex-shrink-0">{ri + 1}</span>
+                          <div className="w-24 flex-shrink-0 flex items-center gap-1">
+                            {(section.row_icons?.[ri]) && (
+                              <img
+                                src={`/images/description-icons/${section.row_icons[ri]}`}
+                                alt=""
+                                className="w-5 h-5 object-contain flex-shrink-0"
+                              />
+                            )}
+                            <Input
+                              value={section.row_icons?.[ri] || ""}
+                              onChange={(e) => updateRowIcon(section.id, ri, e.target.value)}
+                              className="text-[10px] w-full"
+                              placeholder="icon.png"
+                            />
+                          </div>
                           {row.map((cell, ci) => (
                             <Input
                               key={ci}

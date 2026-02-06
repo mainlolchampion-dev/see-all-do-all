@@ -34,6 +34,7 @@ interface DescriptionSection {
   icon: string;
   headers?: string[];
   rows?: string[][];
+  row_icons?: string[];
   cards?: CardItem[];
   footer_notes?: string[];
   description?: string;
@@ -72,13 +73,16 @@ function GoldCard({ children, className = "" }: { children: React.ReactNode; cla
   );
 }
 
-function InfoTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
+function InfoTable({ headers, rows, rowIcons }: { headers: string[]; rows: string[][]; rowIcons?: string[] }) {
   return (
     <GoldCard>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-primary/10 border-b border-yellow-500/30">
+              {rowIcons && rowIcons.length > 0 && (
+                <th className="px-3 py-3 w-10" />
+              )}
               {headers.map((h, i) => (
                 <th key={i} className="px-4 py-3 text-left text-primary font-bold uppercase tracking-wider text-xs">
                   {h}
@@ -89,6 +93,18 @@ function InfoTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
           <tbody>
             {rows.map((row, i) => (
               <tr key={i} className="border-b border-border/50 hover:bg-primary/5 transition-colors">
+                {rowIcons && rowIcons.length > 0 && (
+                  <td className="px-3 py-3 w-10">
+                    {rowIcons[i] && (
+                      <img
+                        src={`/images/description-icons/${rowIcons[i]}`}
+                        alt=""
+                        className="w-6 h-6 object-contain"
+                        loading="lazy"
+                      />
+                    )}
+                  </td>
+                )}
                 {row.map((cell, j) => (
                   <td key={j} className="px-4 py-3 text-foreground/80 font-sans">
                     {cell}
@@ -226,7 +242,7 @@ export default function Description() {
 
               {section.type === "table" && section.headers && section.rows && (
                 <motion.div {...fadeInUp}>
-                  <InfoTable headers={section.headers} rows={section.rows} />
+                  <InfoTable headers={section.headers} rows={section.rows} rowIcons={section.row_icons} />
                 </motion.div>
               )}
 
