@@ -449,12 +449,31 @@ function SettingsTab({ userEmail }: { userEmail: string | null }) {
 
     setIsUpdatingPassword(true);
     try {
+      // Update web password (Supabase Auth)
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
 
+      // Sync password to L2 game account
+      let l2SyncMessage = "";
+      try {
+        const { data: l2Result, error: l2Error } = await supabase.functions.invoke("update-l2-password", {
+          body: { newPassword },
+        });
+
+        if (l2Error || !l2Result?.success) {
+          l2SyncMessage = " (Note: Game password could not be updated. Please contact support.)";
+          console.error("L2 password sync failed:", l2Error || l2Result?.error);
+        } else {
+          l2SyncMessage = " Your game password has also been updated.";
+        }
+      } catch (l2Err) {
+        l2SyncMessage = " (Note: Game password could not be updated. Please contact support.)";
+        console.error("L2 password sync error:", l2Err);
+      }
+
       toast({
         title: "Password Updated",
-        description: "Your password has been successfully changed.",
+        description: `Your web password has been changed.${l2SyncMessage}`,
       });
       setCurrentPassword("");
       setNewPassword("");
