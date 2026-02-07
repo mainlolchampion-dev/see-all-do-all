@@ -3,8 +3,12 @@ import { Link } from "react-router-dom";
 import { Download, Users, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroTitle from "@/assets/hero-title.png";
+import { useServerSettings } from "@/hooks/useServerSettings";
 
 export function HeroSection() {
+  const { data: settings } = useServerSettings();
+  const heroSubtitle = settings?.hero?.subtitle || "x1000 PvP Server";
+
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden -mt-20 md:-mt-24">
       {/* Background Video */}
@@ -56,7 +60,7 @@ export function HeroSection() {
             HIGH FIVE
           </h1>
           <p className="text-sm sm:text-base md:text-lg tracking-[0.3em] text-foreground/50 uppercase mb-8">
-            x1000 PvP Server
+            {heroSubtitle}
           </p>
         </motion.div>
 

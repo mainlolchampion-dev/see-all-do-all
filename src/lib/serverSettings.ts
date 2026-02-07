@@ -1,3 +1,19 @@
+export interface StarterPackItemConfig {
+  iconKey: string;
+  name: string;
+  value: string;
+  valueColor: string;
+}
+
+export interface StarterPackConfig {
+  id: string;
+  items: StarterPackItemConfig[];
+  originalPrice: string;
+  salePrice: string;
+  priceAmount: number;
+  itemId: number;
+}
+
 export interface ServerSettings {
   rates: {
     xp: number;
@@ -29,9 +45,13 @@ export interface ServerSettings {
     schedule: string;
   };
   launch: {
-    date: string; // ISO date string for server launch
-    enabled: boolean; // Whether to show countdown or uptime
+    date: string;
+    enabled: boolean;
   };
+  hero: {
+    subtitle: string;
+  };
+  starter_packs: StarterPackConfig[];
 }
 
 export const defaultServerSettings: ServerSettings = {
@@ -65,7 +85,75 @@ export const defaultServerSettings: ServerSettings = {
     schedule: "Every Sunday 20:00 GMT+2",
   },
   launch: {
-    date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Default: 1 week from now
+    date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     enabled: true,
   },
+  hero: {
+    subtitle: "x1000 PvP Server",
+  },
+  starter_packs: [
+    {
+      id: "basic",
+      items: [
+        { iconKey: "weapon", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
+        { iconKey: "armor", name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
+        { iconKey: "jewel", name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
+        { iconKey: "generosity_rune", name: "Generosity Rune", value: "5 Pcs.", valueColor: "text-crimson" },
+      ],
+      originalPrice: "€20.00",
+      salePrice: "€9.99",
+      priceAmount: 999,
+      itemId: 600623,
+    },
+    {
+      id: "improved",
+      items: [
+        { iconKey: "weapon", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
+        { iconKey: "armor", name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
+        { iconKey: "jewel", name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
+        { iconKey: "pve", name: "PvE Damage +15%", value: "7 Days", valueColor: "text-emerald-500" },
+        { iconKey: "agathion", name: "Agathion Helper", value: "7 Days", valueColor: "text-emerald-500" },
+        { iconKey: "generosity_rune", name: "Generosity Rune", value: "10 Pcs.", valueColor: "text-crimson" },
+      ],
+      originalPrice: "€30.00",
+      salePrice: "€14.99",
+      priceAmount: 1499,
+      itemId: 600624,
+    },
+    {
+      id: "premium",
+      items: [
+        { iconKey: "weapon", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
+        { iconKey: "armor", name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
+        { iconKey: "jewel", name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
+        { iconKey: "pve", name: "PvE Damage +15%", value: "7 Days", valueColor: "text-emerald-500" },
+        { iconKey: "agathion", name: "Agathion Helper", value: "7 Days", valueColor: "text-emerald-500" },
+        { iconKey: "premium", name: "Premium Account 100%", value: "7 Days", valueColor: "text-emerald-500" },
+        { iconKey: "enchant", name: "Enchant Bonus +10%", value: "7 Days", valueColor: "text-emerald-500" },
+        { iconKey: "generosity_rune", name: "Generosity Rune", value: "15 Pcs.", valueColor: "text-crimson" },
+      ],
+      originalPrice: "€40.00",
+      salePrice: "€19.99",
+      priceAmount: 1999,
+      itemId: 600625,
+    },
+    {
+      id: "elite",
+      items: [
+        { iconKey: "weapon", name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
+        { iconKey: "armor", name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
+        { iconKey: "jewel", name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
+        { iconKey: "pve", name: "PvE Damage +15%", value: "21 Days", valueColor: "text-emerald-500" },
+        { iconKey: "agathion", name: "Agathion Helper", value: "21 Days", valueColor: "text-emerald-500" },
+        { iconKey: "premium", name: "Premium Account 100%", value: "21 Days", valueColor: "text-emerald-500" },
+        { iconKey: "enchant", name: "Enchant Bonus +10%", value: "21 Days", valueColor: "text-emerald-500" },
+        { iconKey: "love_potion", name: "Love Potions", value: "100 Pcs.", valueColor: "text-crimson" },
+        { iconKey: "generosity_rune", name: "Generosity Rune", value: "25 Pcs.", valueColor: "text-crimson" },
+      ],
+      originalPrice: "€50.00",
+      salePrice: "€24.99",
+      priceAmount: 2499,
+      itemId: 600626,
+    },
+  ],
 };

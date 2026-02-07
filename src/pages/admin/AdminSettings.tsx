@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Save, Swords, Settings, MessageCircle, Castle, Rocket } from "lucide-react";
+import { Loader2, Save, Swords, Settings, MessageCircle, Castle, Rocket, Type } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { defaultServerSettings, type ServerSettings } from "@/lib/serverSettings";
 
@@ -298,6 +298,38 @@ export default function AdminSettings() {
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               <Save className="w-4 h-4 mr-2" />
               Save Launch Settings
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Hero Section */}
+        <Card className="gaming-card">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Type className="w-5 h-5 text-primary" />
+              <CardTitle>Hero Section</CardTitle>
+            </div>
+            <CardDescription>Configure the subtitle text displayed on the hero banner (e.g. "x1000 PvP Server")</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="hero_subtitle">Hero Subtitle</Label>
+              <Input
+                id="hero_subtitle"
+                value={settings.hero?.subtitle || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    hero: { ...settings.hero, subtitle: e.target.value },
+                  })
+                }
+                placeholder="x1000 PvP Server"
+              />
+            </div>
+            <Button onClick={() => saveSettings("hero", settings.hero)} disabled={saving}>
+              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Save className="w-4 h-4 mr-2" />
+              Save Hero Settings
             </Button>
           </CardContent>
         </Card>

@@ -260,6 +260,10 @@ export default function AdminDashboard() {
                 <FileText className="w-8 h-8 mx-auto mb-2 text-primary" />
                 <span className="text-sm font-medium">Edit Description</span>
               </a>
+              <a href="/admin/starter-packs" className="p-4 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center">
+                <Package className="w-8 h-8 mx-auto mb-2 text-primary" />
+                <span className="text-sm font-medium">Starter Packs</span>
+              </a>
               <a href="/admin/downloads" className="p-4 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center">
                 <Download className="w-8 h-8 mx-auto mb-2 text-primary" />
                 <span className="text-sm font-medium">Manage Downloads</span>
