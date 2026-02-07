@@ -237,7 +237,7 @@ export default function Description() {
         {content.sections.map((section) => {
           const IconComp = ICON_MAP[section.icon] || Shield;
           return (
-            <section key={section.id}>
+            <section key={section.id} id={section.id} className="scroll-mt-24">
               <SectionTitle icon={IconComp} title={section.title} highlight={section.highlight} />
 
               {section.type === "table" && section.headers && section.rows && (
