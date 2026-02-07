@@ -27,7 +27,7 @@ async function getPayPalAccessToken(): Promise<string> {
     throw new Error("PayPal credentials not configured");
   }
 
-  const baseUrl = "https://api-m.sandbox.paypal.com";
+  const baseUrl = "https://api-m.paypal.com";
 
   const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
     method: "POST",
@@ -141,7 +141,7 @@ serve(async (req) => {
     const accessToken = await getPayPalAccessToken();
     logStep("PayPal access token obtained");
 
-    const baseUrl = "https://api-m.sandbox.paypal.com";
+    const baseUrl = "https://api-m.paypal.com";
 
     // Build return/cancel URLs
     const returnUrl = type === "starter_pack"
