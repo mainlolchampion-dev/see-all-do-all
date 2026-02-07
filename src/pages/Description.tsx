@@ -2,6 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { motion } from "framer-motion";
 import { Shield, Swords, Crown, Clock, Trophy, Skull, Gem, Gift, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -177,6 +178,8 @@ export default function Description() {
   const [content, setContent] = useState<DescriptionContent | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const location = useLocation();
+
   useEffect(() => {
     const fetchContent = async () => {
       try {
@@ -197,6 +200,19 @@ export default function Description() {
     };
     fetchContent();
   }, []);
+
+  // Scroll to hash fragment after content loads
+  useEffect(() => {
+    if (!loading && content && location.hash) {
+      const id = location.hash.replace("#", "");
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 300);
+    }
+  }, [loading, content, location.hash]);
 
   if (loading) {
     return (
