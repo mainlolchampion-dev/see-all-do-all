@@ -26,6 +26,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDownloads from "./pages/admin/AdminDownloads";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminDescription from "./pages/admin/AdminDescription";
+import AdminStarterPacks from "./pages/admin/AdminStarterPacks";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
           <Route path="/admin/downloads" element={<AdminDownloads />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/description" element={<AdminDescription />} />
+          <Route path="/admin/starter-packs" element={<AdminStarterPacks />} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

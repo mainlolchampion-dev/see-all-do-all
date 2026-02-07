@@ -7,132 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
-// Starter Pack Badge Icons
-import basicBadge from "@/assets/starter-packs/basic-badge.png";
-import improvedBadge from "@/assets/starter-packs/improved-badge.png";
-import premiumBadge from "@/assets/starter-packs/premium-badge.png";
-import eliteBadge from "@/assets/starter-packs/elite-badge.png";
-
-// Item Icons
-import weaponIcon from "@/assets/starter-packs/items/weapon-icon.png";
-import armorIcon from "@/assets/starter-packs/items/armor-icon.png";
-import jewelIcon from "@/assets/starter-packs/items/jewel-icon.png";
-import pveIcon from "@/assets/starter-packs/items/pve-icon.png";
-import agathionIcon from "@/assets/starter-packs/items/agathion-icon.png";
-import premiumAccountIcon from "@/assets/starter-packs/items/premium-icon.png";
-import enchantIcon from "@/assets/starter-packs/items/enchant-icon.png";
-import lovePotionIcon from "@/assets/starter-packs/items/love-potion-icon.png";
-import generosityRuneIcon from "@/assets/starter-packs/items/generosity-rune-icon.png";
-
-interface PackItem {
-  icon: string;
-  name: string;
-  value: string;
-  valueColor?: string;
-}
-
-interface StarterPack {
-  id: string;
-  tier: string;
-  name: string;
-  badgeImage: string;
-  bgClass: string;
-  items: PackItem[];
-  originalPrice: string;
-  salePrice: string;
-  priceAmount: number; // in cents
-  itemId: number; // L2 item ID for delivery
-}
-
-const starterPacks: StarterPack[] = [
-  {
-    id: "basic",
-    tier: "Beginner's Kit",
-    name: "BASIC",
-    badgeImage: eliteBadge,
-    bgClass: "bg-gradient-to-b from-zinc-800/50 to-zinc-900/80",
-    items: [
-      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: generosityRuneIcon, name: "Generosity Rune", value: "5 Pcs.", valueColor: "text-crimson" },
-    ],
-    originalPrice: "€20.00",
-    salePrice: "€9.99",
-    priceAmount: 999,
-    itemId: 600623,
-  },
-  {
-    id: "improved",
-    tier: "Beginner's Kit",
-    name: "IMPROVED",
-    badgeImage: improvedBadge,
-    bgClass: "bg-gradient-to-b from-amber-900/30 to-zinc-900/80",
-    items: [
-      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: pveIcon, name: "PvE Damage +15%", value: "7 Days", valueColor: "text-emerald-500" },
-      { icon: agathionIcon, name: "Agathion Helper", value: "7 Days", valueColor: "text-emerald-500" },
-      { icon: generosityRuneIcon, name: "Generosity Rune", value: "10 Pcs.", valueColor: "text-crimson" },
-    ],
-    originalPrice: "€30.00",
-    salePrice: "€14.99",
-    priceAmount: 1499,
-    itemId: 600624,
-  },
-  {
-    id: "premium",
-    tier: "Beginner's Kit",
-    name: "PREMIUM",
-    badgeImage: premiumBadge,
-    bgClass: "bg-gradient-to-b from-red-900/30 to-zinc-900/80",
-    items: [
-      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: pveIcon, name: "PvE Damage +15%", value: "7 Days", valueColor: "text-emerald-500" },
-      { icon: agathionIcon, name: "Agathion Helper", value: "7 Days", valueColor: "text-emerald-500" },
-      { icon: premiumAccountIcon, name: "Premium Account 100%", value: "7 Days", valueColor: "text-emerald-500" },
-      { icon: enchantIcon, name: "Enchant Bonus +10%", value: "7 Days", valueColor: "text-emerald-500" },
-      { icon: generosityRuneIcon, name: "Generosity Rune", value: "15 Pcs.", valueColor: "text-crimson" },
-    ],
-    originalPrice: "€40.00",
-    salePrice: "€19.99",
-    priceAmount: 1999,
-    itemId: 600625,
-  },
-  {
-    id: "elite",
-    tier: "Beginner's Kit",
-    name: "ELITE",
-    badgeImage: basicBadge,
-    bgClass: "bg-gradient-to-b from-purple-900/50 to-purple-950/80 relative overflow-hidden",
-    items: [
-      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: pveIcon, name: "PvE Damage +15%", value: "21 Days", valueColor: "text-emerald-500" },
-      { icon: agathionIcon, name: "Agathion Helper", value: "21 Days", valueColor: "text-emerald-500" },
-      { icon: premiumAccountIcon, name: "Premium Account 100%", value: "21 Days", valueColor: "text-emerald-500" },
-      { icon: enchantIcon, name: "Enchant Bonus +10%", value: "21 Days", valueColor: "text-emerald-500" },
-      { icon: lovePotionIcon, name: "Love Potions", value: "100 Pcs.", valueColor: "text-crimson" },
-      { icon: generosityRuneIcon, name: "Generosity Rune", value: "25 Pcs.", valueColor: "text-crimson" },
-    ],
-    originalPrice: "€50.00",
-    salePrice: "€24.99",
-    priceAmount: 2499,
-    itemId: 600626,
-  },
-];
-
-const tierBadgeStyles: Record<string, string> = {
-  basic: "from-zinc-400 via-zinc-300 to-zinc-500",
-  improved: "from-amber-600 via-amber-500 to-amber-700",
-  premium: "from-red-500 via-red-400 to-red-600",
-  elite: "from-yellow-400 via-amber-300 to-yellow-500",
-};
+import { useStarterPacks } from "@/hooks/useStarterPacks";
+import { getItemIconSrc, getBadgeSrc } from "@/lib/starterPackIcons";
+import type { StarterPackConfig } from "@/lib/serverSettings";
 
 const tierGlowStyles: Record<string, string> = {
   basic: "shadow-[0_0_30px_rgba(161,161,170,0.3)] hover:shadow-[0_0_50px_rgba(161,161,170,0.5)]",
@@ -146,6 +23,20 @@ const tierBorderStyles: Record<string, string> = {
   improved: "border-amber-600/50 hover:border-amber-500",
   premium: "border-yellow-500/50 hover:border-yellow-400",
   elite: "border-red-500/50 hover:border-red-400",
+};
+
+const tierBgStyles: Record<string, string> = {
+  basic: "bg-gradient-to-b from-zinc-800/50 to-zinc-900/80",
+  improved: "bg-gradient-to-b from-amber-900/30 to-zinc-900/80",
+  premium: "bg-gradient-to-b from-red-900/30 to-zinc-900/80",
+  elite: "bg-gradient-to-b from-purple-900/50 to-purple-950/80 relative overflow-hidden",
+};
+
+const PACK_NAMES: Record<string, string> = {
+  basic: "BASIC",
+  improved: "IMPROVED",
+  premium: "PREMIUM",
+  elite: "ELITE",
 };
 
 interface StarterPacksTabProps {
@@ -165,6 +56,7 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
   const [isCapturing, setIsCapturing] = useState(false);
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { packs } = useStarterPacks();
 
   // Auto-select first character if available
   useEffect(() => {
@@ -256,7 +148,7 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
     return () => clearTimeout(timer);
   }, [characterName]);
 
-  const handlePurchase = async (pack: StarterPack) => {
+  const handlePurchase = async (pack: StarterPackConfig) => {
     if (!characterName.trim()) {
       toast({
         title: "Character name required",
@@ -393,14 +285,14 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
 
       {/* Packs Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {starterPacks.map((pack, index) => (
+        {packs.map((pack, index) => (
           <motion.div
             key={pack.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             whileHover={{ scale: 1.02, y: -3 }}
-            className={`rounded-lg border-2 ${tierBorderStyles[pack.id]} ${pack.bgClass} ${tierGlowStyles[pack.id]} flex flex-col transition-all duration-500 relative overflow-hidden group`}
+            className={`rounded-lg border-2 ${tierBorderStyles[pack.id] || ""} ${tierBgStyles[pack.id] || ""} ${tierGlowStyles[pack.id] || ""} flex flex-col transition-all duration-500 relative overflow-hidden group`}
           >
             {/* Shimmer effect overlay */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
@@ -450,13 +342,13 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
                 transition={{ duration: 0.3 }}
               >
                 <img 
-                  src={pack.badgeImage} 
-                  alt={`${pack.name} badge`} 
+                  src={getBadgeSrc(pack.id)} 
+                  alt={`${PACK_NAMES[pack.id] || pack.id} badge`} 
                   className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]"
                 />
               </motion.div>
-              <span className="text-[10px] text-muted-foreground tracking-wider uppercase">{pack.tier}</span>
-              <h3 className="text-sm font-bold text-foreground mt-0.5">{pack.name}</h3>
+              <span className="text-[10px] text-muted-foreground tracking-wider uppercase">Beginner's Kit</span>
+              <h3 className="text-sm font-bold text-foreground mt-0.5">{PACK_NAMES[pack.id] || pack.id.toUpperCase()}</h3>
             </div>
 
             {/* Items List */}
@@ -470,7 +362,7 @@ export function StarterPacksTab({ linkedLogin, characters }: StarterPacksTabProp
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 + itemIndex * 0.03 }}
                   >
-                    <img src={item.icon} alt="" className="w-4 h-4 object-contain flex-shrink-0 drop-shadow-[0_0_3px_rgba(234,179,8,0.4)]" />
+                    <img src={getItemIconSrc(item.iconKey)} alt="" className="w-4 h-4 object-contain flex-shrink-0 drop-shadow-[0_0_3px_rgba(234,179,8,0.4)]" />
                     <span className="text-muted-foreground text-[10px]">{item.name}</span>
                     <span className={`ml-auto font-semibold text-[10px] ${item.valueColor || "text-foreground"}`}>
                       {item.value}

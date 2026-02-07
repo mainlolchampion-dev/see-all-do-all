@@ -1,120 +1,8 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
-// Starter Pack Badge Icons
-import basicBadge from "@/assets/starter-packs/basic-badge.png";
-import improvedBadge from "@/assets/starter-packs/improved-badge.png";
-import premiumBadge from "@/assets/starter-packs/premium-badge.png";
-import eliteBadge from "@/assets/starter-packs/elite-badge.png";
-
-// Item Icons
-import weaponIcon from "@/assets/starter-packs/items/weapon-icon.png";
-import armorIcon from "@/assets/starter-packs/items/armor-icon.png";
-import jewelIcon from "@/assets/starter-packs/items/jewel-icon.png";
-import pveIcon from "@/assets/starter-packs/items/pve-icon.png";
-import agathionIcon from "@/assets/starter-packs/items/agathion-icon.png";
-import premiumAccountIcon from "@/assets/starter-packs/items/premium-icon.png";
-import enchantIcon from "@/assets/starter-packs/items/enchant-icon.png";
-import lovePotionIcon from "@/assets/starter-packs/items/love-potion-icon.png";
-import generosityRuneIcon from "@/assets/starter-packs/items/generosity-rune-icon.png";
-
-interface PackItem {
-  icon: string;
-  name: string;
-  value: string;
-  valueColor?: string;
-}
-
-interface StarterPack {
-  id: string;
-  tier: string;
-  name: string;
-  badgeImage: string;
-  bgClass: string;
-  items: PackItem[];
-  originalPrice: string;
-  salePrice: string;
-  promoDate: string;
-}
-
-const starterPacks: StarterPack[] = [
-  {
-    id: "basic",
-    tier: "Beginner's Kit",
-    name: "BASIC",
-    badgeImage: eliteBadge,
-    bgClass: "bg-gradient-to-b from-zinc-800/50 to-zinc-900/80",
-    items: [
-      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: generosityRuneIcon, name: "Generosity Rune", value: "5 Pcs.", valueColor: "text-crimson" },
-    ],
-    originalPrice: "€20.00",
-    salePrice: "€9.99",
-    promoDate: "11.01 23:59",
-  },
-  {
-    id: "improved",
-    tier: "Beginner's Kit",
-    name: "IMPROVED",
-    badgeImage: improvedBadge,
-    bgClass: "bg-gradient-to-b from-amber-900/30 to-zinc-900/80",
-    items: [
-      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: pveIcon, name: "PvE Damage +15%", value: "7 Days", valueColor: "text-emerald" },
-      { icon: agathionIcon, name: "Agathion Helper", value: "7 Days", valueColor: "text-emerald" },
-      { icon: generosityRuneIcon, name: "Generosity Rune", value: "10 Pcs.", valueColor: "text-crimson" },
-    ],
-    originalPrice: "€30.00",
-    salePrice: "€14.99",
-    promoDate: "11.01 23:59",
-  },
-  {
-    id: "premium",
-    tier: "Beginner's Kit",
-    name: "PREMIUM",
-    badgeImage: premiumBadge,
-    bgClass: "bg-gradient-to-b from-red-900/30 to-zinc-900/80",
-    items: [
-      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: pveIcon, name: "PvE Damage +15%", value: "7 Days", valueColor: "text-emerald" },
-      { icon: agathionIcon, name: "Agathion Helper", value: "7 Days", valueColor: "text-emerald" },
-      { icon: premiumAccountIcon, name: "Premium Account 100%", value: "7 Days", valueColor: "text-emerald" },
-      { icon: enchantIcon, name: "Enchant Bonus +10%", value: "7 Days", valueColor: "text-emerald" },
-      { icon: generosityRuneIcon, name: "Generosity Rune", value: "15 Pcs.", valueColor: "text-crimson" },
-    ],
-    originalPrice: "€40.00",
-    salePrice: "€19.99",
-    promoDate: "11.01 23:59",
-  },
-  {
-    id: "elite",
-    tier: "Beginner's Kit",
-    name: "ELITE",
-    badgeImage: basicBadge,
-    bgClass: "bg-gradient-to-b from-purple-900/50 to-purple-950/80",
-    items: [
-      { icon: weaponIcon, name: "Top S84 Weapon {PvP}", value: "+16", valueColor: "text-primary" },
-      { icon: armorIcon, name: "Set Top S84 Armor {PvP}", value: "+14", valueColor: "text-primary" },
-      { icon: jewelIcon, name: "Epic Jewel Pack", value: "+14", valueColor: "text-primary" },
-      { icon: pveIcon, name: "PvE Damage +15%", value: "21 Days", valueColor: "text-emerald" },
-      { icon: agathionIcon, name: "Agathion Helper", value: "21 Days", valueColor: "text-emerald" },
-      { icon: premiumAccountIcon, name: "Premium Account 100%", value: "21 Days", valueColor: "text-emerald" },
-      { icon: enchantIcon, name: "Enchant Bonus +10%", value: "21 Days", valueColor: "text-emerald" },
-      { icon: lovePotionIcon, name: "Love Potions", value: "100 Pcs.", valueColor: "text-crimson" },
-      { icon: generosityRuneIcon, name: "Generosity Rune", value: "25 Pcs.", valueColor: "text-crimson" },
-    ],
-    originalPrice: "€50.00",
-    salePrice: "€24.99",
-    promoDate: "11.01 23:59",
-  },
-];
+import { useStarterPacks } from "@/hooks/useStarterPacks";
+import { getItemIconSrc, getBadgeSrc } from "@/lib/starterPackIcons";
 
 const tierBadgeStyles: Record<string, string> = {
   basic: "from-zinc-400 via-zinc-300 to-zinc-500",
@@ -137,7 +25,23 @@ const tierBorderStyles: Record<string, string> = {
   elite: "border-red-500/50 hover:border-red-400",
 };
 
+const tierBgStyles: Record<string, string> = {
+  basic: "bg-gradient-to-b from-zinc-800/50 to-zinc-900/80",
+  improved: "bg-gradient-to-b from-amber-900/30 to-zinc-900/80",
+  premium: "bg-gradient-to-b from-red-900/30 to-zinc-900/80",
+  elite: "bg-gradient-to-b from-purple-900/50 to-purple-950/80",
+};
+
+const PACK_NAMES: Record<string, string> = {
+  basic: "BASIC",
+  improved: "IMPROVED",
+  premium: "PREMIUM",
+  elite: "ELITE",
+};
+
 export function StarterPacksSection() {
+  const { packs } = useStarterPacks();
+
   return (
     <section className="py-16 bg-surface-overlay">
       <div className="container mx-auto px-4">
@@ -159,7 +63,7 @@ export function StarterPacksSection() {
 
         {/* Packs Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {starterPacks.map((pack, index) => (
+          {packs.map((pack, index) => (
             <motion.div
               key={pack.id}
               initial={{ opacity: 0, y: 30 }}
@@ -167,7 +71,7 @@ export function StarterPacksSection() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ scale: 1.02, y: -5 }}
-              className={`rounded-lg border-2 ${tierBorderStyles[pack.id]} ${pack.bgClass} ${tierGlowStyles[pack.id]} flex flex-col transition-all duration-500 relative overflow-hidden group`}
+              className={`rounded-lg border-2 ${tierBorderStyles[pack.id] || ""} ${tierBgStyles[pack.id] || ""} ${tierGlowStyles[pack.id] || ""} flex flex-col transition-all duration-500 relative overflow-hidden group`}
             >
               {/* Shimmer effect overlay */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
@@ -217,13 +121,13 @@ export function StarterPacksSection() {
                   transition={{ duration: 0.3 }}
                 >
                   <img 
-                    src={pack.badgeImage} 
-                    alt={`${pack.name} badge`} 
+                    src={getBadgeSrc(pack.id)} 
+                    alt={`${PACK_NAMES[pack.id] || pack.id} badge`} 
                     className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"
                   />
                 </motion.div>
-                <span className="text-xs text-muted-foreground tracking-wider uppercase">{pack.tier}</span>
-                <h3 className="text-xl font-bold text-foreground mt-1">{pack.name}</h3>
+                <span className="text-xs text-muted-foreground tracking-wider uppercase">Beginner's Kit</span>
+                <h3 className="text-xl font-bold text-foreground mt-1">{PACK_NAMES[pack.id] || pack.id.toUpperCase()}</h3>
               </div>
 
               {/* Items List */}
@@ -237,7 +141,7 @@ export function StarterPacksSection() {
                       whileInView={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 + itemIndex * 0.05 }}
                     >
-                      <img src={item.icon} alt="" className="w-5 h-5 object-contain flex-shrink-0 drop-shadow-[0_0_4px_rgba(234,179,8,0.4)]" />
+                      <img src={getItemIconSrc(item.iconKey)} alt="" className="w-5 h-5 object-contain flex-shrink-0 drop-shadow-[0_0_4px_rgba(234,179,8,0.4)]" />
                       <span className="text-muted-foreground">{item.name}</span>
                       <span className={`ml-auto font-semibold ${item.valueColor || "text-foreground"}`}>
                         {item.value}
