@@ -19,6 +19,7 @@ import Contact from "./pages/Contact";
 import Rules from "./pages/Rules";
 import ForgotPassword from "./pages/ForgotPassword";
 import Description from "./pages/Description";
+import { ScrollToTop } from "./components/ScrollToTop";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -32,6 +33,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Toaster />
         <Sonner />
         <Routes>
