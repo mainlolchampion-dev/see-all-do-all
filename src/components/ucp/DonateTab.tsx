@@ -498,13 +498,13 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               )}
 
               {treasureBonus && (
-                <div className="flex items-center gap-3 p-2.5 bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 rounded-xl border border-emerald-500/20">
+                <a href="/description#treasure" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2.5 bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 rounded-xl border border-emerald-500/20 hover:border-emerald-500/40 hover:bg-emerald-500/15 transition-all cursor-pointer group">
                   <img src={treasureChestIcon} alt="Treasures Antharas" className="w-10 h-10 object-contain" />
                   <div className="flex-1">
-                    <span className="font-semibold text-foreground text-sm">Treasures Antharas</span>
+                    <span className="font-semibold text-foreground text-sm group-hover:text-emerald-400 transition-colors">Treasures Antharas ↗</span>
                     <p className="text-xs text-emerald-500/80">x{treasureBonus.count} included!</p>
                   </div>
-                </div>
+                </a>
               )}
 
               {!matchedPackage && (
