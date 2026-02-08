@@ -203,32 +203,10 @@ serve(async (req) => {
     // Query characters for this account
     const characters: Character[] = [];
     
-    // First, check which columns exist in the characters table
-    let hasPvpflag = false;
-    let hasKarma = false;
     try {
-      const columnsResult = await withTimeout(
-        client.query(`SHOW COLUMNS FROM characters WHERE Field IN ('pvpflag', 'karma')`),
-        QUERY_TIMEOUT_MS,
-        "MySQL check columns"
-      );
-      for (const col of columnsResult) {
-        if (col.Field === 'pvpflag') hasPvpflag = true;
-        if (col.Field === 'karma') hasKarma = true;
-      }
-    } catch (e) {
-      console.log("Could not check columns:", e);
-    }
-
-    try {
-      const extraCols = [
-        hasPvpflag ? 'pvpflag' : '0 as pvpflag',
-        hasKarma ? 'karma' : '0 as karma',
-      ].join(', ');
-
       const result = await withTimeout(
         client.query(
-          `SELECT char_name, classid, level, online, pvpkills, pkkills, ${extraCols}
+          `SELECT char_name, classid, level, online, pvpkills, pkkills, pvpflag, karma 
            FROM characters 
            WHERE account_name = ? 
            ORDER BY level DESC`,

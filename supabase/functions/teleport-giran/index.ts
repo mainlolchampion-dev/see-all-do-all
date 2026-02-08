@@ -108,32 +108,10 @@ serve(async (req) => {
       );
     }
 
-    // Check which optional columns exist
-    let hasPvpflag = false;
-    let hasKarma = false;
-    try {
-      const columnsResult = await withTimeout(
-        client.query(`SHOW COLUMNS FROM characters WHERE Field IN ('pvpflag', 'karma')`),
-        3000,
-        "MySQL check columns"
-      );
-      for (const col of columnsResult) {
-        if (col.Field === 'pvpflag') hasPvpflag = true;
-        if (col.Field === 'karma') hasKarma = true;
-      }
-    } catch (e) {
-      console.log("Could not check columns:", e);
-    }
-
-    const extraCols = [
-      hasPvpflag ? 'pvpflag' : '0 as pvpflag',
-      hasKarma ? 'karma' : '0 as karma',
-    ].join(', ');
-
     // Verify the character belongs to this account and check status
     const charResult = await withTimeout(
       client.query(
-        `SELECT char_name, account_name, online, ${extraCols} FROM characters WHERE char_name = ? LIMIT 1`,
+        `SELECT char_name, account_name, online, pvpflag, karma FROM characters WHERE char_name = ? LIMIT 1`,
         [charName]
       ),
       3000,
