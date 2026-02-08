@@ -14,6 +14,8 @@ interface Character {
   online: boolean;
   pvpkills: number;
   pkkills: number;
+  pvpflag: number;
+  karma: number;
 }
 
 interface AccountData {
@@ -204,7 +206,7 @@ serve(async (req) => {
     try {
       const result = await withTimeout(
         client.query(
-          `SELECT char_name, classid, level, online, pvpkills, pkkills 
+          `SELECT char_name, classid, level, online, pvpkills, pkkills, pvpflag, karma 
            FROM characters 
            WHERE account_name = ? 
            ORDER BY level DESC`,
@@ -222,6 +224,8 @@ serve(async (req) => {
           online: row.online === 1,
           pvpkills: row.pvpkills || 0,
           pkkills: row.pkkills || 0,
+          pvpflag: row.pvpflag || 0,
+          karma: row.karma || 0,
         });
       }
     } catch (queryError) {
@@ -274,6 +278,8 @@ serve(async (req) => {
       online: char.online,
       pvpkills: char.pvpkills,
       pkkills: char.pkkills,
+      pvpflag: char.pvpflag,
+      karma: char.karma,
     }));
 
     const accountData: AccountData = {
