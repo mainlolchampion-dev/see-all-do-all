@@ -46,7 +46,7 @@ const COIN_PACKAGES = [
   { coins: 25000, bonus: 2500, total: 27500, price: 250 },
 ];
 
-const MIN_COINS = 100;
+const MIN_COINS = 500;
 const MAX_COINS = 25000;
 const COINS_PER_EURO = 100;
 const BONUS_PERCENTAGE = 0.10;
