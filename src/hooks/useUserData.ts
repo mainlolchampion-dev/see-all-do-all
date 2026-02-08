@@ -9,8 +9,6 @@ export interface Character {
   online: boolean;
   pvpkills: number;
   pkkills: number;
-  pvpflag: number;
-  karma: number;
 }
 
 export interface UserData {
