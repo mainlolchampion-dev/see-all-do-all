@@ -333,10 +333,6 @@ export function DonateTab({ linkedLogin, characters }: DonateTabProps) {
               </div>
               <div>
                 <h2 className="font-display text-lg font-bold text-foreground">Choose Amount</h2>
-                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-primary" />
-                  1€ = 100 coins + 10% bonus
-                </p>
               </div>
             </div>
 
