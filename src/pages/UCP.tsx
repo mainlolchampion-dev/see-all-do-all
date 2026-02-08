@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   User, Settings, Sword, History, CreditCard, LogOut, ChevronRight,
-  Key, Mail, Lock, UserCircle, Loader2, Package, Gift, Check
+  Key, Mail, Lock, UserCircle, Loader2, Package, Gift, Check, MapPin
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserData } from "@/hooks/useUserData";
+import { useUserData, type Character } from "@/hooks/useUserData";
 import { useDonationHistory } from "@/hooks/useDonationHistory";
 import { useToast } from "@/hooks/use-toast";
 import { DonateTab } from "@/components/ucp/DonateTab";
@@ -27,6 +27,102 @@ const sidebarLinks = [
   { icon: Package, label: "Starter Packs", tab: "starter-packs" },
   { icon: Settings, label: "Settings", tab: "settings" },
 ];
+
+function CharacterCard({ char, onTeleported }: { char: Character; onTeleported: () => void }) {
+  const [isTeleporting, setIsTeleporting] = useState(false);
+  const { toast } = useToast();
+  
+  const isPvpFlagged = char.pvpflag === 1;
+  const hasKarma = char.karma > 0;
+  const isOnline = char.online;
+  const canTeleport = !isPvpFlagged && !hasKarma && !isOnline;
+  
+  const getTeleportTooltip = () => {
+    if (isOnline) return "Character must be offline";
+    if (isPvpFlagged) return "PvP flagged — cannot teleport";
+    if (hasKarma) return "Has karma — cannot teleport";
+    return "Teleport to Giran";
+  };
+
+  const handleTeleport = async () => {
+    if (!canTeleport || isTeleporting) return;
+    
+    setIsTeleporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("teleport-giran", {
+        body: { charName: char.name },
+      });
+      
+      if (error) {
+        throw new Error(error.message || "Teleport failed");
+      }
+      
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+      
+      toast({
+        title: "Teleport Successful!",
+        description: data?.message || `${char.name} will appear in Giran on next login.`,
+      });
+      onTeleported();
+    } catch (err: any) {
+      toast({
+        title: "Teleport Failed",
+        description: err.message || "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTeleporting(false);
+    }
+  };
+
+  return (
+    <div className="gaming-card rounded-xl p-6">
+      <div className="flex items-center gap-4 mb-4">
+        <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center">
+          <Sword className="w-7 h-7 text-primary" />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-semibold flex items-center gap-2">
+            {char.name}
+            {char.online && <span className="w-2 h-2 rounded-full bg-emerald-500" />}
+          </h3>
+          <p className="text-sm text-muted-foreground">{char.class}</p>
+        </div>
+      </div>
+      <div className="space-y-2 mb-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Level</span>
+          <span className="font-bold text-primary">{char.level}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">PvP Kills</span>
+          <span className="font-semibold">{char.pvpkills}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">PK Kills</span>
+          <span className="font-semibold text-destructive">{char.pkkills}</span>
+        </div>
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full gap-2"
+        disabled={!canTeleport || isTeleporting}
+        onClick={handleTeleport}
+        title={getTeleportTooltip()}
+      >
+        {isTeleporting ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <MapPin className="w-4 h-4" />
+        )}
+        {isTeleporting ? "Teleporting..." : "Teleport Giran"}
+      </Button>
+    </div>
+  );
+}
 
 export default function UCP() {
   const [searchParams] = useSearchParams();
@@ -308,34 +404,7 @@ export default function UCP() {
                   {userData?.characters && userData.characters.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {userData.characters.map((char) => (
-                        <div key={char.name} className="gaming-card rounded-xl p-6">
-                          <div className="flex items-center gap-4 mb-4">
-                            <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center">
-                              <Sword className="w-7 h-7 text-primary" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold flex items-center gap-2">
-                                {char.name}
-                                {char.online && <span className="w-2 h-2 rounded-full bg-green-500" />}
-                              </h3>
-                              <p className="text-sm text-muted-foreground">{char.class}</p>
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">Level</span>
-                              <span className="font-bold text-primary">{char.level}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">PvP Kills</span>
-                              <span className="font-semibold">{char.pvpkills}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">PK Kills</span>
-                              <span className="font-semibold text-destructive">{char.pkkills}</span>
-                            </div>
-                          </div>
-                        </div>
+                        <CharacterCard key={char.name} char={char} onTeleported={refetch} />
                       ))}
                     </div>
                   ) : (
