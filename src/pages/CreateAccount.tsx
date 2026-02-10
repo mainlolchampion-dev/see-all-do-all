@@ -74,7 +74,22 @@ export default function CreateAccount() {
         }
       });
 
-      if (l2Error) throw l2Error;
+      // The function returns non-2xx for validation/conflict errors,
+      // but the data still contains the specific error message
+      if (l2Error) {
+        // Try to extract specific error from response data
+        const specificError = l2Data?.error;
+        if (specificError) {
+          toast({
+            title: "Account creation error",
+            description: specificError,
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+        throw l2Error;
+      }
       
       if (l2Data?.error) {
         toast({
