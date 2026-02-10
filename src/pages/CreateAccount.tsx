@@ -43,10 +43,10 @@ export default function CreateAccount() {
     }
 
     // Validate password length
-    if (formData.password.length < 6) {
+    if (formData.password.length < 6 || formData.password.length > 16) {
       toast({
         title: "Invalid password",
-        description: "Password must be at least 6 characters",
+        description: "Password must be between 6 and 16 characters",
         variant: "destructive",
       });
       return;
@@ -208,10 +208,11 @@ export default function CreateAccount() {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="At least 6 characters"
+                    placeholder="6-16 characters"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="pl-10 pr-10 h-12"
+                    maxLength={16}
                     required
                   />
                   <button
@@ -236,6 +237,7 @@ export default function CreateAccount() {
                     value={formData.confirmPassword}
                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                     className="pl-10 h-12"
+                    maxLength={16}
                     required
                   />
                 </div>
